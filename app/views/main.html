@@ -1,1 +1,86 @@
 <h1>Salary Simulator</h1>
+
+<form class="form">
+    <div class="form-group">
+        <label>Statut</label>
+        <div>
+            <div class="radio">
+                <label>
+                    <input type="radio" ng-model="status" value="worker"> Ouvrier
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" ng-model="status" value="employee"> Employé
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Régime de travail</label>
+        <div>
+            <div class="radio">
+                <label>
+                    <input type="radio" ng-model="workRegime" value="full"> Temps plein
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" ng-model="workRegime" value="partial"> Temps partiel
+                </label>
+            </div>
+            <div class="form-inline form-subitem" ng-show="workRegime == 'partial'">
+                <div class="form-group">
+                    <input type="number" class="form-control" ng-model="partialHours"> heures prestées par rapport à <input type="number" class="form-control" ng-model="partialTotalHours"> heures/temps plein
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Situation familiale</label>
+        <div class="radio">
+            <label>
+                <input type="radio" ng-model="familySituation" value="isolated"> Isolé
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" ng-model="familySituation" value="maried_or_cohabitant_1"> Marié ou avec contrat de cohabitation légale (1 revenu)
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+                <input type="radio" ng-model="familySituation" value="maried_or_cohabitant_2"> Marié ou avec contrat de cohabitation légale (2 revenus)
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Divers</label>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="disabled"> Je suis handicapé
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="dependentChildren"> Enfants à charge
+            </label>
+        </div>
+        <div class="form-inline form-subitem" ng-show="dependentChildren">
+            <input type="number" class="form-control" ng-model="numDependentChildren"> enfant(s) à charge dont <input type="number" class="form-control" ng-model="numDisabledDependentChildren"> handicapé(s)
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Revenu brut mensuel</label>
+        <div class="input-group">
+            <input type="number" class="form-control" ng-model="grossSalary">
+            <div class="input-group-addon">€</div>
+        </div>
+    </div>
+    <button class="btn btn-primary" ng-click="calculateNetSalary()">Calculer</button>
+    <div ng-show="result">
+        <h2>Salaire net</h2>
+
+        <p>{{netSalary}}&nbsp;€</p>
+    </div>
+</form>

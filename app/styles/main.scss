@@ -2,3 +2,11 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 // bower:scss
 @import "../../bower_components/bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
 // endbower
+
+footer {
+    margin-top: 50px;
+}
+
+.form-subitem {
+    margin-left: 20px;
+}
