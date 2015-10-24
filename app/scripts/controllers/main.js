@@ -8,10 +8,10 @@
  * Controller of the salarySimApp
  */
 angular.module('salarySimApp')
-  .controller('MainCtrl', function () {
-    this.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
-  });
+    .controller('MainCtrl', function ($scope) {
+        $scope.result = false;
+
+        $scope.calculateNetSalary = function() {
+            $scope.result = true;
+        };
+    });
