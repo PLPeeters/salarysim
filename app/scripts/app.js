@@ -13,7 +13,8 @@ angular
     'ngCookies',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'nvd3'
   ])
   .config(function ($routeProvider) {
     $routeProvider
