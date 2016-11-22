@@ -14,6 +14,20 @@ angular.module('salarySimApp')
 
         $scope.salaryData = [];
         $scope.salaryRelativeData = [];
+
+        $scope.rangeMin = 1500;
+        $scope.rangeMax = 5000;
+        $scope.rangeStep = 100;
+
+        $scope.rangeOptions = {
+            'min': 1500,
+            'max': 5000,
+            'step': 100
+        };
+
+        $scope.groupInsurance = false;
+        $scope.groupInsurancePersonalCotisation = 0;
+
         $scope.chartOptions = {
             chart: {
                 type: 'multiChart',
@@ -25,7 +39,11 @@ angular.module('salarySimApp')
                     left: 100
                 },
                 useInteractiveGuideline: true,
+                showControls: false,
                 transitionDuration: 500,
+                lines1: {
+                    padData: true
+                },
                 xAxis: {
                     axisLabel: 'Salaire brut',
                     tickFormat: function(d){
@@ -50,19 +68,42 @@ angular.module('salarySimApp')
             }
         };
 
-        $scope.rangeMin = 1500;
-        $scope.rangeMax = 5000;
-        $scope.rangeStep = 100;
-
-        $scope.rangeOptions = {
-            'min': 1600,
-            'max': 5000,
-            'step': 100
+        $scope.raiseChartOptions = {
+            chart: {
+                type: 'multiBarChart',
+                height: 500,
+                margin: {
+                    top: 20,
+                    right: 100,
+                    bottom: 50,
+                    left: 100
+                },
+                useInteractiveGuideline: true,
+                showControls: false,
+                transitionDuration: 500,
+                interactiveLayer: {
+                    tooltip: {
+                        valueFormatter: function (d) {
+                            return d3.format('.1f')(d) + "%";
+                        }
+                    }
+                },
+                xAxis: {
+                    axisLabel: 'Nouveau salaire brut',
+                    tickFormat: function(d){
+                        return d3.format(',f')(d);
+                    }
+                },
+                yAxis: {
+                    axisLabel: "Augmentation perçue (%)",
+                    tickFormat: function (d) {
+                        return d3.format('.1f')(d) + "%";
+                    },
+                    forceY: [0]
+                },
+                yDomain: [0, 100]
+            }
         };
-
-        // TODO UN-HARD-CODE
-        $scope.groupInsurance = false;
-        $scope.groupInsurancePersonalCotisation = 0;
 
         $scope.setRangeOptions = function (min, max, step) {
             $scope.rangeOptions.min = min;
@@ -130,10 +171,10 @@ angular.module('salarySimApp')
                     'y': Math.round(result.withHoldingRatio * 100) / 100
                 });
 
-                if (typeof previousResult !== 'undefined') {
+                if (typeof previousResult !== 'undefined' && salary > $scope.result.grossSalary) {
                     percentagesOfIncreasesPerceived.push({
                         'x': salary,
-                        'y': Math.round((result.netSalary - previousResult.netSalary) / $scope.rangeOptions.step * 10000) / 100
+                        'y': Math.round((result.netSalary - $scope.result.netSalary) / (salary - $scope.result.grossSalary) * 10000) / 100
                     });
                 }
 
@@ -207,15 +248,9 @@ angular.module('salarySimApp')
             $scope.salaryRelativeData = [
                 {
                     'values': percentagesOfIncreasesPerceived,
-                    'key': "Pourcentage d'augmentation réellement perçu",
-                    'color': 'red',
-                    'type': 'bar',
-                    'yAxis': 2
+                    'key': "Augmentation perçue"
                 }
             ];
-
-            $timeout($scope.api.refresh); // Why on earth is this required?
-            $timeout($scope.api2.refresh); // Why on earth is this required?
         };
 
         let flatRateProfessionalExpenseTiers = [
