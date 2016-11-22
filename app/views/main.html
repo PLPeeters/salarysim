@@ -24,9 +24,9 @@
                     <input type="radio" ng-model="workRegime" value="full"> Temps plein
                 </label>
             </div>
-            <div class="radio">
-                <label>
-                    <input type="radio" ng-model="workRegime" value="partial"> Temps partiel
+            <div class="radio disabled">
+                <label class="text-muted">
+                    <input type="radio" ng-model="workRegime" value="partial" disabled> Temps partiel (pas encore disponible)
                 </label>
             </div>
             <div class="form-inline form-subitem" ng-show="workRegime == 'partial'">
@@ -43,9 +43,9 @@
                 <input type="radio" ng-model="familySituation" value="isolated"> Isolé
             </label>
         </div>
-        <div class="radio">
-            <label>
-                <input type="radio" ng-model="familySituation" value="married_or_cohabitant_1_salary"> Marié ou avec contrat de cohabitation légale (1 revenu)
+        <div class="radio disabled">
+            <label class="text-muted">
+                <input type="radio" ng-model="familySituation" value="married_or_cohabitant_1_salary" disabled> Marié ou avec contrat de cohabitation légale (1 revenu &mdash; pas encore disponible)
             </label>
         </div>
         <div class="radio">
