@@ -395,6 +395,11 @@ module.exports = function (grunt) {
                     ]
                 }, {
                     expand: true,
+                    cwd: '.tmp/concat/scripts',
+                    dest: '<%= yeoman.dist %>/scripts',
+                    src: ['*.js']
+                }, {
+                    expand: true,
                     cwd: '.tmp/images',
                     dest: '<%= yeoman.dist %>/images',
                     src: ['generated/*']
@@ -423,8 +428,8 @@ module.exports = function (grunt) {
             ],
             dist: [
                 'sass:dist',
-                'imagemin',
-                'svgmin'
+                // 'imagemin',
+                // 'svgmin'
             ]
         },
 
@@ -479,7 +484,7 @@ module.exports = function (grunt) {
         'copy:dist',
         'cdnify',
         'cssmin',
-        'uglify',
+        // 'uglify',
         'filerev',
         'usemin',
         'htmlmin'
