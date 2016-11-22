@@ -116,6 +116,8 @@ angular.module('salarySimApp')
         };
 
         $scope.computeSalarySimulations = function() {
+            $scope.computingSimulations = true;
+
             let grossSalaries = [];
             let netSalaries = [];
             let taxableIncomes = [];
@@ -251,6 +253,10 @@ angular.module('salarySimApp')
                     'key': "Augmentation perçue"
                 }
             ];
+
+            $scope.computingSimulations = false;
+            $timeout($scope.api.refresh); // FIXME Shouldn't be required
+            $timeout($scope.api2.refresh); // FIXME Shouldn't be required
         };
 
         let flatRateProfessionalExpenseTiers = [
