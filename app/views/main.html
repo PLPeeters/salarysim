@@ -144,7 +144,7 @@
             </div>
         </form>
         <input type="checkbox" ng-model="simulateNoEmploymentBonus" ng-change="computeSalarySimulations()"> Simuler l'absence de bonus à l'emploi<br>
-        <input type="checkbox" ng-model="simulateRealImposition" ng-change="computeSalarySimulations()"> Simuler la <i>véritable</i> non-imposition des premiers {{6030 | number}} euros
+        <input type="checkbox" ng-model="simulateRealImposition" ng-change="computeSalarySimulations()"> Simuler la <i>véritable</i> non-imposition des premiers {{6060 | number}} euros
 
         <nvd3 options="chartOptions" data="salaryData" api="$parent.api" ng-if="!computingSimulations"></nvd3>
         <nvd3 options="raiseChartOptions" data="salaryRelativeData" api="$parent.api2" ng-if="!computingSimulations"></nvd3>

@@ -1,6 +1,6 @@
 # Salary sim
 
-The net salary calculator you didn't know you needed. A unique feature of this calculator is the ability to display a graph of the evolution of your net salary as your gross salary increases.
+The belgian net salary calculator you didn't know you needed. A unique feature of this calculator is the ability to display a graph of the evolution of your net salary as your gross salary increases.
 
 ## Known issues
 
