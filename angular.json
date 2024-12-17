@@ -97,6 +97,12 @@
             ],
             "scripts": []
           }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "https://plpeeters.github.io/salarysim/",
+          }
         }
       }
     }
