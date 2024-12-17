@@ -266,8 +266,8 @@
 
   <mat-card *ngIf="chartData" class="charts-card">
     <mat-card-header>
-      <mat-card-title>Perceived increase from {{graphsStep}} € less gross</mat-card-title>
-      <mat-card-subtitle>This graph show the proportional net increase for an increase of {{graphsStep}} € from the previous step.<br>For instance, the point at {{2500 | number}} € is the relative net increase for a gross increase from {{2500 - graphsStep | number}} € to {{2500 | number }} €.</mat-card-subtitle>
+      <mat-card-title>Relative net increase for {{graphsStep}} € more gross by initial salary</mat-card-title>
+      <mat-card-subtitle>This graph shows the proportional net increase for a gross increase of {{graphsStep}} €.<br>For instance, the point at {{2500 | number}} € is the relative net increase for a gross increase from {{2500 | number}} € to {{2500 + graphsStep | number }} €.</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
@@ -280,7 +280,7 @@
         [yAxis]="true"
         [legend]="true"
         xAxisLabel="New Gross Salary"
-        yAxisLabel="Perceived Increase (%)"
+        yAxisLabel="Net Increase (%)"
         [animations]="true"
         [showGridLines]="true"
         [roundDomains]="true"
