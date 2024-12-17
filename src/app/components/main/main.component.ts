@@ -550,11 +550,25 @@ export class MainComponent implements OnInit {
     this.relativeChartData = [{
       name: 'Perceived Increase',
       series: salaries
-        .slice(1)
         .map((salary, index) => {
+          let nextGross;
+          let nextNet;
+
+          if (index < salaries.length - 1) {
+            nextGross = salaries[index + 1].taxation.grossSalary;
+            nextNet = salaries[index + 1].taxation.netSalary;
+          } else {
+            nextGross = salary.gross + this.graphsStep
+
+            nextNet = this.calculateNetSalary({
+              ...this.salaryForm.value,
+              grossSalary: nextGross
+            }).netSalary;
+          }
+
           return {
             name: salary.gross,
-            value: ((salary.taxation.netSalary - salaries[index].taxation.netSalary) / (salary.gross - salaries[index].gross)) * 100
+            value: (nextNet - salary.taxation.netSalary) / (nextGross - salary.gross) * 100
           };
         })
     }];
