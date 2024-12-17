@@ -1,0 +1,89 @@
+[matlistitemtitle] a {
+  cursor: pointer;
+  color: blue;
+  font-size: 80%;
+  margin-left: 16px;
+}
+
+mat-card-header {
+  margin-bottom: 32px;
+}
+
+mat-card-subtitle {
+  font-weight: normal;
+  font-style: italic;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.radio,
+.checkbox {
+  margin-bottom: 0.5rem;
+}
+
+.form-inline {
+  margin-top: 0.5rem;
+}
+
+dl {
+  margin-top: 2rem;
+}
+
+dt {
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+mat-card {
+  margin-bottom: 20px;
+}
+
+mat-card-subtitle {
+  margin-top: 20px;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.checkbox-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.children-inputs {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+button[type="submit"] {
+  margin: 20px 0;
+}
+
+.results-card mat-list-item {
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.charts-card {
+  overflow: hidden;
+}
