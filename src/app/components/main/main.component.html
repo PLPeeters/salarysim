@@ -1,0 +1,297 @@
+<div class="container mat-elevation-z4">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Salary Simulator</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="salaryForm" (ngSubmit)="onSubmit()">
+        <!-- Status -->
+        <mat-card-subtitle>Status</mat-card-subtitle>
+        <mat-radio-group formControlName="status" class="radio-group">
+          <mat-radio-button value="worker">Worker</mat-radio-button>
+          <mat-radio-button value="employee">Employee</mat-radio-button>
+        </mat-radio-group>
+
+        <!-- Work Regime -->
+        <mat-card-subtitle>Work Regime</mat-card-subtitle>
+        <mat-radio-group formControlName="workRegime" class="radio-group">
+          <mat-radio-button value="full">Full Time</mat-radio-button>
+        </mat-radio-group>
+
+        <!-- Family Situation -->
+        <mat-card-subtitle>Family Situation</mat-card-subtitle>
+        <mat-radio-group formControlName="familySituation" class="radio-group">
+          <mat-radio-button value="isolated">Isolated</mat-radio-button>
+          <mat-radio-button value="married_or_cohabitant_2_incomes">
+            Married or Legal Cohabitation (2 incomes)
+          </mat-radio-button>
+          <mat-radio-button value="married_or_cohabitant_1_income">
+            Married or Legal Cohabitation (1 income)
+          </mat-radio-button>
+        </mat-radio-group>
+
+        <!-- Various Options -->
+        <mat-card-subtitle>Various</mat-card-subtitle>
+        <div class="checkbox-section">
+          <mat-checkbox formControlName="disabled">
+            I am disabled
+          </mat-checkbox>
+
+          <mat-checkbox formControlName="dependentChildren">
+            Dependent children
+          </mat-checkbox>
+
+          <div *ngIf="salaryForm.get('dependentChildren')?.value" class="children-inputs">
+            <mat-form-field appearance="outline">
+              <mat-label>Number of dependent children</mat-label>
+              <input matInput type="number" formControlName="numDependentChildren">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Number of disabled dependent children</mat-label>
+              <input matInput type="number" formControlName="numDisabledDependentChildren">
+            </mat-form-field>
+          </div>
+
+          <mat-checkbox formControlName="groupInsurance">
+            Group Insurance (personal contribution)
+          </mat-checkbox>
+
+          <div *ngIf="salaryForm.get('groupInsurance')?.value">
+            <mat-form-field appearance="outline">
+              <mat-label>Personal Contribution (€)</mat-label>
+              <input matInput type="number" step="0.01" formControlName="groupInsurancePersonalCotisation">
+              <span matSuffix>€</span>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Monthly Gross Income -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Monthly Gross Income</mat-label>
+          <input matInput type="number" step="0.01" formControlName="grossSalary">
+          <span matSuffix>€</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Othet Net Income</mat-label>
+          <input matInput type="number" step="0.01" formControlName="otherNetIncome">
+          <span matSuffix>€</span>
+        </mat-form-field>
+
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="!salaryForm.valid">
+          <mat-icon>calculate</mat-icon> Calculate
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Results Section -->
+  <mat-card *ngIf="result" class="results-card">
+    <mat-card-header>
+      <mat-card-title>Net Salary</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-list>
+        <mat-list-item>
+          <span matListItemTitle>Gross Salary</span>
+          <span matListItemLine>{{result.grossSalary | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListItemIcon>remove</mat-icon>
+          <span matListItemTitle>Personal Social Contributions (O.N.S.S.)</span>
+          <span matListItemLine>{{result.socialCotisations | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        @if (result.employmentBonus > 0) {
+          <mat-list-item>
+            <mat-icon matListItemIcon>remove</mat-icon>
+            <span matListItemTitle>Employment Bonus</span>
+            <span matListItemLine>{{result.employmentBonus | number:'1.2-2'}} €</span>
+          </mat-list-item>
+        }
+
+        <mat-list-item>
+          <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
+          <span matListItemTitle>Taxable Gross Income</span>
+          <span matListItemLine>{{result.taxableIncome | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListItemIcon>remove</mat-icon>
+          <span matListItemTitle>
+            Professional Withholding Tax
+            <a (click)="showWithHoldingTaxBreakdown =! showWithHoldingTaxBreakdown">
+              @if (showWithHoldingTaxBreakdown) {
+                hide
+              } @else {
+                show
+              }
+
+              breakdown
+            </a>
+          </span>
+          <span matListItemLine>{{result.monthlyTaxes | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        @if (showWithHoldingTaxBreakdown) {
+          <mat-list-item>
+            <mat-icon matListItemIcon class="material-symbols-outlined" style="align-self: baseline">
+              subdirectory_arrow_right
+            </mat-icon>
+            <table matListItemTitle mat-table [dataSource]="result.monthlyTaxesByTier">
+              <ng-container matColumnDef="taxBracket">
+                <th mat-header-cell *matHeaderCellDef>Percentage</th>
+                <td mat-cell *matCellDef="let monthlyTaxesForTier">{{monthlyTaxesForTier.percentage}} %</td>
+              </ng-container>
+
+              <ng-container matColumnDef="toTax">
+                <th mat-header-cell *matHeaderCellDef>To tax</th>
+                <td mat-cell *matCellDef="let monthlyTaxesForTier">{{monthlyTaxesForTier.toTax | number}} €</td>
+              </ng-container>
+
+              <ng-container matColumnDef="taxes">
+                <th mat-header-cell *matHeaderCellDef>Taxes</th>
+                <td mat-cell *matCellDef="let monthlyTaxesForTier">{{monthlyTaxesForTier.taxes | number}} €</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['taxBracket', 'toTax', 'taxes']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['taxBracket', 'toTax', 'taxes'];"></tr>
+            </table>
+          </mat-list-item>
+        }
+
+        <mat-list-item *ngIf="result.monthlyTaxReductionsForGroupInsurance > 0">
+          <mat-icon matListItemIcon>add</mat-icon>
+          <span matListItemTitle>Professional Withholding Tax Reductions for Group Insurance</span>
+          <span matListItemLine>{{result.monthlyTaxReductionsForGroupInsurance | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        <mat-list-item *ngIf="result.monthlyTaxReductionsForLowSalaries > 0">
+          <mat-icon matListItemIcon>add</mat-icon>
+          <span matListItemTitle>Professional Withholding Tax Reductions for Low Salaries</span>
+          <span matListItemLine>{{result.monthlyTaxReductionsForLowSalaries | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        <mat-list-item *ngIf="result.otherMonthlyTaxReductions > 0">
+          <mat-icon matListItemIcon>add</mat-icon>
+          <span matListItemTitle>Other Professional Withholding Tax Reductions</span>
+          <span matListItemLine>{{result.otherMonthlyTaxReductions | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListItemIcon>remove</mat-icon>
+          <span matListItemTitle>Special Social Security Contribution</span>
+          <span matListItemLine>{{result.specialSocialCotisations | number:'1.2-2'}} €</span>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
+          <span matListItemTitle>Net Salary</span>
+          <span matListItemLine>{{result.netSalary | number:'1.2-2'}} €</span>
+        </mat-list-item>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Charts Section -->
+  <mat-card *ngIf="chartData" class="charts-card">
+    <mat-card-header>
+      <mat-card-title>Configuration</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Start</mat-label>
+          <input matInput type="number" [step]="graphsStep" [(ngModel)]="graphsStartingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
+          <span matSuffix>€</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>End</mat-label>
+          <input matInput type="number" [step]="graphsStep" min="graphsStartingSalary" [(ngModel)]="graphsEndingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
+          <span matSuffix>€</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Step</mat-label>
+          <input matInput type="number" step="10" min="10" [(ngModel)]="graphsStep" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
+          <span matSuffix>€</span>
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="chartData" class="charts-card">
+    <mat-card-header>
+      <mat-card-title>Gross to Net Evolution</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content #ContainerRef>
+      <ngx-charts-line-chart
+        [view]="[ContainerRef.offsetWidth - 32, 400]"
+        [scheme]="'vivid'"
+        [results]="chartData"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true"
+        xAxisLabel="Gross Salary"
+        yAxisLabel="Amount"
+        [animations]="true"
+        [showGridLines]="true"
+        [roundDomains]="true"
+        [xAxisTickFormatting]="formatAmount"
+        [yAxisTickFormatting]="formatAmount"
+        [rotateXAxisTicks]="true"
+        [timeline]="true"
+        [tooltipDisabled]="false">
+      </ngx-charts-line-chart>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="chartData" class="charts-card">
+    <mat-card-header>
+      <mat-card-title>Average Tax Rate Evolution</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content #ContainerRef>
+      <ngx-charts-line-chart *ngIf="averageTaxRateChartData" [view]="[ContainerRef.offsetWidth - 32, 400]" [scheme]="'vivid'" [results]="averageTaxRateChartData" [xAxis]="true" [yAxis]="true" [legend]="true" xAxisLabel="Gross Salary" yAxisLabel="Average Tax (%)" [animations]="true" [showGridLines]="true" [roundDomains]="true" [xAxisTickFormatting]="formatAmount" [yAxisTickFormatting]="formatPct" [rotateXAxisTicks]="true" [timeline]="true" [tooltipDisabled]="false">
+      </ngx-charts-line-chart>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="chartData" class="charts-card">
+    <mat-card-header>
+      <mat-card-title>Perceived increase from {{graphsStep}} € less gross</mat-card-title>
+      <mat-card-subtitle>This graph show the proportional net increase for an increase of {{graphsStep}} € from the previous step.<br>For instance, the point at {{2500 | number}} € is the relative net increase for a gross increase from {{2500 - graphsStep | number}} € to {{2500 | number }} €.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content #ContainerRef>
+      <ngx-charts-line-chart
+        *ngIf="relativeChartData"
+        [view]="[ContainerRef.offsetWidth - 32, 400]"
+        [scheme]="'vivid'"
+        [results]="relativeChartData"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true"
+        xAxisLabel="New Gross Salary"
+        yAxisLabel="Perceived Increase (%)"
+        [animations]="true"
+        [showGridLines]="true"
+        [roundDomains]="true"
+        [xAxisTickFormatting]="formatAmount"
+        [yAxisTickFormatting]="formatPct"
+        [yScaleMin]="0"
+        [yScaleMax]="100"
+        [rotateXAxisTicks]="true"
+        [timeline]="true"
+        [tooltipDisabled]="false">
+      </ngx-charts-line-chart>
+    </mat-card-content>
+  </mat-card>
+</div>
