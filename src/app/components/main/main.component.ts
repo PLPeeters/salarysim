@@ -591,14 +591,14 @@ export class MainComponent implements OnInit {
   }
 
   formatPct(value: any) {
-    return `${value.toLocaleString()} %`
+    return `${value.toFixed(1).toLocaleString()}%`
   }
 
   formatPctRelative(value: any) {
     if (value > 0) {
-      return `+${value.toLocaleString()} %`
+      return `+${value.toFixed(1).toLocaleString()}%`
     } else {
-      return `${value.toLocaleString()} %`
+      return `${value.toFixed(1).toLocaleString()}%`
     }
   }
 }

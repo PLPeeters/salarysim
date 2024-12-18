@@ -249,6 +249,19 @@
         [rotateXAxisTicks]="true"
         [timeline]="true"
         [tooltipDisabled]="false">
+        <ng-template #tooltipTemplate let-model="model">
+          <div class="tooltip-label">{{formatAmount(model.name)}}</div>
+          <div class="tooltip-val">{{formatAmount(model.value)}}</div>
+        </ng-template>
+
+        <ng-template #seriesTooltipTemplate let-series="model">
+          @for (singleSeries of series; track $index) {
+          <div class="tooltip-item">
+            <div class="tooltip-item-color" [style]="{'background-color': singleSeries.color}"></div>
+            <span>{{singleSeries.series}}: {{formatAmount(singleSeries.value)}}</span>
+          </div>
+          }
+        </ng-template>
       </ngx-charts-line-chart>
     </mat-card-content>
   </mat-card>
@@ -259,7 +272,39 @@
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
-      <ngx-charts-line-chart *ngIf="averageTaxRateChartData" [view]="[ContainerRef.offsetWidth - 32, 400]" [scheme]="'vivid'" [results]="averageTaxRateChartData" [xAxis]="true" [yAxis]="true" [legend]="true" xAxisLabel="Gross Salary" yAxisLabel="Average Tax (%)" [animations]="true" [showGridLines]="true" [roundDomains]="true" [xAxisTickFormatting]="formatAmount" [yAxisTickFormatting]="formatPct" [rotateXAxisTicks]="true" [timeline]="true" [tooltipDisabled]="false">
+      <ngx-charts-line-chart
+        *ngIf="averageTaxRateChartData"
+        [view]="[ContainerRef.offsetWidth - 32, 400]"
+        [scheme]="'vivid'"
+        [results]="averageTaxRateChartData"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true" xAxisLabel="Gross Salary" yAxisLabel="Average Tax (%)"
+        [animations]="true"
+        [showGridLines]="true"
+        [roundDomains]="true"
+        [xAxisTickFormatting]="formatAmount"
+        [yAxisTickFormatting]="formatPct"
+        [rotateXAxisTicks]="true"
+        [timeline]="true"
+        [tooltipDisabled]="false">
+        <ng-template #tooltipTemplate let-model="model">
+          <div class="tooltip-label">{{formatAmount(model.name)}}</div>
+          <div class="tooltip-val">{{formatPct(model.value)}}</div>
+        </ng-template>
+
+        <ng-template #seriesTooltipTemplate let-series="model">
+          <div class="tooltip-label">
+            <div>{{formatAmount(series[0].name)}}</div>
+          </div>
+
+          @for (singleSeries of series; track $index) {
+          <div class="tooltip-item">
+            <div class="tooltip-item-color" [style]="{'background-color': singleSeries.color}"></div>
+            <span>{{singleSeries.series}}: {{formatPct(singleSeries.value)}}</span>
+          </div>
+          }
+        </ng-template>
       </ngx-charts-line-chart>
     </mat-card-content>
   </mat-card>
@@ -291,6 +336,23 @@
         [rotateXAxisTicks]="true"
         [timeline]="true"
         [tooltipDisabled]="false">
+        <ng-template #tooltipTemplate let-model="model">
+          <div class="tooltip-label">{{formatAmount(model.name)}}</div>
+          <div class="tooltip-val">{{formatPctRelative(model.value)}}</div>
+        </ng-template>
+
+        <ng-template #seriesTooltipTemplate let-series="model">
+            <div class="tooltip-label">
+              <div>{{formatAmount(series[0].name)}}</div>
+            </div>
+
+            @for (singleSeries of series; track $index) {
+              <div class="tooltip-item">
+                <div class="tooltip-item-color" [style]="{'background-color': singleSeries.color}"></div>
+                <span>{{singleSeries.series}}: {{formatPctRelative(singleSeries.value)}}</span>
+              </div>
+            }
+        </ng-template>
       </ngx-charts-line-chart>
     </mat-card-content>
   </mat-card>
