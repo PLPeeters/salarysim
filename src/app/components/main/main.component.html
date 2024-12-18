@@ -62,7 +62,7 @@
             <mat-form-field appearance="outline">
               <mat-label>Personal Contribution (€)</mat-label>
               <input matInput type="number" step="0.01" formControlName="groupInsurancePersonalCotisation">
-              <span matSuffix>€</span>
+              <mat-icon matSuffix>euro</mat-icon>
             </mat-form-field>
           </div>
         </div>
@@ -71,13 +71,13 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Monthly Gross Income</mat-label>
           <input matInput type="number" step="0.01" formControlName="grossSalary">
-          <span matSuffix>€</span>
+          <mat-icon matSuffix>euro</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Othet Net Income</mat-label>
           <input matInput type="number" step="0.01" formControlName="otherNetIncome">
-          <span matSuffix>€</span>
+          <mat-icon matSuffix>euro</mat-icon>
         </mat-form-field>
 
 
@@ -204,23 +204,23 @@
       <mat-card-title>Configuration</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form>
+      <form fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutGap="8px grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Start</mat-label>
           <input matInput type="number" [step]="graphsStep" [(ngModel)]="graphsStartingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
-          <span matSuffix>€</span>
+          <mat-icon matSuffix>euro</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>End</mat-label>
           <input matInput type="number" [step]="graphsStep" min="graphsStartingSalary" [(ngModel)]="graphsEndingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
-          <span matSuffix>€</span>
+          <mat-icon matSuffix>euro</mat-icon>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Step</mat-label>
           <input matInput type="number" step="10" min="10" [(ngModel)]="graphsStep" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
-          <span matSuffix>€</span>
+          <mat-icon matSuffix>euro</mat-icon>
         </mat-form-field>
       </form>
     </mat-card-content>
@@ -267,7 +267,7 @@
   <mat-card *ngIf="chartData" class="charts-card">
     <mat-card-header>
       <mat-card-title>Relative net increase for {{graphsStep}} € more gross by initial salary</mat-card-title>
-      <mat-card-subtitle>This graph shows the proportional net increase for a gross increase of {{graphsStep}} €.<br>For instance, the point at {{2500 | number}} € is the relative net increase for a gross increase from {{2500 | number}} € to {{2500 + graphsStep | number }} €.</mat-card-subtitle>
+      <mat-card-subtitle>This graph shows the relative net increase for a gross increase of {{graphsStep}} €.<br>For instance, the point at {{2500 | number}} € is the relative net increase for a gross increase from {{2500 | number}} € to {{2500 + graphsStep | number }} €.</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
@@ -285,7 +285,7 @@
         [showGridLines]="true"
         [roundDomains]="true"
         [xAxisTickFormatting]="formatAmount"
-        [yAxisTickFormatting]="formatPct"
+        [yAxisTickFormatting]="formatPctRelative"
         [yScaleMin]="0"
         [yScaleMax]="100"
         [rotateXAxisTicks]="true"

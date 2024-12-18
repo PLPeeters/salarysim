@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
@@ -63,6 +64,7 @@ interface Taxes {
     MatCheckboxModule,
     MatTableModule,
     MatButtonModule,
+    FlexLayoutModule,
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
@@ -590,5 +592,13 @@ export class MainComponent implements OnInit {
 
   formatPct(value: any) {
     return `${value.toLocaleString()} %`
+  }
+
+  formatPctRelative(value: any) {
+    if (value > 0) {
+      return `+${value.toLocaleString()} %`
+    } else {
+      return `${value.toLocaleString()} %`
+    }
   }
 }
