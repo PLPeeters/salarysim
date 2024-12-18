@@ -275,7 +275,7 @@ export class MainComponent implements OnInit {
     if (this.salaryForm.valid) {
       const formValues = this.salaryForm.value;
       this.result = this.calculateNetSalary(formValues);
-      this.updateChartData();
+      this.updateChartData(formValues.grossSalary);
     }
   }
 
@@ -511,7 +511,11 @@ export class MainComponent implements OnInit {
     };
   }
 
-  updateChartData() {
+  updateChartData(grossSalary: number | null = null) {
+    if (grossSalary != null && grossSalary > this.graphsEndingSalary) {
+      this.graphsEndingSalary = Math.ceil(grossSalary / 1000) * 1000;
+    }
+
     const salaryPoints: number[] = [];
     for (let salary = this.graphsStartingSalary; salary <= this.graphsEndingSalary; salary += this.graphsStep) {
       salaryPoints.push(salary);
