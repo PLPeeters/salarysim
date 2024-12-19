@@ -1,88 +1,171 @@
-<div class="container mat-elevation-z4">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Salary Simulator</mat-card-title>
-    </mat-card-header>
+@if (!loading) {
+<div class="container mat-elevation-z4" *transloco="let t">
+  <mat-chip-listbox class="language-picker">
+    @for (availableLang of availableLangs; track $index) {
+      <mat-chip-option
+        (click)="setLocale(availableLang)"
+        [selected]="currentLocale.startsWith(availableLang)"
+        [selectable]="!currentLocale.startsWith(availableLang)">
+          {{ availableLang | uppercase }}
+        </mat-chip-option>
+    }
+  </mat-chip-listbox>
 
+  <h1>{{ t('title') }}</h1>
+
+  <p>{{ t('description_1') }}</p>
+  <p>{{ t('description_2') }}</p>
+  <p>{{ t('description_3') }}</p>
+
+  <mat-card>
     <mat-card-content>
       <form [formGroup]="salaryForm" (ngSubmit)="onSubmit()">
         <!-- Status -->
-        <mat-card-subtitle>Status</mat-card-subtitle>
+        <mat-card-subtitle>{{ t('status') }}</mat-card-subtitle>
         <mat-radio-group formControlName="status" class="radio-group">
-          <mat-radio-button value="worker">Worker</mat-radio-button>
-          <mat-radio-button value="employee">Employee</mat-radio-button>
+          <mat-radio-button value="employee">{{ t('employee') }}</mat-radio-button>
+          <mat-radio-button value="worker">{{ t('worker') }}</mat-radio-button>
         </mat-radio-group>
 
         <!-- Work Regime -->
-        <mat-card-subtitle>Work Regime</mat-card-subtitle>
+        <mat-card-subtitle>{{ t('work_regime') }}</mat-card-subtitle>
         <mat-radio-group formControlName="workRegime" class="radio-group">
-          <mat-radio-button value="full">Full Time</mat-radio-button>
+          <mat-radio-button value="full">{{ t('full_time') }}</mat-radio-button>
+          <mat-radio-button value="part_time">{{ t('part_time') }}</mat-radio-button>
         </mat-radio-group>
 
+        @if (salaryForm.get('workRegime')?.value == 'part_time') {
+          <mat-form-field appearance="outline" class="extended-width">
+            <mat-label>{{ t('worked_time_per_week') }}</mat-label>
+            <input matInput type="number" formControlName="workedTimePerWeek">
+          </mat-form-field>
+          {{ t('out_of') }}
+          <mat-form-field appearance="outline" class="extended-width">
+            <mat-label>{{ t('full_time_work_hours') }}</mat-label>
+            <input matInput type="number" formControlName="fullTimeHoursPerWeek">
+          </mat-form-field>
+        }
+
         <!-- Family Situation -->
-        <mat-card-subtitle>Family Situation</mat-card-subtitle>
+        <mat-card-subtitle>{{ t('family_situation') }}</mat-card-subtitle>
         <mat-radio-group formControlName="familySituation" class="radio-group">
-          <mat-radio-button value="isolated">Isolated</mat-radio-button>
+          <mat-radio-button value="isolated">{{ t('isolated') }}</mat-radio-button>
           <mat-radio-button value="married_or_cohabitant_2_incomes">
-            Married or Legal Cohabitation (2 incomes)
+            {{ t('married_or_cohabitant_2_incomes') }}
           </mat-radio-button>
           <mat-radio-button value="married_or_cohabitant_1_income">
-            Married or Legal Cohabitation (1 income)
+            {{ t('married_or_cohabitant_1_income') }}
           </mat-radio-button>
         </mat-radio-group>
 
         <!-- Various Options -->
-        <mat-card-subtitle>Various</mat-card-subtitle>
+        <mat-card-subtitle>{{ t('other') }}</mat-card-subtitle>
         <div class="checkbox-section">
           <mat-checkbox formControlName="disabled">
-            I am disabled
+            {{ t('i_am_disabled') }}
           </mat-checkbox>
 
-          <mat-checkbox formControlName="dependentChildren">
-            Dependent children
+          <mat-checkbox formControlName="dependentPeople">
+            {{ t('dependent_people') }}
           </mat-checkbox>
 
-          <div *ngIf="salaryForm.get('dependentChildren')?.value" class="children-inputs">
-            <mat-form-field appearance="outline">
-              <mat-label>Number of dependent children</mat-label>
-              <input matInput type="number" formControlName="numDependentChildren">
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Number of disabled dependent children</mat-label>
-              <input matInput type="number" formControlName="numDisabledDependentChildren">
-            </mat-form-field>
-          </div>
+          @if (salaryForm.get('dependentPeople')?.value) {
+            <table class="dependents-table">
+              <thead>
+                <tr>
+                  <th class="text-right">{{ t('category') }}</th>
+                  <th class="text-center">{{ t('valid') }}</th>
+                  <th class="text-center">{{ t('handicapped') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="text-right">{{ t('children') }}</td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('children') }}</mat-label>
+                      <input matInput type="number" formControlName="numDependentChildren">
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('children' )}}</mat-label>
+                      <input matInput type="number" formControlName="numDisabledDependentChildren">
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-right">{{ t('65_plus') }}</td>
+                  <td colspan="2">
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('65_plus') }}</mat-label>
+                      <input matInput type="number" formControlName="numDependent65Plussers">
+                    </mat-form-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-right">{{ t('others') }}</td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('others') }}</mat-label>
+                      <input matInput type="number" formControlName="numDependentOthers">
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('others' )}}</mat-label>
+                      <input matInput type="number" formControlName="numDisabledDependentOthers">
+                    </mat-form-field>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          }
 
           <mat-checkbox formControlName="groupInsurance">
-            Group Insurance (personal contribution)
+            {{ t('group_insurance_personal_contribution' )}}
           </mat-checkbox>
 
           <div *ngIf="salaryForm.get('groupInsurance')?.value">
             <mat-form-field appearance="outline">
-              <mat-label>Personal Contribution (€)</mat-label>
+              <mat-label>{{ t('personal_contribution') }}</mat-label>
               <input matInput type="number" step="0.01" formControlName="groupInsurancePersonalCotisation">
-              <mat-icon matSuffix>euro</mat-icon>
+
+              @if (currentLocale != 'fr-BE') {
+                <mat-icon matPrefix>euro</mat-icon>
+              } @else {
+                <mat-icon matSuffix>euro</mat-icon>
+              }
             </mat-form-field>
           </div>
         </div>
 
         <!-- Monthly Gross Income -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Monthly Gross Income</mat-label>
+          <mat-label>{{ t('monthly_gross_income') }}</mat-label>
           <input matInput type="number" step="0.01" formControlName="grossSalary">
-          <mat-icon matSuffix>euro</mat-icon>
+
+          @if (currentLocale != 'fr-BE') {
+            <mat-icon matPrefix>euro</mat-icon>
+          } @else {
+            <mat-icon matSuffix>euro</mat-icon>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Othet Net Income</mat-label>
+          <mat-label>{{ t('other_net_income') }}</mat-label>
           <input matInput type="number" step="0.01" formControlName="otherNetIncome">
-          <mat-icon matSuffix>euro</mat-icon>
+
+          @if (currentLocale != 'fr-BE') {
+            <mat-icon matPrefix>euro</mat-icon>
+          } @else {
+            <mat-icon matSuffix>euro</mat-icon>
+          }
         </mat-form-field>
 
 
         <button mat-raised-button color="primary" type="submit" [disabled]="!salaryForm.valid">
-          <mat-icon>calculate</mat-icon> Calculate
+          <mat-icon>calculate</mat-icon> {{ t('calculate') }}
         </button>
       </form>
     </mat-card-content>
@@ -91,48 +174,46 @@
   <!-- Results Section -->
   <mat-card *ngIf="result" class="results-card">
     <mat-card-header>
-      <mat-card-title>Net Salary</mat-card-title>
+      <mat-card-title>{{ t('net_salary') }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
       <mat-list>
         <mat-list-item>
-          <span matListItemTitle>Gross Salary</span>
+          <span matListItemTitle>{{ t('gross_salary') }}</span>
           <span matListItemLine>{{result.grossSalary | number:'1.2-2'}} €</span>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon matListItemIcon>remove</mat-icon>
-          <span matListItemTitle>Personal Social Contributions (O.N.S.S.)</span>
+          <span matListItemTitle>{{ t('personal_social_contributions') }}</span>
           <span matListItemLine>{{result.socialCotisations | number:'1.2-2'}} €</span>
         </mat-list-item>
 
         @if (result.employmentBonus > 0) {
           <mat-list-item>
             <mat-icon matListItemIcon>add</mat-icon>
-            <span matListItemTitle>Employment Bonus</span>
+            <span matListItemTitle>{{ t('employment_bonus') }}</span>
             <span matListItemLine>{{result.employmentBonus | number:'1.2-2'}} €</span>
           </mat-list-item>
         }
 
         <mat-list-item>
           <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
-          <span matListItemTitle>Taxable Gross Income</span>
+          <span matListItemTitle>{{ t('taxable_gross_income') }}</span>
           <span matListItemLine>{{result.taxableIncome | number:'1.2-2'}} €</span>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon matListItemIcon>remove</mat-icon>
           <span matListItemTitle>
-            Professional Withholding Tax
+            {{ t('professional_withholding_tax') }}
             <a (click)="showWithHoldingTaxBreakdown =! showWithHoldingTaxBreakdown">
               @if (showWithHoldingTaxBreakdown) {
-                hide
+                {{ t('hide_breakdown') }}
               } @else {
-                show
+                {{ t('show_breakdown') }}
               }
-
-              breakdown
             </a>
           </span>
           <span matListItemLine>{{result.monthlyTaxes | number:'1.2-2'}} €</span>
@@ -145,17 +226,17 @@
             </mat-icon>
             <table matListItemTitle mat-table [dataSource]="result.monthlyTaxesByTier">
               <ng-container matColumnDef="taxBracket">
-                <th mat-header-cell *matHeaderCellDef>Percentage</th>
+                <th mat-header-cell *matHeaderCellDef>{{ t('percentage') }}</th>
                 <td mat-cell *matCellDef="let monthlyTaxesForTier">{{monthlyTaxesForTier.percentage}} %</td>
               </ng-container>
 
               <ng-container matColumnDef="toTax">
-                <th mat-header-cell *matHeaderCellDef>To tax</th>
+                <th mat-header-cell *matHeaderCellDef>{{ t('to_tax') }}</th>
                 <td mat-cell *matCellDef="let monthlyTaxesForTier">{{monthlyTaxesForTier.toTax | number}} €</td>
               </ng-container>
 
               <ng-container matColumnDef="taxes">
-                <th mat-header-cell *matHeaderCellDef>Taxes</th>
+                <th mat-header-cell *matHeaderCellDef>{{ t('taxes') }}</th>
                 <td mat-cell *matCellDef="let monthlyTaxesForTier">{{monthlyTaxesForTier.taxes | number}} €</td>
               </ng-container>
 
@@ -167,31 +248,31 @@
 
         <mat-list-item *ngIf="result.monthlyTaxReductionsForGroupInsurance > 0">
           <mat-icon matListItemIcon>add</mat-icon>
-          <span matListItemTitle>Professional Withholding Tax Reductions for Group Insurance</span>
+          <span matListItemTitle>{{ t('monthly_tax_reductions_for_group_insurance') }}</span>
           <span matListItemLine>{{result.monthlyTaxReductionsForGroupInsurance | number:'1.2-2'}} €</span>
         </mat-list-item>
 
         <mat-list-item *ngIf="result.monthlyTaxReductionsForLowSalaries > 0">
           <mat-icon matListItemIcon>add</mat-icon>
-          <span matListItemTitle>Professional Withholding Tax Reductions for Low Salaries</span>
+          <span matListItemTitle>{{ t('monthly_tax_reductions_for_low_salaries') }}</span>
           <span matListItemLine>{{result.monthlyTaxReductionsForLowSalaries | number:'1.2-2'}} €</span>
         </mat-list-item>
 
         <mat-list-item *ngIf="result.otherMonthlyTaxReductions > 0">
           <mat-icon matListItemIcon>add</mat-icon>
-          <span matListItemTitle>Other Professional Withholding Tax Reductions</span>
+          <span matListItemTitle>{{ t('other_monthly_tax_reductions') }}</span>
           <span matListItemLine>{{result.otherMonthlyTaxReductions | number:'1.2-2'}} €</span>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon matListItemIcon>remove</mat-icon>
-          <span matListItemTitle>Special Social Security Contribution</span>
+          <span matListItemTitle>{{ t('special_social_cotisations') }}</span>
           <span matListItemLine>{{result.specialSocialCotisations | number:'1.2-2'}} €</span>
         </mat-list-item>
 
         <mat-list-item>
           <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
-          <span matListItemTitle>Net Salary</span>
+          <span matListItemTitle>{{ t('net_salary') }}</span>
           <span matListItemLine>{{result.netSalary | number:'1.2-2'}} €</span>
         </mat-list-item>
       </mat-list>
@@ -201,26 +282,41 @@
   <!-- Charts Section -->
   <mat-card *ngIf="chartData" class="charts-card">
     <mat-card-header>
-      <mat-card-title>Configuration</mat-card-title>
+      <mat-card-title>{{ t('charts_configuration') }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutGap="8px grid">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Start</mat-label>
+          <mat-label>{{ t('start') }}</mat-label>
           <input matInput type="number" [step]="graphsStep" [(ngModel)]="graphsStartingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
-          <mat-icon matSuffix>euro</mat-icon>
+
+          @if (currentLocale != 'fr-BE') {
+            <mat-icon matPrefix>euro</mat-icon>
+          } @else {
+            <mat-icon matSuffix>euro</mat-icon>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>End</mat-label>
+          <mat-label>{{ t('end') }}</mat-label>
           <input matInput type="number" [step]="graphsStep" min="graphsStartingSalary" [(ngModel)]="graphsEndingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
-          <mat-icon matSuffix>euro</mat-icon>
+
+          @if (currentLocale != 'fr-BE') {
+            <mat-icon matPrefix>euro</mat-icon>
+          } @else {
+            <mat-icon matSuffix>euro</mat-icon>
+          }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Step</mat-label>
+          <mat-label>{{ t('step') }}</mat-label>
           <input matInput type="number" step="10" min="10" [(ngModel)]="graphsStep" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
-          <mat-icon matSuffix>euro</mat-icon>
+
+          @if (currentLocale != 'fr-BE') {
+            <mat-icon matPrefix>euro</mat-icon>
+          } @else {
+            <mat-icon matSuffix>euro</mat-icon>
+          }
         </mat-form-field>
       </form>
     </mat-card-content>
@@ -228,7 +324,7 @@
 
   <mat-card *ngIf="chartData" class="charts-card">
     <mat-card-header>
-      <mat-card-title>Gross to Net Evolution</mat-card-title>
+      <mat-card-title>{{ t('gross_to_net_evolution') }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
@@ -244,8 +340,8 @@
         [animations]="true"
         [showGridLines]="true"
         [roundDomains]="true"
-        [xAxisTickFormatting]="formatAmount"
-        [yAxisTickFormatting]="formatAmount"
+        [xAxisTickFormatting]="formatAmountTickFormattingFn"
+        [yAxisTickFormatting]="formatAmountTickFormattingFn"
         [rotateXAxisTicks]="true"
         [timeline]="true"
         [tooltipDisabled]="false">
@@ -268,7 +364,7 @@
 
   <mat-card *ngIf="chartData" class="charts-card">
     <mat-card-header>
-      <mat-card-title>Average Tax Rate Evolution</mat-card-title>
+      <mat-card-title>{{ t('average_tax_rate_evolution') }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
@@ -283,8 +379,8 @@
         [animations]="true"
         [showGridLines]="true"
         [roundDomains]="true"
-        [xAxisTickFormatting]="formatAmount"
-        [yAxisTickFormatting]="formatPct"
+        [xAxisTickFormatting]="formatAmountTickFormattingFn"
+        [yAxisTickFormatting]="formatPctTickFormattingFn"
         [rotateXAxisTicks]="true"
         [timeline]="true"
         [tooltipDisabled]="false">
@@ -311,8 +407,11 @@
 
   <mat-card *ngIf="chartData" class="charts-card">
     <mat-card-header>
-      <mat-card-title>Relative net increase for {{graphsStep}} € more gross by initial salary</mat-card-title>
-      <mat-card-subtitle>This graph shows the relative net increase for a gross increase of {{graphsStep}} €.<br>For instance, the point at {{2500 | number}} € is the relative net increase for a gross increase from {{2500 | number}} € to {{2500 + graphsStep | number }} €.</mat-card-subtitle>
+      <mat-card-title>{{ t('relative_net_increase_title', {'amount': formatAmount(graphsStep) }) }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ t('relative_net_increase_explanation_1', {'amount': formatAmount(graphsStep) }) }}<br>
+        {{ t('relative_net_increase_explanation_2', {'amount1': formatAmount(2500), 'amount2': formatAmount(2500 + graphsStep) }) }}
+      </mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
@@ -329,8 +428,8 @@
         [animations]="true"
         [showGridLines]="true"
         [roundDomains]="true"
-        [xAxisTickFormatting]="formatAmount"
-        [yAxisTickFormatting]="formatPctRelative"
+        [xAxisTickFormatting]="formatAmountTickFormattingFn"
+        [yAxisTickFormatting]="formatPctRelativeTickFormattingFn"
         [yScaleMin]="0"
         [yScaleMax]="100"
         [rotateXAxisTicks]="true"
@@ -357,3 +456,4 @@
     </mat-card-content>
   </mat-card>
 </div>
+}
