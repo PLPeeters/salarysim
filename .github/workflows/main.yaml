@@ -1,0 +1,29 @@
+---
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Add Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm install --include=dev
+
+      - name: Set Git username
+        run: git config user.name CI/CD
+
+      - name: Set Git email
+        run: git config user.email noreply@github.com
+
+      - name: Deploy
+        run: npm run deploy
