@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTableModule } from '@angular/material/table';
-import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { forkJoin, take } from 'rxjs';
 
 interface SalaryResult {
   grossSalary: number;
@@ -65,6 +68,8 @@ interface Taxes {
     MatTableModule,
     MatButtonModule,
     FlexLayoutModule,
+    MatChipsModule,
+    TranslocoModule,
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
@@ -73,6 +78,7 @@ interface Taxes {
   styleUrl: './main.component.scss'
 })
 export class MainComponent implements OnInit {
+  translocoService = inject(TranslocoService);
   salaryForm: FormGroup;
   result: SalaryResult | null = null;
   chartData: any[] = [];
@@ -84,36 +90,22 @@ export class MainComponent implements OnInit {
   graphsEndingSalary = 6_000;
   graphsStep = 50;
 
+  availableLangs = this.getAvailableLangs();
+
+  loading: boolean = true;
+  currentLocale: String = '';
+  grossSalaryString: String = '';
+  netSalaryString: String = '';
+  relativeNetIncreaseString: String = '';
+  averageTaxString: String = '';
+
+  formatAmountTickFormattingFn = this.formatAmount.bind(this);
+  formatPctTickFormattingFn = this.formatPct.bind(this);
+  formatPctRelativeTickFormattingFn = this.formatPctRelative.bind(this);
+
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
-
-  customColors: Color[] = [
-    {
-      name: 'Gross Salary',
-      domain: ['#0066cc'],
-      selectable: true,
-      group: ScaleType.Linear,
-    },
-    {
-      name: 'Net Salary',
-      domain: ['#28a745'],
-      selectable: true,
-      group: ScaleType.Linear,
-    },
-    {
-      name: 'Taxable Income',
-      domain: ['#dc3545'],
-      selectable: true,
-      group: ScaleType.Linear,
-    },
-    {
-      name: 'Perceived Increase',
-      domain: ['#ffc107'],
-      selectable: true,
-      group: ScaleType.Linear,
-    }
-  ];
 
   private readonly flatRateProfessionalExpenseTiers = [
     {
@@ -237,11 +229,16 @@ export class MainComponent implements OnInit {
     this.salaryForm = this.fb.group({
       status: ['employee', Validators.required],
       workRegime: ['full', Validators.required],
+      workedTimePerWeek: [null],
+      fullTimeHoursPerWeek: [38],
       familySituation: ['isolated', Validators.required],
       disabled: [false],
-      dependentChildren: [false],
-      numDependentChildren: [0],
-      numDisabledDependentChildren: [0],
+      dependentPeople: [false],
+      numDependentChildren: [null],
+      numDisabledDependentChildren: [null],
+      numDependent65Plussers: [null],
+      numDependentOthers: [null],
+      numDisabledDependentOthers: [null],
       groupInsurance: [false],
       groupInsurancePersonalCotisation: [null],
       grossSalary: [null, [Validators.required, Validators.min(0)]],
@@ -252,23 +249,87 @@ export class MainComponent implements OnInit {
 
   ngOnInit() {
     // Watch for form changes to update validations
-    this.salaryForm.get('dependentChildren')?.valueChanges.subscribe(hasChildren => {
+    this.salaryForm.get('dependentPeople')?.valueChanges.subscribe(hasChildren => {
       const numChildren = this.salaryForm.get('numDependentChildren');
       const numDisabledChildren = this.salaryForm.get('numDisabledDependentChildren');
+      const num65Plussers = this.salaryForm.get('numDependent65Plussers');
+      const numOthers = this.salaryForm.get('numDependentOthers');
+      const numDisabledOthers = this.salaryForm.get('numDisabledDependentOthers');
 
       if (hasChildren) {
-        numChildren?.setValidators([Validators.required, Validators.min(0)]);
-        numDisabledChildren?.setValidators([Validators.required, Validators.min(0)]);
+        numChildren?.setValidators([Validators.min(0)]);
+        numDisabledChildren?.setValidators([Validators.min(0)]);
+        num65Plussers?.setValidators([Validators.min(0)]);
+        numOthers?.setValidators([Validators.min(0)]);
+        numDisabledOthers?.setValidators([Validators.min(0)]);
       } else {
         numChildren?.clearValidators();
         numDisabledChildren?.clearValidators();
+        num65Plussers?.clearValidators();
+        numOthers?.clearValidators();
+        numDisabledOthers?.clearValidators();
       }
 
-      numChildren?.updateValueAndValidity();
-      numDisabledChildren?.updateValueAndValidity();
+      this.salaryForm.updateValueAndValidity();
     });
 
-    this.updateChartData();
+    this.salaryForm.get('workRegime')?.valueChanges.subscribe(workRegime => {
+      const workedTimePerWeek = this.salaryForm.get('workedTimePerWeek');
+      const fullTimeHoursPerWeek = this.salaryForm.get('fullTimeHoursPerWeek');
+
+      if (workRegime == 'part_time') {
+        workedTimePerWeek?.setValidators([Validators.min(1)]);
+        fullTimeHoursPerWeek?.setValidators([Validators.min(1)]);
+      } else {
+        workedTimePerWeek?.clearValidators();
+        fullTimeHoursPerWeek?.clearValidators();
+      }
+
+      this.salaryForm.updateValueAndValidity();
+    });
+
+    this.translocoService.langChanges$
+      .subscribe(currentLang => {
+        this.currentLocale = `${currentLang}-BE`;
+        this.onLanguageChange();
+    });
+
+    const userLang = (navigator.language || navigator.languages[0]).split('-')[0];
+
+    if (this.availableLangs.indexOf(userLang) !== -1) {
+      this.translocoService.setActiveLang(userLang);
+    } else {
+      this.translocoService.setActiveLang(this.translocoService.getDefaultLang());
+    }
+  }
+
+  onLanguageChange() {
+    forkJoin({
+      grossSalary: this.translocoService.selectTranslate('gross_salary').pipe(take(1)),
+      netSalary: this.translocoService.selectTranslate('net_salary').pipe(take(1)),
+      relativeNetIncrease: this.translocoService.selectTranslate('relative_net_increase').pipe(take(1)),
+    }).subscribe(translations => {
+      this.grossSalaryString = translations.grossSalary;
+      this.netSalaryString = translations.netSalary;
+      this.relativeNetIncreaseString = translations.relativeNetIncrease;
+
+      this.updateChartData();
+      this.loading = false;;
+    });
+  }
+
+  getAvailableLangs(): string[] {
+    const availableLangs = this.translocoService.getAvailableLangs();
+
+    if ((availableLangs[0] as LangDefinition).id) {
+      return availableLangs.map(lang => (lang as LangDefinition).id);
+    }
+
+    return (availableLangs as string[]);
+  }
+
+  setLocale(locale: string) {
+    this.translocoService.setActiveLang(locale);
   }
 
   onSubmit() {
@@ -276,6 +337,8 @@ export class MainComponent implements OnInit {
       const formValues = this.salaryForm.value;
       this.result = this.calculateNetSalary(formValues);
       this.updateChartData(formValues.grossSalary);
+
+      this.salaryForm.markAsPristine();
     }
   }
 
@@ -395,14 +458,21 @@ export class MainComponent implements OnInit {
       socialCotisations = this.round(values.grossSalary * 1.08 * (13.07 / 100));
     }
 
-    let employmentBonus = 0;
+    // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/deductions/workers_reductions/workbonus.html
+    let grossSalaryForEmploymentBonus = values.grossSalary;
 
-    if (values.grossSalary <= 2_723.36) {
-      employmentBonus += 159.43 - (0.2699 * Math.max(values.grossSalary - 2_132.59, 0));
+    if (values.workRegime == 'part_time') {
+      grossSalaryForEmploymentBonus = this.round(values.grossSalary / values.workedTimePerWeek) * values.fullTimeHoursPerWeek;
     }
 
-    if (values.grossSalary <= 3_207.40) {
-      employmentBonus += 118.22 - (0.2442 * Math.max(values.grossSalary - 2_723.36, 0));
+    let employmentBonus = 0;
+
+    if (grossSalaryForEmploymentBonus <= 2_723.36) {
+      employmentBonus += 159.43 - (0.2699 * Math.max(grossSalaryForEmploymentBonus - 2_132.59, 0));
+    }
+
+    if (grossSalaryForEmploymentBonus <= 3_207.40) {
+      employmentBonus += 118.22 - (0.2442 * Math.max(grossSalaryForEmploymentBonus - 2_723.36, 0));
     }
 
     if (employmentBonus > socialCotisations) {
@@ -467,6 +537,11 @@ export class MainComponent implements OnInit {
           annualTaxReductions += 20_808.00;
           annualTaxReductions += 3_660.00 * (8 - dependentChildren);
       }
+
+      annualTaxReductions += 1_884.00 * values.numDependent65Plussers;
+
+      const numDependentOthers = values.numDependentOthers + 2 * values.numDisabledDependentOthers;
+      annualTaxReductions += 588 * numDependentOthers;
     }
 
     if (values.disabled) {
@@ -533,14 +608,14 @@ export class MainComponent implements OnInit {
 
     this.chartData = [
       {
-        name: 'Gross Salary',
+        name: this.grossSalaryString,
         series: salaries.map(salary => ({
           name: salary.gross,
           value: salary.gross
         }))
       },
       {
-        name: 'Net Salary',
+        name: this.netSalaryString,
         series: salaries.map(salary => ({
           name: salary.gross,
           value: salary.taxation.netSalary
@@ -548,13 +623,9 @@ export class MainComponent implements OnInit {
       }
     ];
 
-    this.chartData.forEach((series, index) => {
-      series.color = this.customColors[index];
-    });
-
     // Relative chart data (perceived increase)
     this.relativeChartData = [{
-      name: 'Perceived Increase',
+      name: this.relativeNetIncreaseString,
       series: salaries
         .map((salary, index) => {
           let nextGross;
@@ -581,7 +652,7 @@ export class MainComponent implements OnInit {
 
     this.averageTaxRateChartData = [
       {
-        name: 'Average Tax',
+        name: this.translocoService.translate('average_tax_rate'),
         series: salaries.map(salary => ({
           name: salary.gross,
           value: salary.taxation.averageTaxRate
@@ -591,18 +662,25 @@ export class MainComponent implements OnInit {
   }
 
   formatAmount(value: any) {
-    return `${value.toLocaleString()} €`
+    switch (this.currentLocale) {
+      case 'fr-BE':
+        return `${value.toLocaleString(this.currentLocale)} €`
+      case 'nl-BE':
+        return `€ ${value.toLocaleString(this.currentLocale)}`
+      default:
+        return `€${value.toLocaleString(this.currentLocale)}`
+    }
   }
 
   formatPct(value: any) {
-    return `${value.toFixed(1).toLocaleString()}%`
+    return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`
   }
 
   formatPctRelative(value: any) {
     if (value > 0) {
-      return `+${value.toFixed(1).toLocaleString()}%`
+      return `+${value.toFixed(1).toLocaleString(this.currentLocale)}%`
     } else {
-      return `${value.toFixed(1).toLocaleString()}%`
+      return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`
     }
   }
 }

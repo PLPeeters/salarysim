@@ -1,17 +1,37 @@
 [matlistitemtitle] a {
   cursor: pointer;
-  color: blue;
   font-size: 80%;
   margin-left: 16px;
+}
+
+mat-card {
+  margin-bottom: 20px;
 }
 
 mat-card-header {
   margin-bottom: 32px;
 }
 
+mat-card-subtitle:first-child {
+  margin-top: 0;
+}
+
 mat-card-subtitle {
+  margin-top: 20px;
   font-weight: normal;
   font-style: italic;
+}
+
+mat-form-field small {
+  font-style: italic;
+}
+
+mat-form-field.mat-form-field-invalid + mat-form-field {
+  margin-top: 16px;
+}
+
+mat-form-field.extended-width ::ng-deep .mat-mdc-form-field-infix {
+  width: 266px;
 }
 
 .form-group {
@@ -42,13 +62,6 @@ dt {
   margin: 0 auto;
 }
 
-mat-card {
-  margin-bottom: 20px;
-}
-
-mat-card-subtitle {
-  margin-top: 20px;
-}
 
 .radio-group {
   display: flex;
@@ -86,4 +99,20 @@ button[type="submit"] {
 
 .charts-card {
   overflow: hidden;
+}
+
+.language-picker {
+  float: right;
+
+  ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__graphic {
+    display: none !important;
+  }
+
+  ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__text-label:not(:only-child) {
+    padding-left: 12px;
+  }
+}
+
+h1 {
+  margin-top: 0;
 }

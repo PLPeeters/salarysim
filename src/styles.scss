@@ -5,3 +5,33 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+a {
+  color: #0589c2;
+  text-decoration: none;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+table.dependents-table {
+  thead th, tbody td:first-child {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  tr+tr td {
+    padding-top: 16px;
+  }
+
+  tr+tr td:first-of-type {
+    padding-top: 32px;
+  }
+}
