@@ -3,6 +3,7 @@
   "description_1": "Le calculateur de salaire net belge dont vous ignoriez avoir besoin.",
   "description_2": "Une fonctionnalité unique de ce calculateur est la capacité d’afficher un graphique montrant l’évolution de votre salaire net en fonction de l’augmentation de votre salaire brut.",
   "description_3": "Il met également en évidence l’augmentation nette relative, en indiquant la proportion d’une augmentation brute spécifique qui se traduit en un gain net. Par exemple, vous pouvez voir comment une augmentation brute de 50 € impacte votre salaire net à différents niveaux de salaire, offrant des informations précieuses sur l’évolution de vos revenus.",
+  "everything_local_open_source": "Tout est calculé localement dans votre navigateur. Sentez-vous libre de vérifier, ce calculateur est entièrement <a href=\"https://github.com/PLPeeters/salarysim/\" target=\"_blank\"><i>open source</i></a>.",
   "status": "Statut",
   "employee": "Employé",
   "worker": "Ouvrier",
