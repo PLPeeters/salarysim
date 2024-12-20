@@ -295,9 +295,9 @@
     </mat-card-header>
     <mat-card-content>
       <form fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutGap="8px grid">
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ t('start') }}</mat-label>
-          <input matInput type="number" [step]="graphsStep" [(ngModel)]="graphsStartingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
+          <input matInput type="number" [step]="graphsStep" min="0" [(ngModel)]="graphsStartingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
 
           @if (currentLocale != 'fr-BE') {
             <mat-icon matPrefix>euro</mat-icon>
@@ -306,9 +306,9 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ t('end') }}</mat-label>
-          <input matInput type="number" [step]="graphsStep" min="graphsStartingSalary" [(ngModel)]="graphsEndingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
+          <input matInput type="number" [step]="graphsStep" [min]="graphsStartingSalary" [(ngModel)]="graphsEndingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
 
           @if (currentLocale != 'fr-BE') {
             <mat-icon matPrefix>euro</mat-icon>
@@ -317,7 +317,7 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
+        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ t('step') }}</mat-label>
           <input matInput type="number" step="10" min="10" [(ngModel)]="graphsStep" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
 

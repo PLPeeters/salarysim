@@ -591,6 +591,20 @@ export class MainComponent implements OnInit {
       this.graphsEndingSalary = Math.ceil(grossSalary / 1000) * 1000;
     }
 
+    if (typeof this.graphsStartingSalary === 'undefined' ||
+        typeof this.graphsEndingSalary === 'undefined' ||
+        typeof this.graphsStep === 'undefined') {
+      return;
+    }
+
+    if (this.graphsStartingSalary < 0 || this.graphsEndingSalary <= 0 || this.graphsStep < 10) {
+      return;
+    }
+
+    if (this.graphsStartingSalary >= this.graphsEndingSalary) {
+      return;
+    }
+
     const salaryPoints: number[] = [];
     for (let salary = this.graphsStartingSalary; salary <= this.graphsEndingSalary; salary += this.graphsStep) {
       salaryPoints.push(salary);
