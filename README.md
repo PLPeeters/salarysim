@@ -1,6 +1,14 @@
 # SalarySim
 
-The belgian net salary calculator you didn't know you needed. A unique feature of this calculator is the ability to display a graph of the evolution of your net salary as your gross salary increases.
+The belgian net salary calculator you didn't know you needed.
+
+A standout feature of this calculator is its ability to display a graph illustrating how your net salary evolves as your gross salary increases.
+
+It also highlights the relative net raise, showing the proportion of a specific gross raise that translates into a net salary gain. For example, you can see how a €50 gross raise impacts your take-home pay across different salary levels, providing valuable insights into your earnings progression.
+
+<a href="https://www.buymeacoffee.com/plpeeters" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
+</a>
 
 ---
 
