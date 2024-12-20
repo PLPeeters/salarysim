@@ -30,6 +30,7 @@
   "monthly_gross_income": "Revenu mensuel brut",
   "other_net_income": "Autres revenus nets",
   "calculate": "Calculer",
+  "out_of_date_warning": "Les données ci-dessous sont obsolètes, relancez le calcul pour les mettre à jour.",
   "charts_configuration": "Configuration des graphiques",
   "net_salary": "Salaire net",
   "gross_salary": "Salaire brut",
