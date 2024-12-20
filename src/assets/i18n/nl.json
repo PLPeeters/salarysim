@@ -62,5 +62,6 @@
   "relative_net_increase": "Relatieve nettoverhoging",
   "relative_net_increase_explanation_1": "Deze grafiek toont het aandeel van een bruto loonsverhoging van {{amount}} dat resulteert in een netto loonsverhoging, relatief ten opzichte van het beginloon. Met andere woorden, het is het deel van de verhoging dat uiteindelijk in het portemonnee terechtkomt.",
   "relative_net_increase_explanation_2": "Bijvoorbeeld, het datapunt bij {{amount1}} geeft de relatieve nettoverhoging weer voor een bruto loon die stijgt van {{amount1}} naar {{amount2}}.",
-  "credits": "Ontworpen door <a href=\"https://linkedin.com/in/plpeeters\" target=\"_blank\">Pierre-Louis Peeters</a>"
+  "credits": "Ontworpen door <a href=\"https://linkedin.com/in/plpeeters\" target=\"_blank\">Pierre-Louis Peeters</a>",
+  "favicon_credit": "Favicon ontworpen door Freepik - Flaticon"
 }
