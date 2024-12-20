@@ -58,5 +58,6 @@
   "relative_net_increase": "Augmentation nette relative",
   "relative_net_increase_explanation_1": "Ce graphique illustre la proportion d'une augmentation brute de {{amount}} qui se traduit en une augmentation nette, en fonction salaire brut initial. Autrement dit, c'est la proportion de l'augmentation qui sera réellement perçue.",
   "relative_net_increase_explanation_2": "Par exemple, le point de données à {{amount1}} représente l'augmentation nette relative lorsque le salaire brut passe de {{amount1}} à {{amount2}}.",
-  "credits": "Créé par <a href=\"https://linkedin.com/in/plpeeters\" target=\"_blank\">Pierre-Louis Peeters</a>"
+  "credits": "Créé par <a href=\"https://linkedin.com/in/plpeeters\" target=\"_blank\">Pierre-Louis Peeters</a>",
+  "favicon_credit": "Favicon créée par Freepik - Flaticon"
 }
