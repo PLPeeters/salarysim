@@ -15,6 +15,11 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { forkJoin, take } from 'rxjs';
 
+interface MonthlyTaxReductionsForLowSalaries {
+  monthlyTaxReductionsForLowSalaries: number;
+  employmentBonus: number;
+}
+
 interface SalaryResult {
   grossSalary: number;
   socialCotisations: number;
@@ -292,7 +297,7 @@ export class MainComponent implements OnInit {
       .subscribe(currentLang => {
         this.currentLocale = `${currentLang}-BE`;
         this.onLanguageChange();
-    });
+      });
 
     const userLang = (navigator.language || navigator.languages[0]).split('-')[0];
 
@@ -346,7 +351,10 @@ export class MainComponent implements OnInit {
     return Math.round(value * 100) / 100;
   }
 
-  private calculateAnnualBaseTax(familySituation: String, annualTaxableIncome: number, indexationMultiplier: number = 1): Taxes {
+  private calculateAnnualBaseTax(
+    familySituation: String,
+    annualTaxableIncome: number,
+  ): Taxes {
     let annualBaseTax = 0;
     const taxesByTier: TaxesForTier[] = [];
 
@@ -391,7 +399,11 @@ export class MainComponent implements OnInit {
     }
   }
 
-  private calculateSpecialSocialCotisation(status: String, familySituation: String, grossSalary: number): number {
+  private calculateSpecialSocialCotisation(
+    status: String,
+    familySituation: String,
+    grossSalary: number,
+  ): number {
     let currentSpecialSocialCotisationTiers: SocialSecurityTier[]
 
     switch (familySituation) {
@@ -449,15 +461,10 @@ export class MainComponent implements OnInit {
     return this.round(specialSocialCotisation);
   }
 
-  private calculateNetSalary(values: any): SalaryResult {
-    let socialCotisations: number;
-
-    if (values.status === 'employee') {
-      socialCotisations = this.round(values.grossSalary * (13.07 / 100));
-    } else {
-      socialCotisations = this.round(values.grossSalary * 1.08 * (13.07 / 100));
-    }
-
+  private calculateEmploymentBonusAndTaxReductions(
+    values: any,
+    socialCotisations: number,
+  ): MonthlyTaxReductionsForLowSalaries {
     // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/deductions/workers_reductions/workbonus.html
     let grossSalaryForEmploymentBonus = values.grossSalary;
 
@@ -466,22 +473,72 @@ export class MainComponent implements OnInit {
     }
 
     let employmentBonus = 0;
-
-    if (grossSalaryForEmploymentBonus <= 2_723.36) {
-      employmentBonus += 159.43 - (0.2699 * Math.max(grossSalaryForEmploymentBonus - 2_132.59, 0));
-    }
+    let monthlyTaxReductionsForLowSalaries = 0;
 
     if (grossSalaryForEmploymentBonus <= 3_207.40) {
-      employmentBonus += 118.22 - (0.2442 * Math.max(grossSalaryForEmploymentBonus - 2_723.36, 0));
+      let employmentBonusA;
+
+      if (values.status === 'employee') {
+        employmentBonusA = Math.min(
+          this.round(118.22 - (0.2442 * Math.max(grossSalaryForEmploymentBonus - 2_723.36, 0))),
+          socialCotisations,
+        );
+      } else {
+        employmentBonusA = Math.min(
+          this.round(127.68 - (0.2638 * Math.max(grossSalaryForEmploymentBonus - 2_723.36, 0))),
+          socialCotisations,
+        );
+      }
+
+      employmentBonus += employmentBonusA;
+      monthlyTaxReductionsForLowSalaries += employmentBonusA * 33.14 / 100;
     }
 
-    if (employmentBonus > socialCotisations) {
-      employmentBonus = socialCotisations;
+    if (grossSalaryForEmploymentBonus <= 2_723.36) {
+      let employmentBonusB;
+
+      if (values.status === 'employee') {
+        employmentBonusB = Math.min(
+          this.round(159.43 - (0.2699 * Math.max(grossSalaryForEmploymentBonus - 2_132.59, 0))),
+          socialCotisations - employmentBonus,
+        );
+      } else {
+        employmentBonusB = Math.min(
+          this.round(172.18 - (0.2915 * Math.max(grossSalaryForEmploymentBonus - 2_132.59, 0))),
+          socialCotisations - employmentBonus,
+        );
+      }
+
+      employmentBonus += employmentBonusB;
+      monthlyTaxReductionsForLowSalaries += employmentBonusB * 52.54 / 100;
     }
 
-    employmentBonus = this.round(employmentBonus);
+    monthlyTaxReductionsForLowSalaries = this.round(monthlyTaxReductionsForLowSalaries);
 
-    const taxableIncome = this.round(values.grossSalary - socialCotisations + employmentBonus);
+    return {
+      employmentBonus: this.round(employmentBonus),
+      monthlyTaxReductionsForLowSalaries: this.round(monthlyTaxReductionsForLowSalaries),
+    };
+  }
+
+  private calculateNetSalary(values: any): SalaryResult {
+    let grossSalary = values.grossSalary;
+    let socialCotisations: number;
+
+    if (values.status === 'employee') {
+      socialCotisations = this.round(grossSalary * (13.07 / 100));
+    } else {
+      socialCotisations = this.round(grossSalary * 1.08 * (13.07 / 100));
+    }
+
+    const employmentBonusAndTaxReductions = this.calculateEmploymentBonusAndTaxReductions(
+      values,
+      socialCotisations,
+    );
+    const employmentBonus = employmentBonusAndTaxReductions.employmentBonus;
+    const monthlyTaxReductionsForLowSalaries = employmentBonusAndTaxReductions.monthlyTaxReductionsForLowSalaries;
+
+    const taxableIncome = this.round(grossSalary - socialCotisations + employmentBonus);
     const roundedMonthlyGrossIncome = this.round(taxableIncome);
     const roundedAnnualGrossIncome = roundedMonthlyGrossIncome * 12;
 
@@ -498,15 +555,22 @@ export class MainComponent implements OnInit {
     const annualTaxableIncome = taxableIncome * 12 - flatRateProfessionalExpenses;
 
     // Calculate annual base tax
-    const annualTaxes = this.calculateAnnualBaseTax(values.familySituation, annualTaxableIncome);
+    const annualTaxes = this.calculateAnnualBaseTax(
+      values.familySituation,
+      annualTaxableIncome,
+    );
     const annualBaseTax = annualTaxes.total;
-    const specialSocialCotisations = this.calculateSpecialSocialCotisation(values.status, values.familySituation, values.grossSalary);
+    const specialSocialCotisations = this.calculateSpecialSocialCotisation(
+      values.status,
+      values.familySituation,
+      grossSalary,
+    );
     let annualTaxReductions = 0;
 
-    if (values.dependentChildren) {
-      const dependentChildren = values.numDependentChildren + values.numDisabledDependentChildren * 2;
+    if (values.dependentPeople) {
+      const numDependentChildren = values.numDependentChildren + values.numDisabledDependentChildren * 2;
 
-      switch (dependentChildren) {
+      switch (numDependentChildren) {
         case 0:
           break;
         case 1:
@@ -535,13 +599,13 @@ export class MainComponent implements OnInit {
           break;
         default:
           annualTaxReductions += 20_808.00;
-          annualTaxReductions += 3_660.00 * (8 - dependentChildren);
+          annualTaxReductions += 3_660.00 * (8 - numDependentChildren);
       }
 
       annualTaxReductions += 1_884.00 * values.numDependent65Plussers;
 
       const numDependentOthers = values.numDependentOthers + 2 * values.numDisabledDependentOthers;
-      annualTaxReductions += 588 * numDependentOthers;
+      annualTaxReductions += 588.00 * numDependentOthers;
     }
 
     if (values.disabled) {
@@ -550,7 +614,6 @@ export class MainComponent implements OnInit {
 
     const monthlyTaxes = this.round(annualBaseTax / 12);
     const monthlyTaxReductions = this.round(annualTaxReductions / 12);
-    const monthlyTaxReductionsForLowSalaries = this.round(employmentBonus * 33.14 / 100);
     const monthlyTaxReductionsForGroupInsurance = values.groupInsurance ?
       this.round(values.groupInsurancePersonalCotisation * 30 / 100) : 0;
 
