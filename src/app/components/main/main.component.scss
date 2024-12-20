@@ -6,6 +6,11 @@
 
 mat-card {
   margin-bottom: 20px;
+
+  &.warning[appearance="outlined"] {
+    background-color: #ffd400;
+    border-color: #8d7600;
+  }
 }
 
 mat-card-header {

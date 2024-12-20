@@ -30,6 +30,7 @@
   "monthly_gross_income": "Monthly Gross Income",
   "other_net_income": "Other Net Income",
   "calculate": "Calculate",
+  "out_of_date_warning": "The data below is out-of-date, rerun the calculation to update.",
   "charts_configuration": "Charts Configuration",
   "net_salary": "Net Salary",
   "gross_salary": "Gross Salary",

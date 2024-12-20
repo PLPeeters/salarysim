@@ -164,12 +164,20 @@
         </mat-form-field>
 
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="!salaryForm.valid">
+        <button mat-raised-button color="primary" type="submit" [disabled]="!salaryForm.valid || (result && salaryForm.pristine)">
           <mat-icon>calculate</mat-icon> {{ t('calculate') }}
         </button>
       </form>
     </mat-card-content>
   </mat-card>
+
+  @if (result && !salaryForm.pristine) {
+    <mat-card appearance="outlined" class="warning">
+      <mat-card-content>
+        {{ t('out_of_date_warning') }}
+      </mat-card-content>
+    </mat-card>
+  }
 
   <!-- Results Section -->
   <mat-card *ngIf="result" class="results-card">
