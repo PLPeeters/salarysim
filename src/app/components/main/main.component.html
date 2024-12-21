@@ -24,14 +24,14 @@
         <!-- Status -->
         <mat-card-subtitle>{{ t('status') }}</mat-card-subtitle>
         <mat-radio-group formControlName="status" class="radio-group">
-          <mat-radio-button value="employee">{{ t('employee') }}</mat-radio-button>
-          <mat-radio-button value="worker">{{ t('worker') }}</mat-radio-button>
+          <mat-radio-button [value]="Status.EMPLOYEE">{{ t('employee') }}</mat-radio-button>
+          <mat-radio-button [value]="Status.WORKER">{{ t('worker') }}</mat-radio-button>
         </mat-radio-group>
 
         <!-- Work Regime -->
         <mat-card-subtitle>{{ t('work_regime') }}</mat-card-subtitle>
         <mat-radio-group formControlName="workRegime" class="radio-group">
-          <mat-radio-button value="full">{{ t('full_time') }}</mat-radio-button>
+          <mat-radio-button [value]="WorkRegime.FULL_TIME">{{ t('full_time') }}</mat-radio-button>
           <mat-radio-button value="part_time">{{ t('part_time') }}</mat-radio-button>
         </mat-radio-group>
 
@@ -50,11 +50,11 @@
         <!-- Family Situation -->
         <mat-card-subtitle>{{ t('family_situation') }}</mat-card-subtitle>
         <mat-radio-group formControlName="familySituation" class="radio-group">
-          <mat-radio-button value="isolated">{{ t('isolated') }}</mat-radio-button>
-          <mat-radio-button value="married_or_cohabitant_2_incomes">
+          <mat-radio-button [value]="FamilySituation.ISOLATED">{{ t('isolated') }}</mat-radio-button>
+          <mat-radio-button [value]="FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES">
             {{ t('married_or_cohabitant_2_incomes') }}
           </mat-radio-button>
-          <mat-radio-button value="married_or_cohabitant_1_income">
+          <mat-radio-button [value]="FamilySituation.MARRIED_OR_COHABITANT_1_INCOME">
             {{ t('married_or_cohabitant_1_income') }}
           </mat-radio-button>
         </mat-radio-group>
@@ -203,7 +203,17 @@
           <mat-list-item>
             <mat-icon matListItemIcon>add</mat-icon>
             <span matListItemTitle>{{ t('employment_bonus') }}</span>
-            <span matListItemLine>{{result.employmentBonus | number:'1.2-2'}} €</span>
+            <span matListItemLine>{{result.employmentBonus | number:'1.2-2'}} €
+              @if(result.employmentBonusWasCapped) {
+                ({{ t('capped') }}
+                <mat-icon
+                  [matTooltip]="t('capped_tooltip')"
+                  matTooltipPosition="above"
+                  class="inline">
+                  help
+                </mat-icon>)
+              }
+              </span>
           </mat-list-item>
         }
 

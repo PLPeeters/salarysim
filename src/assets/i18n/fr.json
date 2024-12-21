@@ -37,6 +37,8 @@
   "gross_salary": "Salaire brut",
   "personal_social_contributions": "Cotisations sociales personnelles (O.N.S.S.)",
   "employment_bonus": "Bonus à l'emploi",
+  "capped": "plafonné",
+  "capped_tooltip": "Le montant annuel de la réduction ne peut pas excéder 3 331,80 €.",
   "taxable_gross_income": "Revenu brut imposable",
   "professional_withholding_tax": "Précompte professionel",
   "hide_breakdown": "cacher le détail",

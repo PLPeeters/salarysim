@@ -14,51 +14,9 @@ import { MatTableModule } from '@angular/material/table';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { forkJoin, take } from 'rxjs';
-import { Decimal } from 'decimal.js';
+import { FamilySituation, SalaryResult, Status, TaxCalculatorService, WorkRegime } from '../../services/tax-calculator.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-interface MonthlyTaxReductionsForLowSalaries {
-  monthlyTaxReductionsForLowSalaries: Decimal;
-  employmentBonus: Decimal;
-}
-
-interface SalaryResult {
-  grossSalary: number;
-  socialCotisations: number;
-  specialSocialCotisations: number;
-  employmentBonus: number;
-  taxableIncome: number;
-  monthlyTaxes: number;
-  monthlyTaxesByTier: TaxesForTier[];
-  otherMonthlyTaxReductions: number;
-  monthlyTaxReductionsForLowSalaries: number;
-  monthlyTaxReductionsForGroupInsurance: number;
-  netToGrossRatio: number;
-  averageTaxRate: number;
-  netSalary: number;
-  groupInsurancePersonalCotisation: number;
-}
-
-interface SocialSecurityTier {
-  from: Decimal,
-  to: Decimal,
-  taxRate?: Decimal,
-  flatAmount?: Decimal,
-  minAmount?: Decimal,
-  maxAmount?: Decimal,
-}
-
-interface TaxesForTier {
-  toTax: Decimal,
-  percentage: Decimal,
-  taxes: Decimal,
-}
-
-interface Taxes {
-  taxesByTier: TaxesForTier[],
-  total: Decimal,
-}
-
-const D = (value: number | string | null): Decimal => new Decimal(value || 0);
 
 @Component({
   selector: 'app-main',
@@ -77,6 +35,7 @@ const D = (value: number | string | null): Decimal => new Decimal(value || 0);
     MatButtonModule,
     FlexLayoutModule,
     MatChipsModule,
+    MatTooltipModule,
     TranslocoModule,
   ],
   providers: [
@@ -87,6 +46,7 @@ const D = (value: number | string | null): Decimal => new Decimal(value || 0);
 })
 export class MainComponent implements OnInit {
   translocoService = inject(TranslocoService);
+  taxCalculatorService = inject(TaxCalculatorService);
   salaryForm: FormGroup;
   result: SalaryResult | null = null;
   chartData: any[] = [];
@@ -111,135 +71,17 @@ export class MainComponent implements OnInit {
   formatPctTickFormattingFn = this.formatPct.bind(this);
   formatPctRelativeTickFormattingFn = this.formatPctRelative.bind(this);
 
-  colorScheme = {
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
-  };
-
-  private readonly flatRateProfessionalExpenseTiers = [
-    {
-      from: D(0.01),
-      to: D(19_166.67),
-      flat_rate: D(0),
-      percentage: D(30),
-    },
-    {
-      from: D(19_166.68),
-      to: D(Infinity),
-      flat_rate: D(5_750.00),
-      percentage: D(0),
-    }
-  ];
-
-  private readonly taxTiers = [
-    {
-      from: D(0.01),
-      to: D(10_580.00),
-      percentage: D(0),
-    },
-    {
-      from: D(10_580.01),
-      to: D(15_830.00),
-      percentage: D(26.75),
-    },
-    {
-      from: D(15_830.01),
-      to: D(27_940.00),
-      percentage: D(42.80),
-    },
-    {
-      from: D(27_940.01),
-      to: D(48_350.00),
-      percentage: D(48.15),
-    },
-    {
-      from: D(48_350.01),
-      to: D(Infinity),
-      percentage: D(53.50),
-    }
-  ];
-  // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/special_contributions/other_specialcontributions/specialsocialsecuritycontribution.html
-  private readonly specialSocialCotisationTiersIsolated: SocialSecurityTier[] = [
-    {
-      'from': D(0.01),
-      'to': D(1_945.38),
-      'taxRate': D(0),
-    },
-    {
-      'from': D(1_945.39),
-      'to': D(2_190.18),
-      'taxRate': D(4.22),
-    },
-    {
-      'from': D(2_190.19),
-      'to': D(3_737.00),
-      'taxRate': D(1.1),
-    },
-    {
-      'from': D(3_737.01),
-      'to': D(4_100.00),
-      'taxRate': D(3.38),
-    },
-    {
-      'from': D(4_100.01),
-      'to': D(6_038.82),
-      'taxRate': D(1.10),
-    },
-    {
-      'from': D(6_038.83),
-      'to': D(Infinity),
-      'taxRate': D(0),
-    }
-  ];
-  private readonly specialSocialCotisationTiersMarriedTwoIncomes = [
-    {
-      'from': D(0.01),
-      'to': D(3_285.29).div(3),
-      'taxRate': D(0),
-    },
-    {
-      'from': D(3_285.29).div(3).plus(0.01),
-      'to': D(5_836.14).div(3),
-      'flatAmount': D(15.45).div(3),
-    },
-    {
-      'from': D(5_836.14).div(3).plus(0.01),
-      'to': D(6_570.54).div(3),
-      'taxRate': D(5.9),
-      'minAmount': D(15.45).div(3),
-    },
-    {
-      'from': D(6_570.54).div(3).plus(0.01),
-      'to': D(Infinity),
-      'taxRate': D(1.1),
-      'maxAmount': D(154.92).minus(D(43.32)).div(D(3)),
-    },
-  ];
-  private readonly specialSocialCotisationTiersMarriedOneIncome = [
-    {
-      'from': D(0.01),
-      'to': D(1_945.38),
-      'taxRate': D(0),
-    },
-    {
-      'from': D(1_945.39),
-      'to': D(2_190.18),
-      'taxRate': D(5.9),
-    },
-    {
-      'from': D(2_190.19),
-      'to': D(Infinity),
-      'taxRate': D(1.1),
-      'maxAmount': D(182.82).minus(D(43.32)).div(D(3)),
-    },
-  ];
+  WorkRegime = WorkRegime;
+  Status = Status;
+  FamilySituation = FamilySituation;
 
   constructor(private fb: FormBuilder) {
     this.salaryForm = this.fb.group({
-      status: ['employee', Validators.required],
-      workRegime: ['full', Validators.required],
+      status: [Status.EMPLOYEE, Validators.required],
+      workRegime: [WorkRegime.FULL_TIME, Validators.required],
       workedTimePerWeek: [null],
       fullTimeHoursPerWeek: [38],
-      familySituation: ['isolated', Validators.required],
+      familySituation: [FamilySituation.ISOLATED, Validators.required],
       disabled: [false],
       dependentPeople: [false],
       numDependentChildren: [null],
@@ -340,339 +182,42 @@ export class MainComponent implements OnInit {
     this.translocoService.setActiveLang(locale);
   }
 
+  private calculateNetSalary(
+    monthlyGrossSalary: number,
+  ): SalaryResult {
+    const salaryCalculatorInput = {
+      status: this.salaryForm.value.status,
+      workRegime: {
+        type: this.salaryForm.value.workRegime,
+        workedTimePerWeek: this.salaryForm.value.workedTimePerWeek,
+        fullTimeHoursPerWeek: this.salaryForm.value.fullTimeHoursPerWeek
+      },
+      familySituation: this.salaryForm.value.familySituation,
+      dependentPeople: {
+        numDependentChildren: this.salaryForm.value.numDependentChildren || 0,
+        numDisabledDependentChildren: this.salaryForm.value.numDisabledDependentChildren || 0,
+        numDependent65Plussers: this.salaryForm.value.numDependent65Plussers || 0,
+        numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
+        numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
+      },
+      disabled: this.salaryForm.value.disabled,
+      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurancePersonalCotisation || 0,
+      otherNetIncome: this.salaryForm.value.otherNetIncome || 0,
+      monthlyGrossSalary,
+    };
+
+    return this.taxCalculatorService.calculateNetSalary(salaryCalculatorInput);
+  }
+
   onSubmit() {
     if (this.salaryForm.valid) {
-      const formValues = this.salaryForm.value;
-      this.result = this.calculateNetSalary(formValues);
-      this.updateChartData(formValues.grossSalary);
+      const monthlyGrossSalary = this.salaryForm.value.grossSalary;
+
+      this.result = this.calculateNetSalary(monthlyGrossSalary);
+      this.updateChartData(monthlyGrossSalary);
 
       this.salaryForm.markAsPristine();
     }
-  }
-
-  private round(value: Decimal): Decimal {
-    return value.times(100).toDP(2).div(100);
-  }
-
-  private calculateAnnualBaseTax(
-    familySituation: String,
-    annualTaxableIncome: Decimal,
-  ): Taxes {
-    let annualBaseTax = D(0);
-    const taxesByTier: TaxesForTier[] = [];
-
-    if (familySituation === 'isolated' || familySituation === 'married_or_cohabitant_2_incomes') {
-      let remainingToTax = annualTaxableIncome;
-      let currentTier = 0;
-
-      while (remainingToTax.gt(0)) {
-        const currentTaxTier = this.taxTiers[currentTier];
-        const tierRange = currentTaxTier.to.minus(currentTaxTier.from).plus(0.01);
-
-        let toTax = Decimal.min(remainingToTax, tierRange);
-        remainingToTax = remainingToTax.minus(toTax);
-
-        const tierTaxes = toTax.times(currentTaxTier.percentage).div(100);
-
-        taxesByTier.push({
-          toTax,
-          percentage: currentTaxTier.percentage,
-          taxes: tierTaxes,
-        });
-
-        annualBaseTax = annualBaseTax.plus(tierTaxes);
-        currentTier++;
-      }
-
-      return {
-        taxesByTier,
-        total: annualBaseTax.toDP(2),
-      }
-    } else {
-      let revenueAttributedToPartner = annualTaxableIncome.times(30).div(100);
-
-      if (revenueAttributedToPartner.gt(13_060)) {
-        revenueAttributedToPartner = D(13_060.0);
-      }
-
-      let partnerRevenueTaxes = this.calculateAnnualBaseTax('isolated', revenueAttributedToPartner);
-
-      let remainingToTax = annualTaxableIncome.minus(revenueAttributedToPartner);
-
-      let ownRevenueTaxes = this.calculateAnnualBaseTax('isolated', remainingToTax);
-
-      return {
-        taxesByTier: ownRevenueTaxes.taxesByTier,
-        total: partnerRevenueTaxes.total.plus(ownRevenueTaxes.total),
-      };
-    }
-  }
-
-  private calculateSpecialSocialCotisation(
-    status: String,
-    familySituation: String,
-    grossSalary: Decimal,
-  ): Decimal {
-    let currentSpecialSocialCotisationTiers: SocialSecurityTier[]
-
-    switch (familySituation) {
-      case 'isolated':
-        currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersIsolated;
-        break;
-      case 'married_or_cohabitant_2_incomes':
-        currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedTwoIncomes;
-        break;
-      case 'married_or_cohabitant_1_income':
-        currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedOneIncome;
-        break;
-      default:
-        throw Error("What the hell")
-    }
-
-    if (status == 'worker') {
-      grossSalary = grossSalary.times(1.08);
-    }
-
-    let specialSocialCotisation = D(0);
-    let remainingToTax = grossSalary;
-    let currentTier = 0;
-
-    while (remainingToTax.gt(0)) {
-      const currentSpecialSocialCotisationTier = currentSpecialSocialCotisationTiers[currentTier];
-      const tierRange = currentSpecialSocialCotisationTier.to
-        .minus(currentSpecialSocialCotisationTier.from)
-        .plus(0.01);
-
-      let toTax = Decimal.min(remainingToTax, tierRange);
-      remainingToTax = remainingToTax.minus(toTax);
-
-      let tierCotisation = D(0);
-
-      if (currentSpecialSocialCotisationTier.flatAmount && remainingToTax.isZero()) {
-        tierCotisation = currentSpecialSocialCotisationTier.flatAmount;
-        break;
-      }
-
-      if (currentSpecialSocialCotisationTier.taxRate) {
-        tierCotisation = tierCotisation.plus(
-          toTax.times(currentSpecialSocialCotisationTier.taxRate.div(100))
-        );
-      }
-
-      if (currentSpecialSocialCotisationTier.minAmount && tierCotisation.lt(currentSpecialSocialCotisationTier.minAmount)) {
-        tierCotisation = currentSpecialSocialCotisationTier.minAmount;
-      }
-
-      if (currentSpecialSocialCotisationTier.maxAmount && tierCotisation.gt(currentSpecialSocialCotisationTier.maxAmount)) {
-        tierCotisation = currentSpecialSocialCotisationTier.maxAmount;
-      }
-
-      specialSocialCotisation = specialSocialCotisation.plus(tierCotisation);
-      currentTier++;
-    }
-
-    return specialSocialCotisation.toDP(2);
-  }
-
-  private calculateEmploymentBonusAndTaxReductions(
-    values: any,
-    socialCotisations: Decimal,
-  ): MonthlyTaxReductionsForLowSalaries {
-    // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/deductions/workers_reductions/workbonus.html
-    let grossSalary = D(values.grossSalary);
-    let grossSalaryForEmploymentBonus = grossSalary;
-    let workedTimePerWeek = D(values.workedTimePerWeek);
-    let fullTimeHoursPerWeek = D(values.fullTimeHoursPerWeek);
-
-    if (values.workRegime == 'part_time') {
-      grossSalaryForEmploymentBonus = grossSalary.div(workedTimePerWeek).toDP(2).times(fullTimeHoursPerWeek);
-    }
-
-    let employmentBonus = D(0);
-    let monthlyTaxReductionsForLowSalaries = D(0);
-
-    if (grossSalaryForEmploymentBonus.lte(3_207.40)) {
-      let employmentBonusA;
-
-      if (values.status === 'employee') {
-        employmentBonusA = Decimal.min(
-          D(118.22).minus(D(0.2442).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_723.36), 0))),
-          socialCotisations,
-        );
-      } else {
-        employmentBonusA = Decimal.min(
-          D(127.68).minus(D(0.2638).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_723.36), 0))),
-          socialCotisations,
-        );
-      }
-
-      employmentBonus = employmentBonus.plus(employmentBonusA);
-      monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries.plus(
-        monthlyTaxReductionsForLowSalaries.plus(
-          employmentBonusA.times(33.14).div(100)
-        )
-      );
-    }
-
-    if (grossSalaryForEmploymentBonus.lte(2_723.36)) {
-      let employmentBonusB;
-
-      if (values.status === 'employee') {
-        employmentBonusB = Decimal.min(
-          D(159.43).minus(D(0.2699).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_132.59), 0))),
-          socialCotisations.minus(employmentBonus),
-        );
-      } else {
-        employmentBonusB = Decimal.min(
-          D(172.18).minus(D(0.2915).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_132.59), 0))),
-          socialCotisations.minus(employmentBonus),
-        );
-      }
-
-      employmentBonus = employmentBonus.plus(employmentBonusB);
-      monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries.plus(
-        employmentBonusB.times(52.54).div(100)
-      );
-    }
-
-    monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries.toDP(2);
-
-    return {
-      employmentBonus: employmentBonus.toDP(2),
-      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toDP(2),
-    };
-  }
-
-  private calculateNetSalary(values: any): SalaryResult {
-    let grossSalary = new Decimal(values.grossSalary);
-    let socialCotisations: Decimal;
-
-    if (values.status === 'employee') {
-      socialCotisations = grossSalary.times(13.07).div(100).toDP(2);
-    } else {
-      socialCotisations = grossSalary.times(1.08).times(13.07).div(100).toDP(2);
-    }
-
-    const employmentBonusAndTaxReductions = this.calculateEmploymentBonusAndTaxReductions(
-      values,
-      socialCotisations,
-    );
-    const employmentBonus = employmentBonusAndTaxReductions.employmentBonus;
-    const monthlyTaxReductionsForLowSalaries = employmentBonusAndTaxReductions.monthlyTaxReductionsForLowSalaries;
-
-    const taxableIncome = grossSalary.minus(socialCotisations).plus(employmentBonus);
-    const roundedMonthlyGrossIncome = taxableIncome.toDP(2);
-    const roundedAnnualGrossIncome = roundedMonthlyGrossIncome.times(12);
-
-    // Calculate flat rate professional expenses
-    let flatRateProfessionalExpenses = D(0);
-
-    for (const tier of this.flatRateProfessionalExpenseTiers) {
-      if (roundedAnnualGrossIncome <= tier.to) {
-        flatRateProfessionalExpenses = tier.flat_rate.plus(roundedAnnualGrossIncome.times(tier.percentage).div(100)).toDP(2);
-        break;
-      }
-    }
-
-    const annualTaxableIncome = taxableIncome.times(12).minus(flatRateProfessionalExpenses);
-
-    // Calculate annual base tax
-    const annualTaxes = this.calculateAnnualBaseTax(
-      values.familySituation,
-      annualTaxableIncome,
-    );
-    const annualBaseTax = annualTaxes.total;
-    const specialSocialCotisations = this.calculateSpecialSocialCotisation(
-      values.status,
-      values.familySituation,
-      grossSalary,
-    );
-    let annualTaxReductions = D(0);
-
-    if (values.dependentPeople) {
-      const numDependentChildren = values.numDependentChildren + values.numDisabledDependentChildren * 2;
-
-      switch (numDependentChildren) {
-        case 0:
-          break;
-        case 1:
-          annualTaxReductions = annualTaxReductions.plus(588.00);
-          break;
-        case 2:
-          annualTaxReductions = annualTaxReductions.plus(1_572.00);
-          break;
-        case 3:
-          annualTaxReductions = annualTaxReductions.plus(4_164.00);
-          break;
-        case 4:
-          annualTaxReductions = annualTaxReductions.plus(7_212.00);
-          break;
-        case 5:
-          annualTaxReductions = annualTaxReductions.plus(10_512.00);
-          break;
-        case 6:
-          annualTaxReductions = annualTaxReductions.plus(13_812.00);
-          break;
-        case 7:
-          annualTaxReductions = annualTaxReductions.plus(17_148.00);
-          break;
-        case 8:
-          annualTaxReductions = annualTaxReductions.plus(20_808.00);
-          break;
-        default:
-          annualTaxReductions = annualTaxReductions.plus(20_808.00);
-          annualTaxReductions = annualTaxReductions.plus(3_660.00).times(8 - numDependentChildren);
-      }
-
-      annualTaxReductions = annualTaxReductions.plus(1_884.00).times(values.numDependent65Plussers);
-
-      const numDependentOthers = values.numDependentOthers + 2 * values.numDisabledDependentOthers;
-      annualTaxReductions = annualTaxReductions.plus(D(588.00).times(numDependentOthers));
-    }
-
-    if (values.disabled) {
-      annualTaxReductions = annualTaxReductions.plus(588.00);
-    }
-
-    const monthlyTaxes = annualBaseTax.div(12).toDP(2);
-    const monthlyTaxReductions = annualTaxReductions.div(12).toDP(2);
-    const monthlyTaxReductionsForGroupInsurance = values.groupInsurance ?
-      D(values.groupInsurancePersonalCotisation).times(30).div(100).toDP(2) : D(0);
-
-    const netSalary = taxableIncome.minus(
-      Decimal.max(
-        monthlyTaxes
-          .minus(monthlyTaxReductions)
-          .minus(monthlyTaxReductionsForGroupInsurance)
-          .minus(monthlyTaxReductionsForLowSalaries),
-        0,
-      )
-    ).minus(specialSocialCotisations)
-      .minus(values.groupInsurancePersonalCotisation || 0)
-      .plus(values.otherNetIncome || 0);
-
-    const monthlyTaxesByTier: TaxesForTier[] = annualTaxes.taxesByTier.map(taxesForTier => ({
-      toTax: taxesForTier.toTax.div(12).toDP(2),
-      percentage: taxesForTier.percentage,
-      taxes: taxesForTier.taxes.div(12).toDP(2),
-    }));
-
-    return {
-      grossSalary: values.grossSalary,
-      socialCotisations: socialCotisations.toNumber(),
-      specialSocialCotisations: specialSocialCotisations.toNumber(),
-      employmentBonus: employmentBonus.toNumber(),
-      taxableIncome: taxableIncome.toNumber(),
-      monthlyTaxes: monthlyTaxes.toNumber(),
-      monthlyTaxesByTier,
-      otherMonthlyTaxReductions: monthlyTaxReductions.toNumber(),
-      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toNumber(),
-      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance.toNumber(),
-      netToGrossRatio: netSalary.div(values.grossSalary).times(100).toNumber(),
-      averageTaxRate: grossSalary.minus(netSalary).div(grossSalary).times(100).toNumber(),
-      netSalary: netSalary.toNumber(),
-      groupInsurancePersonalCotisation: values.groupInsurancePersonalCotisation
-    };
   }
 
   updateChartData(grossSalary: number | null = null) {
@@ -702,10 +247,7 @@ export class MainComponent implements OnInit {
     const salaries = salaryPoints.map(salary => {
       return {
         gross: salary,
-        taxation: this.calculateNetSalary({
-          ...this.salaryForm.value,
-          grossSalary: salary
-        })
+        taxation: this.calculateNetSalary(salary),
       }
     });
 
@@ -738,12 +280,8 @@ export class MainComponent implements OnInit {
             nextGross = salaries[index + 1].taxation.grossSalary;
             nextNet = salaries[index + 1].taxation.netSalary;
           } else {
-            nextGross = salary.gross + this.graphsStep
-
-            nextNet = this.calculateNetSalary({
-              ...this.salaryForm.value,
-              grossSalary: nextGross
-            }).netSalary;
+            nextGross = salary.gross + this.graphsStep;
+            nextNet = this.calculateNetSalary(nextGross).netSalary;
           }
 
           return {
