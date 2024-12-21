@@ -41,6 +41,8 @@
   "gross_salary": "Bruto loon",
   "personal_social_contributions": "Persoonlijke sociale bijdragen (R.S.Z.)",
   "employment_bonus": "Werkbonus",
+  "capped": "plafonné",
+  "capped_tooltip": "Het jaarlijks bedrag van de verminering mag niet meer bedragen dans € 3.331,80.",
   "taxable_gross_income": "Belastbaar bruto inkomen",
   "professional_withholding_tax": "Bedrijfsvoorheffing",
   "hide_breakdown": "details verbergen",

@@ -37,6 +37,8 @@
   "gross_salary": "Gross Salary",
   "personal_social_contributions": "Personal Social Contributions (R.S.Z./O.N.S.S.)",
   "employment_bonus": "Employment bonus",
+  "capped": "capped",
+  "capped_tooltip": "The annual amount of the reduction cannot exceed €3.331,80.",
   "taxable_gross_income": "Taxable Gross Income",
   "professional_withholding_tax": "Professional Withholding Tax",
   "hide_breakdown": "hide breakdown",
