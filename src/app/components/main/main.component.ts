@@ -14,10 +14,11 @@ import { MatTableModule } from '@angular/material/table';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { forkJoin, take } from 'rxjs';
+import { Decimal } from 'decimal.js';
 
 interface MonthlyTaxReductionsForLowSalaries {
-  monthlyTaxReductionsForLowSalaries: number;
-  employmentBonus: number;
+  monthlyTaxReductionsForLowSalaries: Decimal;
+  employmentBonus: Decimal;
 }
 
 interface SalaryResult {
@@ -38,24 +39,26 @@ interface SalaryResult {
 }
 
 interface SocialSecurityTier {
-  from: number,
-  to: number,
-  taxRate?: number,
-  flatAmount?: number,
-  minAmount?: number,
-  maxAmount?: number,
+  from: Decimal,
+  to: Decimal,
+  taxRate?: Decimal,
+  flatAmount?: Decimal,
+  minAmount?: Decimal,
+  maxAmount?: Decimal,
 }
 
 interface TaxesForTier {
-  toTax: number,
-  percentage: number,
-  taxes: number,
+  toTax: Decimal,
+  percentage: Decimal,
+  taxes: Decimal,
 }
 
 interface Taxes {
   taxesByTier: TaxesForTier[],
-  total: number,
+  total: Decimal,
 }
+
+const D = (value: number | string | null): Decimal => new Decimal(value || 0);
 
 @Component({
   selector: 'app-main',
@@ -91,9 +94,9 @@ export class MainComponent implements OnInit {
   averageTaxRateChartData: any[] = [];
   showWithHoldingTaxBreakdown = false;
 
-  graphsStartingSalary = 2_000;
+  graphsStartingSalary = 2_050;
   graphsEndingSalary = 6_000;
-  graphsStep = 50;
+  graphsStep = 25;
 
   availableLangs = this.getAvailableLangs();
 
@@ -114,119 +117,119 @@ export class MainComponent implements OnInit {
 
   private readonly flatRateProfessionalExpenseTiers = [
     {
-      from: 0.01,
-      to: 19_166.67,
-      flat_rate: 0,
-      percentage: 30
+      from: D(0.01),
+      to: D(19_166.67),
+      flat_rate: D(0),
+      percentage: D(30),
     },
     {
-      from: 19_166.67,
-      to: Infinity,
-      flat_rate: 5_750.00,
-      percentage: 0
+      from: D(19_166.68),
+      to: D(Infinity),
+      flat_rate: D(5_750.00),
+      percentage: D(0),
     }
   ];
 
   private readonly taxTiers = [
     {
-      from: 0.01,
-      to: 10_580.00,
-      percentage: 0
+      from: D(0.01),
+      to: D(10_580.00),
+      percentage: D(0),
     },
     {
-      from: 10_580.00,
-      to: 15_830.00,
-      percentage: 26.75
+      from: D(10_580.01),
+      to: D(15_830.00),
+      percentage: D(26.75),
     },
     {
-      from: 15_830.00,
-      to: 27_940.00,
-      percentage: 42.80
+      from: D(15_830.01),
+      to: D(27_940.00),
+      percentage: D(42.80),
     },
     {
-      from: 27_940.00,
-      to: 48_350.00,
-      percentage: 48.15
+      from: D(27_940.01),
+      to: D(48_350.00),
+      percentage: D(48.15),
     },
     {
-      from: 48_350.00,
-      to: Infinity,
-      percentage: 53.50
+      from: D(48_350.01),
+      to: D(Infinity),
+      percentage: D(53.50),
     }
   ];
   // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/special_contributions/other_specialcontributions/specialsocialsecuritycontribution.html
   private readonly specialSocialCotisationTiersIsolated: SocialSecurityTier[] = [
     {
-      'from': 0.01,
-      'to': 1_945.38,
-      'taxRate': 0,
+      'from': D(0.01),
+      'to': D(1_945.38),
+      'taxRate': D(0),
     },
     {
-      'from': 1_945.38,
-      'to': 2_190.18,
-      'taxRate': 4.22,
+      'from': D(1_945.39),
+      'to': D(2_190.18),
+      'taxRate': D(4.22),
     },
     {
-      'from': 2_190.18,
-      'to': 3_737.00,
-      'taxRate': 1.1,
+      'from': D(2_190.19),
+      'to': D(3_737.00),
+      'taxRate': D(1.1),
     },
     {
-      'from': 3_737.00,
-      'to': 4_100.00,
-      'taxRate': 3.38,
+      'from': D(3_737.01),
+      'to': D(4_100.00),
+      'taxRate': D(3.38),
     },
     {
-      'from': 4_100.00,
-      'to': 6_038.82,
-      'taxRate': 1.10,
+      'from': D(4_100.01),
+      'to': D(6_038.82),
+      'taxRate': D(1.10),
     },
     {
-      'from': 6_038.82,
-      'to': Infinity,
-      'taxRate': 0,
+      'from': D(6_038.83),
+      'to': D(Infinity),
+      'taxRate': D(0),
     }
   ];
   private readonly specialSocialCotisationTiersMarriedTwoIncomes = [
     {
-      'from': 0.01,
-      'to': 3_285.29 / 3,
-      'taxRate': 0,
+      'from': D(0.01),
+      'to': D(3_285.29).div(3),
+      'taxRate': D(0),
     },
     {
-      'from': 3_285.29 / 3,
-      'to': 5_836.14 / 3,
-      'flatAmount': 15.45 / 3,
+      'from': D(3_285.29).div(3).plus(0.01),
+      'to': D(5_836.14).div(3),
+      'flatAmount': D(15.45).div(3),
     },
     {
-      'from': 5_836.14 / 3,
-      'to': 6_570.54 / 3,
-      'taxRate': 5.9,
-      'minAmount': 15.45 / 3,
+      'from': D(5_836.14).div(3).plus(0.01),
+      'to': D(6_570.54).div(3),
+      'taxRate': D(5.9),
+      'minAmount': D(15.45).div(3),
     },
     {
-      'from': 6_570.54 / 3,
-      'to': Infinity,
-      'taxRate': 1.1,
-      'maxAmount': (154.92 - 43.32) / 3,
+      'from': D(6_570.54).div(3).plus(0.01),
+      'to': D(Infinity),
+      'taxRate': D(1.1),
+      'maxAmount': D(154.92).minus(D(43.32)).div(D(3)),
     },
   ];
   private readonly specialSocialCotisationTiersMarriedOneIncome = [
     {
-      'from': 0.01,
-      'to': 1_945.38,
-      'taxRate': 0,
+      'from': D(0.01),
+      'to': D(1_945.38),
+      'taxRate': D(0),
     },
     {
-      'from': 1_945.38,
-      'to': 2_190.18,
-      'taxRate': 5.9,
+      'from': D(1_945.39),
+      'to': D(2_190.18),
+      'taxRate': D(5.9),
     },
     {
-      'from': 2_190.18,
-      'to': Infinity,
-      'taxRate': 1.1,
-      'maxAmount': (182.82 - 43.32) / 3,
+      'from': D(2_190.19),
+      'to': D(Infinity),
+      'taxRate': D(1.1),
+      'maxAmount': D(182.82).minus(D(43.32)).div(D(3)),
     },
   ];
 
@@ -347,54 +350,60 @@ export class MainComponent implements OnInit {
     }
   }
 
-  private round(value: number): number {
-    return Math.round(value * 100) / 100;
+  private round(value: Decimal): Decimal {
+    return value.times(100).toDP(2).div(100);
   }
 
   private calculateAnnualBaseTax(
     familySituation: String,
-    annualTaxableIncome: number,
+    annualTaxableIncome: Decimal,
   ): Taxes {
-    let annualBaseTax = 0;
+    let annualBaseTax = D(0);
     const taxesByTier: TaxesForTier[] = [];
 
     if (familySituation === 'isolated' || familySituation === 'married_or_cohabitant_2_incomes') {
       let remainingToTax = annualTaxableIncome;
       let currentTier = 0;
 
-      while (remainingToTax > 0) {
+      while (remainingToTax.gt(0)) {
         const currentTaxTier = this.taxTiers[currentTier];
-        const tierRange = currentTaxTier.to - currentTaxTier.from + 0.01;
+        const tierRange = currentTaxTier.to.minus(currentTaxTier.from).plus(0.01);
 
-        let toTax = Math.min(remainingToTax, tierRange);
-        remainingToTax -= toTax;
+        let toTax = Decimal.min(remainingToTax, tierRange);
+        remainingToTax = remainingToTax.minus(toTax);
 
-        const tierTaxes = toTax * currentTaxTier.percentage / 100;
+        const tierTaxes = toTax.times(currentTaxTier.percentage).div(100);
+
         taxesByTier.push({
           toTax,
           percentage: currentTaxTier.percentage,
           taxes: tierTaxes,
         });
 
-        annualBaseTax += tierTaxes;
+        annualBaseTax = annualBaseTax.plus(tierTaxes);
         currentTier++;
       }
 
       return {
         taxesByTier,
-        total: this.round(annualBaseTax),
+        total: annualBaseTax.toDP(2),
       }
     } else {
-      let revenueAttributedToPartner = Math.min(this.round(annualTaxableIncome * 30.0 / 100), 13_060.0);
+      let revenueAttributedToPartner = annualTaxableIncome.times(30).div(100);
+
+      if (revenueAttributedToPartner.gt(13_060)) {
+        revenueAttributedToPartner = D(13_060.0);
+      }
+
       let partnerRevenueTaxes = this.calculateAnnualBaseTax('isolated', revenueAttributedToPartner);
 
-      let remainingToTax = annualTaxableIncome - revenueAttributedToPartner;
+      let remainingToTax = annualTaxableIncome.minus(revenueAttributedToPartner);
 
       let ownRevenueTaxes = this.calculateAnnualBaseTax('isolated', remainingToTax);
 
       return {
         taxesByTier: ownRevenueTaxes.taxesByTier,
-        total: partnerRevenueTaxes.total + ownRevenueTaxes.total,
+        total: partnerRevenueTaxes.total.plus(ownRevenueTaxes.total),
       };
     }
   }
@@ -402,8 +411,8 @@ export class MainComponent implements OnInit {
   private calculateSpecialSocialCotisation(
     status: String,
     familySituation: String,
-    grossSalary: number,
-  ): number {
+    grossSalary: Decimal,
+  ): Decimal {
     let currentSpecialSocialCotisationTiers: SocialSecurityTier[]
 
     switch (familySituation) {
@@ -421,114 +430,127 @@ export class MainComponent implements OnInit {
     }
 
     if (status == 'worker') {
-      grossSalary *= 1.08;
+      grossSalary = grossSalary.times(1.08);
     }
 
-    let specialSocialCotisation = 0;
+    let specialSocialCotisation = D(0);
     let remainingToTax = grossSalary;
     let currentTier = 0;
 
-    while (remainingToTax > 0) {
+    while (remainingToTax.gt(0)) {
       const currentSpecialSocialCotisationTier = currentSpecialSocialCotisationTiers[currentTier];
-      const tierRange = currentSpecialSocialCotisationTier.to - currentSpecialSocialCotisationTier.from + 0.01;
+      const tierRange = currentSpecialSocialCotisationTier.to
+        .minus(currentSpecialSocialCotisationTier.from)
+        .plus(0.01);
 
-      let toTax = Math.min(remainingToTax, tierRange);
-      remainingToTax -= toTax;
+      let toTax = Decimal.min(remainingToTax, tierRange);
+      remainingToTax = remainingToTax.minus(toTax);
 
-      let tierCotisation = 0;
+      let tierCotisation = D(0);
 
-      if (currentSpecialSocialCotisationTier.flatAmount && remainingToTax == 0) {
+      if (currentSpecialSocialCotisationTier.flatAmount && remainingToTax.isZero()) {
         tierCotisation = currentSpecialSocialCotisationTier.flatAmount;
         break;
       }
 
       if (currentSpecialSocialCotisationTier.taxRate) {
-        tierCotisation += toTax * currentSpecialSocialCotisationTier.taxRate / 100;
+        tierCotisation = tierCotisation.plus(
+          toTax.times(currentSpecialSocialCotisationTier.taxRate.div(100))
+        );
       }
 
-      if (currentSpecialSocialCotisationTier.minAmount && tierCotisation < currentSpecialSocialCotisationTier.minAmount) {
-        tierCotisation = Math.max(tierCotisation, currentSpecialSocialCotisationTier.minAmount);
+      if (currentSpecialSocialCotisationTier.minAmount && tierCotisation.lt(currentSpecialSocialCotisationTier.minAmount)) {
+        tierCotisation = currentSpecialSocialCotisationTier.minAmount;
       }
 
-      if (currentSpecialSocialCotisationTier.maxAmount && tierCotisation > currentSpecialSocialCotisationTier.maxAmount) {
-        tierCotisation = Math.min(tierCotisation, currentSpecialSocialCotisationTier.maxAmount);
+      if (currentSpecialSocialCotisationTier.maxAmount && tierCotisation.gt(currentSpecialSocialCotisationTier.maxAmount)) {
+        tierCotisation = currentSpecialSocialCotisationTier.maxAmount;
       }
 
-      specialSocialCotisation += tierCotisation;
+      specialSocialCotisation = specialSocialCotisation.plus(tierCotisation);
       currentTier++;
     }
 
-    return this.round(specialSocialCotisation);
+    return specialSocialCotisation.toDP(2);
   }
 
   private calculateEmploymentBonusAndTaxReductions(
     values: any,
-    socialCotisations: number,
+    socialCotisations: Decimal,
   ): MonthlyTaxReductionsForLowSalaries {
     // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/deductions/workers_reductions/workbonus.html
-    let grossSalaryForEmploymentBonus = values.grossSalary;
+    let grossSalary = D(values.grossSalary);
+    let grossSalaryForEmploymentBonus = grossSalary;
+    let workedTimePerWeek = D(values.workedTimePerWeek);
+    let fullTimeHoursPerWeek = D(values.fullTimeHoursPerWeek);
 
     if (values.workRegime == 'part_time') {
-      grossSalaryForEmploymentBonus = this.round(values.grossSalary / values.workedTimePerWeek) * values.fullTimeHoursPerWeek;
+      grossSalaryForEmploymentBonus = grossSalary.div(workedTimePerWeek).toDP(2).times(fullTimeHoursPerWeek);
     }
 
-    let employmentBonus = 0;
-    let monthlyTaxReductionsForLowSalaries = 0;
+    let employmentBonus = D(0);
+    let monthlyTaxReductionsForLowSalaries = D(0);
 
-    if (grossSalaryForEmploymentBonus <= 3_207.40) {
+    if (grossSalaryForEmploymentBonus.lte(3_207.40)) {
       let employmentBonusA;
 
       if (values.status === 'employee') {
-        employmentBonusA = Math.min(
-          this.round(118.22 - (0.2442 * Math.max(grossSalaryForEmploymentBonus - 2_723.36, 0))),
+        employmentBonusA = Decimal.min(
+          D(118.22).minus(D(0.2442).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_723.36), 0))),
           socialCotisations,
         );
       } else {
-        employmentBonusA = Math.min(
-          this.round(127.68 - (0.2638 * Math.max(grossSalaryForEmploymentBonus - 2_723.36, 0))),
+        employmentBonusA = Decimal.min(
+          D(127.68).minus(D(0.2638).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_723.36), 0))),
           socialCotisations,
         );
       }
 
-      employmentBonus += employmentBonusA;
-      monthlyTaxReductionsForLowSalaries += employmentBonusA * 33.14 / 100;
+      employmentBonus = employmentBonus.plus(employmentBonusA);
+      monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries.plus(
+        monthlyTaxReductionsForLowSalaries.plus(
+          employmentBonusA.times(33.14).div(100)
+        )
+      );
     }
 
-    if (grossSalaryForEmploymentBonus <= 2_723.36) {
+    if (grossSalaryForEmploymentBonus.lte(2_723.36)) {
       let employmentBonusB;
 
       if (values.status === 'employee') {
-        employmentBonusB = Math.min(
-          this.round(159.43 - (0.2699 * Math.max(grossSalaryForEmploymentBonus - 2_132.59, 0))),
-          socialCotisations - employmentBonus,
+        employmentBonusB = Decimal.min(
+          D(159.43).minus(D(0.2699).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_132.59), 0))),
+          socialCotisations.minus(employmentBonus),
         );
       } else {
-        employmentBonusB = Math.min(
-          this.round(172.18 - (0.2915 * Math.max(grossSalaryForEmploymentBonus - 2_132.59, 0))),
-          socialCotisations - employmentBonus,
+        employmentBonusB = Decimal.min(
+          D(172.18).minus(D(0.2915).times(Decimal.max(grossSalaryForEmploymentBonus.minus(2_132.59), 0))),
+          socialCotisations.minus(employmentBonus),
         );
       }
 
-      employmentBonus += employmentBonusB;
-      monthlyTaxReductionsForLowSalaries += employmentBonusB * 52.54 / 100;
+      employmentBonus = employmentBonus.plus(employmentBonusB);
+      monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries.plus(
+        employmentBonusB.times(52.54).div(100)
+      );
     }
 
-    monthlyTaxReductionsForLowSalaries = this.round(monthlyTaxReductionsForLowSalaries);
+    monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries.toDP(2);
 
     return {
-      employmentBonus: this.round(employmentBonus),
-      monthlyTaxReductionsForLowSalaries: this.round(monthlyTaxReductionsForLowSalaries),
+      employmentBonus: employmentBonus.toDP(2),
+      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toDP(2),
     };
   }
 
   private calculateNetSalary(values: any): SalaryResult {
-    let grossSalary = values.grossSalary;
-    let socialCotisations: number;
+    let grossSalary = new Decimal(values.grossSalary);
+    let socialCotisations: Decimal;
 
     if (values.status === 'employee') {
-      socialCotisations = this.round(grossSalary * (13.07 / 100));
+      socialCotisations = grossSalary.times(13.07).div(100).toDP(2);
     } else {
-      socialCotisations = this.round(grossSalary * 1.08 * (13.07 / 100));
+      socialCotisations = grossSalary.times(1.08).times(13.07).div(100).toDP(2);
     }
 
     const employmentBonusAndTaxReductions = this.calculateEmploymentBonusAndTaxReductions(
@@ -538,21 +560,21 @@ export class MainComponent implements OnInit {
     const employmentBonus = employmentBonusAndTaxReductions.employmentBonus;
     const monthlyTaxReductionsForLowSalaries = employmentBonusAndTaxReductions.monthlyTaxReductionsForLowSalaries;
 
-    const taxableIncome = this.round(grossSalary - socialCotisations + employmentBonus);
-    const roundedMonthlyGrossIncome = this.round(taxableIncome);
-    const roundedAnnualGrossIncome = roundedMonthlyGrossIncome * 12;
+    const taxableIncome = grossSalary.minus(socialCotisations).plus(employmentBonus);
+    const roundedMonthlyGrossIncome = taxableIncome.toDP(2);
+    const roundedAnnualGrossIncome = roundedMonthlyGrossIncome.times(12);
 
     // Calculate flat rate professional expenses
-    let flatRateProfessionalExpenses = 0;
+    let flatRateProfessionalExpenses = D(0);
 
     for (const tier of this.flatRateProfessionalExpenseTiers) {
       if (roundedAnnualGrossIncome <= tier.to) {
-        flatRateProfessionalExpenses = this.round(tier.flat_rate + roundedAnnualGrossIncome * tier.percentage / 100);
+        flatRateProfessionalExpenses = tier.flat_rate.plus(roundedAnnualGrossIncome.times(tier.percentage).div(100)).toDP(2);
         break;
       }
     }
 
-    const annualTaxableIncome = taxableIncome * 12 - flatRateProfessionalExpenses;
+    const annualTaxableIncome = taxableIncome.times(12).minus(flatRateProfessionalExpenses);
 
     // Calculate annual base tax
     const annualTaxes = this.calculateAnnualBaseTax(
@@ -565,7 +587,7 @@ export class MainComponent implements OnInit {
       values.familySituation,
       grossSalary,
     );
-    let annualTaxReductions = 0;
+    let annualTaxReductions = D(0);
 
     if (values.dependentPeople) {
       const numDependentChildren = values.numDependentChildren + values.numDisabledDependentChildren * 2;
@@ -574,77 +596,81 @@ export class MainComponent implements OnInit {
         case 0:
           break;
         case 1:
-          annualTaxReductions += 588.00;
+          annualTaxReductions = annualTaxReductions.plus(588.00);
           break;
         case 2:
-          annualTaxReductions += 1_572.00;
+          annualTaxReductions = annualTaxReductions.plus(1_572.00);
           break;
         case 3:
-          annualTaxReductions += 4_164.00;
+          annualTaxReductions = annualTaxReductions.plus(4_164.00);
           break;
         case 4:
-          annualTaxReductions += 7_212.00;
+          annualTaxReductions = annualTaxReductions.plus(7_212.00);
           break;
         case 5:
-          annualTaxReductions += 10_512.00;
+          annualTaxReductions = annualTaxReductions.plus(10_512.00);
           break;
         case 6:
-          annualTaxReductions += 13_812.00;
+          annualTaxReductions = annualTaxReductions.plus(13_812.00);
           break;
         case 7:
-          annualTaxReductions += 17_148.00;
+          annualTaxReductions = annualTaxReductions.plus(17_148.00);
           break;
         case 8:
-          annualTaxReductions += 20_808.00;
+          annualTaxReductions = annualTaxReductions.plus(20_808.00);
           break;
         default:
-          annualTaxReductions += 20_808.00;
-          annualTaxReductions += 3_660.00 * (8 - numDependentChildren);
+          annualTaxReductions = annualTaxReductions.plus(20_808.00);
+          annualTaxReductions = annualTaxReductions.plus(3_660.00).times(8 - numDependentChildren);
       }
 
-      annualTaxReductions += 1_884.00 * values.numDependent65Plussers;
+      annualTaxReductions = annualTaxReductions.plus(1_884.00).times(values.numDependent65Plussers);
 
       const numDependentOthers = values.numDependentOthers + 2 * values.numDisabledDependentOthers;
-      annualTaxReductions += 588.00 * numDependentOthers;
+      annualTaxReductions = annualTaxReductions.plus(D(588.00).times(numDependentOthers));
     }
 
     if (values.disabled) {
-      annualTaxReductions += 588.00;
+      annualTaxReductions = annualTaxReductions.plus(588.00);
     }
 
-    const monthlyTaxes = this.round(annualBaseTax / 12);
-    const monthlyTaxReductions = this.round(annualTaxReductions / 12);
+    const monthlyTaxes = annualBaseTax.div(12).toDP(2);
+    const monthlyTaxReductions = annualTaxReductions.div(12).toDP(2);
     const monthlyTaxReductionsForGroupInsurance = values.groupInsurance ?
-      this.round(values.groupInsurancePersonalCotisation * 30 / 100) : 0;
+      D(values.groupInsurancePersonalCotisation).times(30).div(100).toDP(2) : D(0);
 
-    const netSalary = taxableIncome - Math.max(
-      monthlyTaxes -
-      monthlyTaxReductions -
-      monthlyTaxReductionsForGroupInsurance -
-      monthlyTaxReductionsForLowSalaries,
-      0
-    ) - specialSocialCotisations - (values.groupInsurance ? values.groupInsurancePersonalCotisation : 0) + values.otherNetIncome;
+    const netSalary = taxableIncome.minus(
+      Decimal.max(
+        monthlyTaxes
+          .minus(monthlyTaxReductions)
+          .minus(monthlyTaxReductionsForGroupInsurance)
+          .minus(monthlyTaxReductionsForLowSalaries),
+        0,
+      )
+    ).minus(specialSocialCotisations)
+      .minus(values.groupInsurancePersonalCotisation || 0)
+      .plus(values.otherNetIncome || 0);
 
     const monthlyTaxesByTier: TaxesForTier[] = annualTaxes.taxesByTier.map(taxesForTier => ({
-      toTax: this.round(taxesForTier.toTax / 12),
-      percentage: this.round(taxesForTier.percentage),
-      taxes: this.round(taxesForTier.taxes / 12),
+      toTax: taxesForTier.toTax.div(12).toDP(2),
+      percentage: taxesForTier.percentage,
+      taxes: taxesForTier.taxes.div(12).toDP(2),
     }));
 
     return {
       grossSalary: values.grossSalary,
-      socialCotisations,
-      specialSocialCotisations,
-      employmentBonus,
-      taxableIncome,
-      monthlyTaxes,
+      socialCotisations: socialCotisations.toNumber(),
+      specialSocialCotisations: specialSocialCotisations.toNumber(),
+      employmentBonus: employmentBonus.toNumber(),
+      taxableIncome: taxableIncome.toNumber(),
+      monthlyTaxes: monthlyTaxes.toNumber(),
       monthlyTaxesByTier,
-      otherMonthlyTaxReductions: monthlyTaxReductions,
-      monthlyTaxReductionsForLowSalaries,
-      monthlyTaxReductionsForGroupInsurance,
-      netToGrossRatio: netSalary / values.grossSalary * 100,
-      averageTaxRate: (values.grossSalary - netSalary) / values.grossSalary * 100,
-      netSalary,
+      otherMonthlyTaxReductions: monthlyTaxReductions.toNumber(),
+      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toNumber(),
+      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance.toNumber(),
+      netToGrossRatio: netSalary.div(values.grossSalary).times(100).toNumber(),
+      averageTaxRate: grossSalary.minus(netSalary).div(grossSalary).times(100).toNumber(),
+      netSalary: netSalary.toNumber(),
       groupInsurancePersonalCotisation: values.groupInsurancePersonalCotisation
     };
   }
