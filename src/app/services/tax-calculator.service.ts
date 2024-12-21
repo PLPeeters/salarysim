@@ -31,6 +31,7 @@ interface SocialSecurityTier {
   to: Decimal,
   taxRate?: Decimal,
   flatAmount?: Decimal,
+  includedInFlatAmount?: Decimal,
   minAmount?: Decimal,
   maxAmount?: Decimal,
 }
@@ -147,31 +148,42 @@ export class TaxCalculatorService {
     {
       from: D(0.01),
       to: D(1_945.38),
+      flatAmount: D(0),
       taxRate: D(0),
     },
     {
       from: D(1_945.39),
       to: D(2_190.18),
+      flatAmount: D(0),
+      includedInFlatAmount: D(1_945.38),
       taxRate: D(4.22),
     },
     {
       from: D(2_190.19),
       to: D(3_737.00),
+      flatAmount: D(30.99).div(3),
+      includedInFlatAmount: D(2_190.18),
       taxRate: D(1.1),
     },
     {
       from: D(3_737.01),
       to: D(4_100.00),
+      flatAmount: D(82.05).div(3),
+      includedInFlatAmount: D(3_737.00),
       taxRate: D(3.38),
     },
     {
       from: D(4_100.01),
       to: D(6_038.82),
+      flatAmount: D(118.83).div(3),
+      includedInFlatAmount: D(4_100.00),
       taxRate: D(1.10),
     },
     {
       from: D(6_038.83),
       to: D(Infinity),
+      flatAmount: D(182.82).div(3),
+      includedInFlatAmount: D(6_038.82),
       taxRate: D(0),
     }
   ];
@@ -195,6 +207,8 @@ export class TaxCalculatorService {
     {
       from: D(6_570.54).div(3).plus(0.01),
       to: D(Infinity),
+      flatAmount: D(43.32),
+      includedInFlatAmount: D(6_570.54).div(3),
       taxRate: D(1.1),
       maxAmount: D(154.92).minus(D(43.32)).div(D(3)),
     },
@@ -213,6 +227,8 @@ export class TaxCalculatorService {
     {
       from: D(2_190.19),
       to: D(Infinity),
+      flatAmount: D(43.32),
+      includedInFlatAmount: D(2_190.18),
       taxRate: D(1.1),
       maxAmount: D(182.82).minus(D(43.32)).div(D(3)),
     },
@@ -297,41 +313,40 @@ export class TaxCalculatorService {
     }
 
     let specialSocialCotisation = D(0);
-    let remainingToTax = grossSalary;
+    let tierFound = false;
     let currentTier = 0;
 
-    while (remainingToTax.gt(0)) {
+    while (!tierFound) {
       const currentSpecialSocialCotisationTier = currentSpecialSocialCotisationTiers[currentTier];
-      const tierRange = currentSpecialSocialCotisationTier.to
-        .minus(currentSpecialSocialCotisationTier.from)
-        .plus(0.01);
 
-      let toTax = Decimal.min(remainingToTax, tierRange);
-      remainingToTax = remainingToTax.minus(toTax);
+      if (grossSalary.gt(currentSpecialSocialCotisationTier.to)) {
+        currentTier++;
+        continue;
+      }
+
+      tierFound = true;
 
       let tierCotisation = D(0);
 
-      if (currentSpecialSocialCotisationTier.flatAmount && remainingToTax.isZero()) {
-        tierCotisation = currentSpecialSocialCotisationTier.flatAmount;
-        break;
+      if (currentSpecialSocialCotisationTier.flatAmount) {
+        specialSocialCotisation = currentSpecialSocialCotisationTier.flatAmount;
       }
 
       if (currentSpecialSocialCotisationTier.taxRate) {
-        tierCotisation = tierCotisation.plus(
-          toTax.times(currentSpecialSocialCotisationTier.taxRate.div(100))
+        specialSocialCotisation = specialSocialCotisation.plus(
+          grossSalary
+            .minus(currentSpecialSocialCotisationTier.includedInFlatAmount || 0)
+            .times(currentSpecialSocialCotisationTier.taxRate.div(100))
         );
       }
 
       if (currentSpecialSocialCotisationTier.minAmount && tierCotisation.lt(currentSpecialSocialCotisationTier.minAmount)) {
-        tierCotisation = currentSpecialSocialCotisationTier.minAmount;
+        specialSocialCotisation = currentSpecialSocialCotisationTier.minAmount;
       }
 
       if (currentSpecialSocialCotisationTier.maxAmount && tierCotisation.gt(currentSpecialSocialCotisationTier.maxAmount)) {
-        tierCotisation = currentSpecialSocialCotisationTier.maxAmount;
+        specialSocialCotisation = currentSpecialSocialCotisationTier.maxAmount;
       }
-
-      specialSocialCotisation = specialSocialCotisation.plus(tierCotisation);
-      currentTier++;
     }
 
     return specialSocialCotisation.toDP(2);
