@@ -24,6 +24,7 @@
     "@angular/router": "^19.0.0",
     "@jsverse/transloco": "^7.5.0",
     "@swimlane/ngx-charts": "^21.0.0",
+    "decimal.js": "^10.4.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
