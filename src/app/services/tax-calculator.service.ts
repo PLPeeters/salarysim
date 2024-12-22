@@ -308,7 +308,7 @@ export class TaxCalculatorService {
         throw Error("What the hell")
     }
 
-    if (status == 'worker') {
+    if (status === Status.WORKER) {
       grossSalary = grossSalary.times(1.08);
     }
 
@@ -413,11 +413,20 @@ export class TaxCalculatorService {
     employmentBonusA = employmentBonusA.times(employmentBonusMultiplier);
     employmentBonusB = employmentBonusB.times(employmentBonusMultiplier);
 
-    // L'éventuel écrêtement en raison d'une insuffisance de cotisations personnelles
-    // s'effectue sur le calcul basé sur le volet B et ensuite sur le calcul basé sur le volet A.
-    employmentBonusB = Decimal.min(employmentBonusB, socialCotisations);
-    employmentBonusA = Decimal.min(employmentBonusA, socialCotisations.minus(employmentBonusB));
     employmentBonus = employmentBonusA.plus(employmentBonusB).toDP(2);
+
+    if (employmentBonus.gt(socialCotisations)) {
+      // L'éventuel écrêtement en raison d'une insuffisance de cotisations personnelles
+      // s'effectue sur le calcul basé sur le volet B et ensuite sur le calcul basé sur le volet A.
+      // 277.65 (159.43 B & 118.22 A) (max)
+      const exceedingAmount = employmentBonus.minus(socialCotisations);
+      const removeFromB = Decimal.min(employmentBonusB, exceedingAmount);
+      const removeFromA = Decimal.min(employmentBonusA, exceedingAmount.minus(removeFromB));
+
+      employmentBonusB = employmentBonusB.minus(removeFromB);
+      employmentBonusA = employmentBonusA.minus(removeFromA);
+      employmentBonus = employmentBonusA.plus(employmentBonusB).toDP(2);
+    }
 
     // Le montant total de la réduction par travailleur ne peut être supérieur à 3.331,80 EUR par année calendrier à partir du 1er mai 2024.
     const monthlyMaximum = D(3_331.8).div(12);
@@ -452,7 +461,7 @@ export class TaxCalculatorService {
     const grossSalary = new Decimal(input.monthlyGrossSalary);
     let socialCotisations: Decimal;
 
-    if (input.status === 'employee') {
+    if (input.status === Status.EMPLOYEE) {
       socialCotisations = grossSalary.times(13.07).div(100).toDP(2);
     } else {
       socialCotisations = grossSalary.times(1.08).times(13.07).div(100).toDP(2);
@@ -537,6 +546,10 @@ export class TaxCalculatorService {
     annualTaxReductions = annualTaxReductions.plus(D(588.00).times(numDependentOthers));
 
     if (input.disabled) {
+      annualTaxReductions = annualTaxReductions.plus(588.00);
+    }
+
+    if (numDependentChildren > 0 && input.familySituation === FamilySituation.ISOLATED) {
       annualTaxReductions = annualTaxReductions.plus(588.00);
     }
 
