@@ -38,7 +38,9 @@
   "out_of_date_warning": "De onderstaande gegevens zijn verouderd, voer de berekening opnieuw uit om te updaten.",
   "charts_configuration": "Grafiekinstellingen",
   "net_salary": "Netto loon",
+  "gross_salary_title": "Bruto loon",
   "gross_salary": "Bruto loon",
+  "amount": "Bedrag",
   "personal_social_contributions": "Persoonlijke sociale bijdragen (R.S.Z.)",
   "employment_bonus": "Werkbonus",
   "capped": "plafonné",
@@ -60,10 +62,12 @@
   "gross_to_net_evolution": "Bruto-netto evolutie",
   "average_tax_rate_evolution": "Evolutie gemiddeld belastingtarief",
   "average_tax_rate": "Gemiddeld belastingtarief",
+  "average_tax_pct": "Gemiddeld belastingtarief (%)",
   "relative_net_increase_title": "Relatieve nettoverhoging voor een bruto loonsverhoging van {{amount}} op basis van het beginloon",
   "relative_net_increase": "Relatieve nettoverhoging",
   "relative_net_increase_explanation_1": "Deze grafiek toont het aandeel van een bruto loonsverhoging van {{amount}} dat resulteert in een netto loonsverhoging, relatief ten opzichte van het beginloon. Met andere woorden, het is het deel van de verhoging dat uiteindelijk in het portemonnee terechtkomt.",
   "relative_net_increase_explanation_2": "Bijvoorbeeld, het datapunt bij {{amount1}} geeft de relatieve nettoverhoging weer voor een bruto loon die stijgt van {{amount1}} naar {{amount2}}.",
+  "net_increase_pct": "Net Increase (%)",
   "credits": "Ontworpen door <a href=\"https://linkedin.com/in/plpeeters\" target=\"_blank\">Pierre-Louis Peeters</a>",
   "favicon_credit": "Favicon ontworpen door Freepik - Flaticon"
 }

@@ -12,15 +12,18 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    importProvidersFrom([BrowserAnimationsModule]), provideAnimationsAsync(), provideHttpClient(), provideTransloco({
-        config: { 
-          availableLangs: ['fr', 'nl', 'en'],
-          defaultLang: 'fr',
-          // Remove this option if your application doesn't support changing language in runtime.
-          reRenderOnLangChange: true,
-          prodMode: !isDevMode(),
-        },
-        loader: TranslocoHttpLoader
-      }),
+    importProvidersFrom([BrowserAnimationsModule]),
+    provideAnimationsAsync(),
+    provideHttpClient(),
+    provideTransloco({
+      config: {
+        availableLangs: ['fr', 'nl', 'en'],
+        defaultLang: 'fr',
+        // Remove this option if your application doesn't support changing language in runtime.
+        reRenderOnLangChange: true,
+        prodMode: !isDevMode(),
+      },
+      loader: TranslocoHttpLoader
+    }),
   ]
 };

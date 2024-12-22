@@ -35,3 +35,11 @@ table.dependents-table {
     padding-top: 32px;
   }
 }
+
+ngx-charts-line-chart.legend-below ngx-charts-legend {
+  display: block;
+
+  & ul {
+    width: initial !important;
+  }
+}
