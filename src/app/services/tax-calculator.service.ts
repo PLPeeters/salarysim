@@ -528,10 +528,10 @@ export class TaxCalculatorService {
         break;
       default:
         annualTaxReductions = annualTaxReductions.plus(20_808.00);
-        annualTaxReductions = annualTaxReductions.plus(3_660.00).times(8 - numDependentChildren);
+        annualTaxReductions = annualTaxReductions.plus(D(3_660.00).times(numDependentChildren - 8));
     }
 
-    annualTaxReductions = annualTaxReductions.plus(1_884.00).times(input.dependentPeople.numDependent65Plussers);
+    annualTaxReductions = annualTaxReductions.plus(D(1_884.00).times(input.dependentPeople.numDependent65Plussers));
 
     const numDependentOthers = input.dependentPeople.numDependentOthers + 2 * input.dependentPeople.numDisabledDependentOthers;
     annualTaxReductions = annualTaxReductions.plus(D(588.00).times(numDependentOthers));
