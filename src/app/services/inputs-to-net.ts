@@ -122,8 +122,8 @@ const partTimeWorker: SalaryCalculationInput = {
 };
 
 export const INPUTS_TO_NET: Situation[] = [
-  { input: { ...simpleEmployee, monthlyGrossSalary: 2070.48 }, net: 1952.30 },
-  { input: { ...simpleEmployee, monthlyGrossSalary: 2100 }, net: 1969.22 },
+  { input: { ...simpleEmployee, monthlyGrossSalary: 2070.48 }, net: 1950.93 },
+  { input: { ...simpleEmployee, monthlyGrossSalary: 2100 }, net: 1968.60 },
   { input: { ...simpleEmployee, monthlyGrossSalary: 2150 }, net: 1989.68 },
   { input: { ...simpleEmployee, monthlyGrossSalary: 2200 }, net: 1997.94 },
   { input: { ...simpleEmployee, monthlyGrossSalary: 2250 }, net: 2007.43 },
@@ -201,8 +201,8 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleEmployee, monthlyGrossSalary: 19000 }, net: 8663.38 },
   { input: { ...simpleEmployee, monthlyGrossSalary: 20000 }, net: 9067.6 },
 
-  { input: { ...simpleWorker, monthlyGrossSalary: 2070.48 }, net: 1940.35 }, // Capped work bonus
-  { input: { ...simpleWorker, monthlyGrossSalary: 2100 }, net: 1953.69 },    // Capped work bonus
+  { input: { ...simpleWorker, monthlyGrossSalary: 2070.48 }, net: 1938.88 }, // Capped work bonus
+  { input: { ...simpleWorker, monthlyGrossSalary: 2100 }, net: 1953.03 },    // Capped work bonus
   { input: { ...simpleWorker, monthlyGrossSalary: 2150 }, net: 1977 },       // Capped work bonus
   { input: { ...simpleWorker, monthlyGrossSalary: 2200 }, net: 2000.98 },    // Capped work bonus
   { input: { ...simpleWorker, monthlyGrossSalary: 2250 }, net: 2011.75 },
@@ -281,7 +281,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleWorker, monthlyGrossSalary: 19000 }, net: 8571.0 },
   { input: { ...simpleWorker, monthlyGrossSalary: 20000 }, net: 8970.36 },
 
-  { input: { ...partTimeEmployee, monthlyGrossSalary: 1743.56 }, net: 1742.68 },
+  { input: { ...partTimeEmployee, monthlyGrossSalary: 1743.56 }, net: 1741.64 },
   { input: { ...partTimeEmployee, monthlyGrossSalary: 1800 }, net: 1782.90 },
   { input: { ...partTimeEmployee, monthlyGrossSalary: 1900 }, net: 1803.27 },
   { input: { ...partTimeEmployee, monthlyGrossSalary: 2000 }, net: 1821.20 },
@@ -365,26 +365,26 @@ export const INPUTS_TO_NET: Situation[] = [
 
   { input: { ...halfTimeEmployee, monthlyGrossSalary: 1319.16 }, net: 1217.33 },           // Withholding tier 1
   { input: { ...halfTimeEmployeeWithOneKid, monthlyGrossSalary: 1319.16 }, net: 1217.33 }, // Withholding tier 1
-  { input: { ...employeeWithOneKid, monthlyGrossSalary: 2100 }, net: 2018.22 },            // Work bonus
-  { input: { ...employeeWithOneKid, monthlyGrossSalary: 2328.33 }, net: 2071.33 },         // Withholding tier 2
-  { input: { ...employeeWithOneKid, monthlyGrossSalary: 2500 }, net: 2103.95 },            // Work bonus
-  { input: { ...employeeWithOneKid, monthlyGrossSalary: 3000 }, net: 2219.90 },            // Work bonus
-  { input: { ...employeeWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2630.70 },         // Withholding tier 3
-  { input: { ...employeeWithOneKid, monthlyGrossSalary: 5000 }, net: 3056.01 },            // Withholding tier 4
+  { input: { ...employeeWithOneKid, monthlyGrossSalary: 2100 }, net: 2066.60 },            // Work bonus
+  { input: { ...employeeWithOneKid, monthlyGrossSalary: 2328.33 }, net: 2120.33 },         // Withholding tier 2
+  { input: { ...employeeWithOneKid, monthlyGrossSalary: 2500 }, net: 2152.95 },            // Work bonus
+  { input: { ...employeeWithOneKid, monthlyGrossSalary: 3000 }, net: 2268.90 },            // Work bonus
+  { input: { ...employeeWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2679.70 },         // Withholding tier 3
+  { input: { ...employeeWithOneKid, monthlyGrossSalary: 5000 }, net: 3105.01 },            // Withholding tier 4
 
   { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 2100 }, net: 2093.48 },    // Work bonus
-  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 2328.33 }, net: 2153.33 }, // Withholding tier 2
-  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 2500 }, net: 2185.95 },    // Work bonus
-  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 3000 }, net: 2301.90 },    // Work bonus
-  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 4029.16 }, net: 2712.70 }, // Withholding tier 3
-  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 5000 }, net: 3138.01 },    // Withholding tier 4
+  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 2328.33 }, net: 2202.33 }, // Withholding tier 2
+  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 2500 }, net: 2234.95 },    // Work bonus
+  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 3000 }, net: 2350.90 },    // Work bonus
+  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 4029.16 }, net: 2761.70 }, // Withholding tier 3
+  { input: { ...employeeWithOneDisabledKid, monthlyGrossSalary: 5000 }, net: 3187.01 },    // Withholding tier 4
 
   { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 2100 }, net: 2093.48 },    // Work bonus
   { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 2328.33 }, net: 2236.99 }, // Withholding tier 2
   { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 2500 }, net: 2338.00 },    // Work bonus
-  { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 3000 }, net: 2517.9 },     // Work bonus
-  { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 4029.16 }, net: 2928.7 },  // Withholding tier 3
-  { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 5000 }, net: 3354.01 },    // Withholding tier 4
+  { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 3000 }, net: 2566.90 },    // Work bonus
+  { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 4029.16 }, net: 2977.70 }, // Withholding tier 3
+  { input: { ...employeeWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 5000 }, net: 3403.01 },    // Withholding tier 4
 
   { input: { ...employeeWith100Kids, monthlyGrossSalary: 2100 }, net: 2093.48 },    // Work bonus
   { input: { ...employeeWith100Kids, monthlyGrossSalary: 2328.33 }, net: 2236.99 }, // Withholding tier 2
@@ -393,21 +393,21 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...employeeWith100Kids, monthlyGrossSalary: 4029.16 }, net: 3465.32 }, // Withholding tier 3
   { input: { ...employeeWith100Kids, monthlyGrossSalary: 5000 }, net: 4296.99 },    // Withholding tier 4
 
-  { input: { ...disabledEmployee, monthlyGrossSalary: 2100 }, net: 2018.22 },    // Work bonus
+  { input: { ...disabledEmployee, monthlyGrossSalary: 2100 }, net: 2017.60 },    // Work bonus
   { input: { ...disabledEmployee, monthlyGrossSalary: 2328.33 }, net: 2071.33 }, // Withholding tier 2
   { input: { ...disabledEmployee, monthlyGrossSalary: 2500 }, net: 2103.95 },    // Work bonus
   { input: { ...disabledEmployee, monthlyGrossSalary: 3000 }, net: 2219.90 },    // Work bonus
   { input: { ...disabledEmployee, monthlyGrossSalary: 4029.16 }, net: 2630.70 }, // Withholding tier 3
   { input: { ...disabledEmployee, monthlyGrossSalary: 5000 }, net: 3056.01 },    // Withholding tier 4
 
-  { input: { ...employeeWithGroupInsurance, monthlyGrossSalary: 2100 }, net: 1939.47 },    // Work bonus
+  { input: { ...employeeWithGroupInsurance, monthlyGrossSalary: 2100 }, net: 1938.85 },    // Work bonus
   { input: { ...employeeWithGroupInsurance, monthlyGrossSalary: 2328.33 }, net: 1992.58 }, // Withholding tier 2
   { input: { ...employeeWithGroupInsurance, monthlyGrossSalary: 2500 }, net: 2025.20 },    // Work bonus
   { input: { ...employeeWithGroupInsurance, monthlyGrossSalary: 3000 }, net: 2141.15 },    // Work bonus
   { input: { ...employeeWithGroupInsurance, monthlyGrossSalary: 4029.16 }, net: 2551.95 }, // Withholding tier 3
   { input: { ...employeeWithGroupInsurance, monthlyGrossSalary: 5000 }, net: 2977.26 },    // Withholding tier 4
 
-  { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 2100 }, net: 2069.22 },    // Work bonus
+  { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 2100 }, net: 2068.60 },    // Work bonus
   { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 2328.33 }, net: 2122.33 }, // Withholding tier 2
   { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 2500 }, net: 2154.95 },    // Work bonus
   { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 3000 }, net: 2270.90 },    // Work bonus
