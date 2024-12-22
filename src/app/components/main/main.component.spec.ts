@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MainComponent } from './main.component';
+import { getTranslocoModule } from '../../transloco-testing.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('MainComponent', () => {
   let component: MainComponent;
@@ -8,7 +10,7 @@ describe('MainComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainComponent]
+      imports: [MainComponent, getTranslocoModule(), BrowserAnimationsModule]
     })
     .compileComponents();
 
