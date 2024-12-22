@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { LayoutModule, MediaMatcher } from '@angular/cdk/layout';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTableModule } from '@angular/material/table';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
 import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { forkJoin, take } from 'rxjs';
 import { FamilySituation, SalaryResult, Status, TaxCalculatorService, WorkRegime } from '../../services/tax-calculator.service';
@@ -22,6 +23,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'app-main',
   imports: [
     FormsModule,
+    LayoutModule,
     NgxChartsModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -45,8 +47,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   styleUrl: './main.component.scss'
 })
 export class MainComponent implements OnInit {
-  translocoService = inject(TranslocoService);
-  taxCalculatorService = inject(TaxCalculatorService);
+  private translocoService = inject(TranslocoService);
+  private taxCalculatorService = inject(TaxCalculatorService);
   salaryForm: FormGroup;
   result: SalaryResult | null = null;
   chartData: any[] = [];
@@ -62,20 +64,34 @@ export class MainComponent implements OnInit {
 
   loading: boolean = true;
   currentLocale: String = '';
-  grossSalaryString: String = '';
-  netSalaryString: String = '';
-  relativeNetIncreaseString: String = '';
-  averageTaxString: String = '';
+  private grossSalaryString: String = '';
+  private netSalaryString: String = '';
+  private relativeNetIncreaseString: String = '';
+  private averageTaxRateString: String = '';
 
   formatAmountTickFormattingFn = this.formatAmount.bind(this);
   formatPctTickFormattingFn = this.formatPct.bind(this);
   formatPctRelativeTickFormattingFn = this.formatPctRelative.bind(this);
 
+  private mediaQueries: MediaQueryList;
+  private mediaQueryListener: (this: MediaQueryList, ev: MediaQueryListEvent) => void;
+  isPortrait: boolean = false;
+  legendPosition: LegendPosition = LegendPosition.Below;
+  LegendPosition = LegendPosition;
+
+  max = Math.max;
+  min = Math.min;
+  window = window;
+
   WorkRegime = WorkRegime;
   Status = Status;
   FamilySituation = FamilySituation;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    private mediaMatcher: MediaMatcher,
+  ) {
     this.salaryForm = this.fb.group({
       status: [Status.EMPLOYEE, Validators.required],
       workRegime: [WorkRegime.FULL_TIME, Validators.required],
@@ -95,6 +111,25 @@ export class MainComponent implements OnInit {
       otherNetIncome: [null],
       indexation: [null],
     });
+
+    this.mediaQueries = this.mediaMatcher.matchMedia('(orientation: portrait)');
+    this.mediaQueryListener = () => {
+      this.cdr.detectChanges();
+      this.onMediaQueriesUpdate();
+    };
+
+    this.mediaQueries.addEventListener('change', this.mediaQueryListener);
+    this.onMediaQueriesUpdate();
+  }
+
+  onMediaQueriesUpdate() {
+    this.isPortrait = this.mediaQueries.matches;
+
+    if (this.isPortrait) {
+      this.legendPosition = LegendPosition.Below;
+    } else {
+      this.legendPosition = LegendPosition.Right;
+    }
   }
 
   ngOnInit() {
@@ -158,10 +193,12 @@ export class MainComponent implements OnInit {
       grossSalary: this.translocoService.selectTranslate('gross_salary').pipe(take(1)),
       netSalary: this.translocoService.selectTranslate('net_salary').pipe(take(1)),
       relativeNetIncrease: this.translocoService.selectTranslate('relative_net_increase').pipe(take(1)),
+      averageTaxRate: this.translocoService.selectTranslate('average_tax_rate').pipe(take(1)),
     }).subscribe(translations => {
       this.grossSalaryString = translations.grossSalary;
       this.netSalaryString = translations.netSalary;
       this.relativeNetIncreaseString = translations.relativeNetIncrease;
+      this.averageTaxRateString = translations.averageTaxRate;
 
       this.updateChartData();
       this.loading = false;;
@@ -221,8 +258,12 @@ export class MainComponent implements OnInit {
   }
 
   updateChartData(grossSalary: number | null = null) {
-    if (grossSalary != null && grossSalary > this.graphsEndingSalary) {
-      this.graphsEndingSalary = Math.ceil(grossSalary / 1000) * 1000;
+    if (grossSalary != null) {
+      if (grossSalary > this.graphsEndingSalary) {
+        this.graphsEndingSalary = Math.ceil(grossSalary / 1000) * 1000;
+      } else if (grossSalary < this.graphsStartingSalary) {
+        this.graphsStartingSalary = Math.floor(grossSalary / 1000) * 1000;
+      }
     }
 
     if (typeof this.graphsStartingSalary === 'undefined' ||
@@ -293,7 +334,7 @@ export class MainComponent implements OnInit {
 
     this.averageTaxRateChartData = [
       {
-        name: this.translocoService.translate('average_tax_rate'),
+        name: this.averageTaxRateString,
         series: salaries.map(salary => ({
           name: salary.gross,
           value: salary.taxation.averageTaxRate
