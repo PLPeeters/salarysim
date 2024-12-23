@@ -13,10 +13,14 @@
   "worked_time_per_week": "Gewerkde uren per week",
   "out_of": "uit",
   "full_time_work_hours": "Uren per week voltijds",
-  "family_situation": "Gezinssituatie",
-  "isolated": "Alleenstaand",
-  "married_or_cohabitant_2_incomes": "Gehuwd of wettelijk samenwonend (2 inkomens)",
-  "married_or_cohabitant_1_income": "Gehuwd of wettelijk samenwonend (1 inkomen)",
+  "family_situation": {
+    "title": "Gezinssituatie",
+    "isolated": "Alleenstaand",
+    "married_or_cohabitant_2_incomes": "Gehuwd of wettelijk samenwonend (2 inkomens)",
+    "married_or_cohabitant_1_income": "Gehuwd of wettelijk samenwonend (1 inkomen)",
+    "non_remarried_widow": "Niet hertrouwde weduwe/weduwenaar",
+    "divorced_or_separated": "Gescheiden/feitelijke scheiding"
+  },
   "other": "Andere",
   "i_am_disabled": "Ik ben een persoon met een handicap",
   "dependent_people": "Personen ten laste",

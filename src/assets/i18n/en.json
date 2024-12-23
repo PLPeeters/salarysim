@@ -13,10 +13,14 @@
   "worked_time_per_week": "Weekly worked hours",
   "out_of": "out of",
   "full_time_work_hours": "Full time weekly hours",
-  "family_situation": "Family Situation",
-  "isolated": "Isolated",
-  "married_or_cohabitant_2_incomes": "Married or Legal Cohabitation (2 incomes)",
-  "married_or_cohabitant_1_income": "Married or Legal Cohabitation (1 income)",
+  "family_situation": {
+    "title": "Family Situation",
+    "isolated": "Isolated",
+    "married_or_cohabitant_2_incomes": "Married or Legal Cohabitation (2 incomes)",
+    "married_or_cohabitant_1_income": "Married or Legal Cohabitation (1 income)",
+    "non_remarried_widow": "Non-remarried widow(er)",
+    "divorced_or_separated": "Divorced/separated"
+  },
   "other": "Other",
   "i_am_disabled": "I am a disabled person",
   "dependent_people": "Dependent people",

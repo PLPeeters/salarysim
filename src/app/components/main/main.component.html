@@ -48,14 +48,20 @@
         }
 
         <!-- Family Situation -->
-        <mat-card-subtitle>{{ t('family_situation') }}</mat-card-subtitle>
+        <mat-card-subtitle>{{ t('family_situation.title') }}</mat-card-subtitle>
         <mat-radio-group formControlName="familySituation" class="radio-group">
-          <mat-radio-button [value]="FamilySituation.ISOLATED">{{ t('isolated') }}</mat-radio-button>
+          <mat-radio-button [value]="FamilySituation.ISOLATED">{{ t('family_situation.isolated') }}</mat-radio-button>
           <mat-radio-button [value]="FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES">
-            {{ t('married_or_cohabitant_2_incomes') }}
+            {{ t('family_situation.married_or_cohabitant_2_incomes') }}
           </mat-radio-button>
           <mat-radio-button [value]="FamilySituation.MARRIED_OR_COHABITANT_1_INCOME">
-            {{ t('married_or_cohabitant_1_income') }}
+            {{ t('family_situation.married_or_cohabitant_1_income') }}
+          </mat-radio-button>
+          <mat-radio-button [value]="FamilySituation.DIVORCED_OR_SEPARATED">
+            {{ t('family_situation.divorced_or_separated') }}
+          </mat-radio-button>
+          <mat-radio-button [value]="FamilySituation.NON_REMARRIED_WIDOW">
+            {{ t('family_situation.non_remarried_widow') }}
           </mat-radio-button>
         </mat-radio-group>
 
