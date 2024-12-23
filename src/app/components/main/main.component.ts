@@ -340,23 +340,23 @@ export class MainComponent implements OnInit {
   formatAmount(value: any) {
     switch (this.currentLocale) {
       case 'fr-BE':
-        return `${value.toLocaleString(this.currentLocale)} €`
+        return `${value.toLocaleString(this.currentLocale)} €`.replace(' ', ' ');
       case 'nl-BE':
-        return `€ ${value.toLocaleString(this.currentLocale)}`
+        return `€ ${value.toLocaleString(this.currentLocale)}`
       default:
         return `€${value.toLocaleString(this.currentLocale)}`
     }
   }
 
   formatPct(value: any) {
-    return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`
+    return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
   }
 
   formatPctRelative(value: any) {
     if (value > 0) {
-      return `+${value.toFixed(1).toLocaleString(this.currentLocale)}%`
+      return `+${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
     } else {
-      return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`
+      return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
     }
   }
 }
