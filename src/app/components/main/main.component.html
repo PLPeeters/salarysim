@@ -78,6 +78,12 @@
             {{ t('i_am_disabled') }}
           </mat-checkbox>
 
+          @if (salaryForm.get('familySituation')?.value?.startsWith('married')) {
+            <mat-checkbox formControlName="hasDisabledPartner">
+              {{ t('spouse_is_disabled') }}
+            </mat-checkbox>
+          }
+
           <mat-checkbox formControlName="dependentPeople">
             {{ t('dependent_people') }}
           </mat-checkbox>

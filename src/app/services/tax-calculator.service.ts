@@ -94,6 +94,7 @@ export interface SalaryCalculationInput {
   familySituation: FamilySituation,
   dependentPeople: DependentPeople,
   disabled: boolean,
+  hasDisabledPartner: boolean,
   groupInsurancePersonalCotisation: number,
   otherNetIncome: number,
   monthlyGrossSalary: number,
@@ -574,6 +575,14 @@ export class TaxCalculatorService {
     annualTaxReductions = annualTaxReductions.plus(D(588.00).times(numDependentOthers));
 
     if (input.disabled) {
+      annualTaxReductions = annualTaxReductions.plus(588.00);
+    }
+
+    if ((input.familySituation === FamilySituation.MARRIED_OR_COHABITANT_1_INCOME ||
+        input.familySituation === FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES ||
+        input.familySituation === FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION ||
+        input.familySituation === FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE
+      ) && input.hasDisabledPartner) {
       annualTaxReductions = annualTaxReductions.plus(588.00);
     }
 
