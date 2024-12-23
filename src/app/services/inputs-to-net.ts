@@ -21,6 +21,7 @@ const simpleEmployee: SalaryCalculationInput = {
     numDisabledDependentOthers: 0,
   },
   disabled: false,
+  hasDisabledPartner: false,
   groupInsurancePersonalCotisation: 0,
   otherNetIncome: 0,
   monthlyGrossSalary: 0,
@@ -111,6 +112,10 @@ const employeeWithOtherNetIncome: SalaryCalculationInput = {
 const marriedEmployeeOneIncome: SalaryCalculationInput = {
   ...simpleEmployee,
   familySituation: FamilySituation.MARRIED_OR_COHABITANT_1_INCOME,
+};
+const marriedEmployeeWithDisabledPartner: SalaryCalculationInput = {
+  ...marriedEmployeeOneIncome,
+  hasDisabledPartner: true,
 };
 const marriedHalfTimeEmployeeOneIncome: SalaryCalculationInput = {
   ...halfTimeEmployee,
@@ -248,6 +253,10 @@ const workerWithOtherNetIncome: SalaryCalculationInput = {
 const marriedWorkerOneIncome: SalaryCalculationInput = {
   ...simpleWorker,
   familySituation: FamilySituation.MARRIED_OR_COHABITANT_1_INCOME,
+};
+const marriedWorkerWithDisabledPartner: SalaryCalculationInput = {
+  ...marriedWorkerOneIncome,
+  hasDisabledPartner: true,
 };
 const marriedHalfTimeWorkerOneIncome: SalaryCalculationInput = {
   ...halfTimeWorker,
@@ -506,6 +515,13 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 4029.16 }, net: 3002.86 },
   { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 5000 }, net: 3479.92 },
 
+  { input: { ...marriedEmployeeWithDisabledPartner, monthlyGrossSalary: 2100 }, net: 2090.88 },
+  { input: { ...marriedEmployeeWithDisabledPartner, monthlyGrossSalary: 2328.33 }, net: 2232.88 },
+  { input: { ...marriedEmployeeWithDisabledPartner, monthlyGrossSalary: 2500 }, net: 2333.89 },
+  { input: { ...marriedEmployeeWithDisabledPartner, monthlyGrossSalary: 3000 }, net: 2556.57 },
+  { input: { ...marriedEmployeeWithDisabledPartner, monthlyGrossSalary: 4029.16 }, net: 3051.86 },
+  { input: { ...marriedEmployeeWithDisabledPartner, monthlyGrossSalary: 5000 }, net: 3528.92 },
+
   { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 1319.16 }, net: 1217.33 },
   { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 2100 }, net: 1816.41 },
   { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 2328.33 }, net: 2008.06 },
@@ -697,6 +713,13 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 3000 }, net: 2489.33 },
   { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 4029.16 }, net: 2973.20 },
   { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 5000 }, net: 3448.41 },
+
+  { input: { ...marriedWorkerWithDisabledPartner, monthlyGrossSalary: 2100 }, net: 2065.92 },    // Capped work bonus
+  { input: { ...marriedWorkerWithDisabledPartner, monthlyGrossSalary: 2328.33 }, net: 2224.46 },
+  { input: { ...marriedWorkerWithDisabledPartner, monthlyGrossSalary: 2500 }, net: 2319.82 },
+  { input: { ...marriedWorkerWithDisabledPartner, monthlyGrossSalary: 3000 }, net: 2538.33 },
+  { input: { ...marriedWorkerWithDisabledPartner, monthlyGrossSalary: 4029.16 }, net: 3022.20 },
+  { input: { ...marriedWorkerWithDisabledPartner, monthlyGrossSalary: 5000 }, net: 3497.41 },
 
   { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 2100 }, net: 1788.27 },
   { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 2328.33 }, net: 1981.66 },
