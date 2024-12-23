@@ -108,6 +108,56 @@ const employeeWithOtherNetIncome: SalaryCalculationInput = {
   ...simpleEmployee,
   otherNetIncome: 100,
 };
+const marriedEmployeeOneIncome: SalaryCalculationInput = {
+  ...simpleEmployee,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_1_INCOME,
+};
+const marriedHalfTimeEmployeeOneIncome: SalaryCalculationInput = {
+  ...halfTimeEmployee,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_1_INCOME,
+};
+const marriedEmployeeTwoIncomes: SalaryCalculationInput = {
+  ...simpleEmployee,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES,
+};
+const marriedHalfTimeEmployeeTwoIncomes: SalaryCalculationInput = {
+  ...halfTimeEmployee,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES,
+};
+const divorcedEmployeeWithOneKid: SalaryCalculationInput = {
+  ...simpleEmployee,
+  familySituation: FamilySituation.DIVORCED_OR_SEPARATED,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const widowedEmployeeWithOneKid: SalaryCalculationInput = {
+  ...simpleEmployee,
+  familySituation: FamilySituation.NON_REMARRIED_WIDOW,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const widowedHalfTimeEmployeeWithOneKid: SalaryCalculationInput = {
+  ...halfTimeEmployee,
+  familySituation: FamilySituation.NON_REMARRIED_WIDOW,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+
 const simpleWorker: SalaryCalculationInput = {
   ...simpleEmployee,
   status: Status.WORKER,
@@ -120,6 +170,131 @@ const partTimeWorker: SalaryCalculationInput = {
     fullTimeHoursPerWeek: 38,
   },
 };
+const halfTimeWorker: SalaryCalculationInput = {
+  ...simpleWorker,
+  workRegime: {
+    type: WorkRegime.PART_TIME,
+    workedTimePerWeek: 19,
+    fullTimeHoursPerWeek: 38,
+  },
+};
+const halfTimeWorkerWithOneKid: SalaryCalculationInput = {
+  ...simpleWorker,
+  workRegime: {
+    type: WorkRegime.PART_TIME,
+    workedTimePerWeek: 19,
+    fullTimeHoursPerWeek: 38,
+  },
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const workerWithOneKid: SalaryCalculationInput = {
+  ...simpleWorker,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const workerWithOneDisabledKid: SalaryCalculationInput = {
+  ...simpleWorker,
+  dependentPeople: {
+    numDependentChildren: 0,
+    numDisabledDependentChildren: 1,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const workerWithOneAbleAndOneDisabledKid: SalaryCalculationInput = {
+  ...simpleWorker,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 1,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const workerWith100Kids: SalaryCalculationInput = {
+  ...simpleWorker,
+  dependentPeople: {
+    numDependentChildren: 100,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const disabledWorker: SalaryCalculationInput = {
+  ...simpleWorker,
+  disabled: true,
+};
+const workerWithGroupInsurance: SalaryCalculationInput = {
+  ...simpleWorker,
+  groupInsurancePersonalCotisation: 42.5,
+};
+const workerWithOtherNetIncome: SalaryCalculationInput = {
+  ...simpleWorker,
+  otherNetIncome: 100,
+};
+const marriedWorkerOneIncome: SalaryCalculationInput = {
+  ...simpleWorker,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_1_INCOME,
+};
+const marriedHalfTimeWorkerOneIncome: SalaryCalculationInput = {
+  ...halfTimeWorker,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_1_INCOME,
+};
+const marriedWorkerTwoIncomes: SalaryCalculationInput = {
+  ...simpleWorker,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES,
+};
+const marriedHalfTimeWorkerTwoIncomes: SalaryCalculationInput = {
+  ...halfTimeWorker,
+  familySituation: FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES,
+};
+const divorcedWorkerWithOneKid: SalaryCalculationInput = {
+  ...simpleWorker,
+  familySituation: FamilySituation.DIVORCED_OR_SEPARATED,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const widowedWorkerWithOneKid: SalaryCalculationInput = {
+  ...simpleWorker,
+  familySituation: FamilySituation.NON_REMARRIED_WIDOW,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+const widowedHalfTimeWorkerWithOneKid: SalaryCalculationInput = {
+  ...halfTimeWorker,
+  familySituation: FamilySituation.NON_REMARRIED_WIDOW,
+  dependentPeople: {
+    numDependentChildren: 1,
+    numDisabledDependentChildren: 0,
+    numDependent65Plussers: 0,
+    numDependentOthers: 0,
+    numDisabledDependentOthers: 0,
+  },
+};
+
 
 export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleEmployee, monthlyGrossSalary: 2070.48 }, net: 1950.93 },
@@ -324,6 +499,57 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...partTimeEmployee, monthlyGrossSalary: 19000 }, net: 8663.38 },
   { input: { ...partTimeEmployee, monthlyGrossSalary: 20000 }, net: 9067.6 },
 
+  { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 2100 }, net: 2090.88 },
+  { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 2328.33 }, net: 2232.88 },
+  { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 2500 }, net: 2333.89 },
+  { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 3000 }, net: 2507.57 },
+  { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 4029.16 }, net: 3002.86 },
+  { input: { ...marriedEmployeeOneIncome, monthlyGrossSalary: 5000 }, net: 3479.92 },
+
+  { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 1319.16 }, net: 1217.33 },
+  { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 2100 }, net: 1816.41 },
+  { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 2328.33 }, net: 2008.06 },
+  { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 2500 }, net: 2155.40 },
+  { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 3000 }, net: 2459.37 },
+  { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 4029.16 }, net: 3002.86 },
+  { input: { ...marriedHalfTimeEmployeeOneIncome, monthlyGrossSalary: 5000 }, net: 3479.92 },
+
+  { input: { ...marriedEmployeeTwoIncomes, monthlyGrossSalary: 2070.48 }, net: 1948.83 },
+  { input: { ...marriedEmployeeTwoIncomes, monthlyGrossSalary: 2328.33 }, net: 2018.22 },
+  { input: { ...marriedEmployeeTwoIncomes, monthlyGrossSalary: 2500 }, net: 2050.84 },
+  { input: { ...marriedEmployeeTwoIncomes, monthlyGrossSalary: 3000 }, net: 2166.79 },
+  { input: { ...marriedEmployeeTwoIncomes, monthlyGrossSalary: 4029.16 }, net: 2584.26 },
+  { input: { ...marriedEmployeeTwoIncomes, monthlyGrossSalary: 5000 }, net: 3011.17 },
+
+  { input: { ...marriedHalfTimeEmployeeTwoIncomes, monthlyGrossSalary: 1319.16 }, net: 1212.18 },
+  { input: { ...marriedHalfTimeEmployeeTwoIncomes, monthlyGrossSalary: 2100 }, net: 1687.74 },
+  { input: { ...marriedHalfTimeEmployeeTwoIncomes, monthlyGrossSalary: 2328.33 }, net: 1794.43 },
+  { input: { ...marriedHalfTimeEmployeeTwoIncomes, monthlyGrossSalary: 2500 }, net: 1877.90 },
+  { input: { ...marriedHalfTimeEmployeeTwoIncomes, monthlyGrossSalary: 3000 }, net: 2121.02 },
+  { input: { ...marriedHalfTimeEmployeeTwoIncomes, monthlyGrossSalary: 4029.16 }, net: 2584.26 },
+
+  { input: { ...divorcedEmployeeWithOneKid, monthlyGrossSalary: 2100 }, net: 2066.60 },
+  { input: { ...divorcedEmployeeWithOneKid, monthlyGrossSalary: 2328.33 }, net: 2120.33 },
+  { input: { ...divorcedEmployeeWithOneKid, monthlyGrossSalary: 2500 }, net: 2152.95 },
+  { input: { ...divorcedEmployeeWithOneKid, monthlyGrossSalary: 3000 }, net: 2268.90 },
+  { input: { ...divorcedEmployeeWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2679.70 },
+  { input: { ...divorcedEmployeeWithOneKid, monthlyGrossSalary: 5000 }, net: 3105.01 },
+
+  { input: { ...widowedEmployeeWithOneKid, monthlyGrossSalary: 2100 }, net: 2066.60 },
+  { input: { ...widowedEmployeeWithOneKid, monthlyGrossSalary: 2328.33 }, net: 2120.33 },
+  { input: { ...widowedEmployeeWithOneKid, monthlyGrossSalary: 2500 }, net: 2152.95 },
+  { input: { ...widowedEmployeeWithOneKid, monthlyGrossSalary: 3000 }, net: 2268.90 },
+  { input: { ...widowedEmployeeWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2679.70 },
+  { input: { ...widowedEmployeeWithOneKid, monthlyGrossSalary: 5000 }, net: 3105.01 },
+
+  { input: { ...widowedHalfTimeEmployeeWithOneKid, monthlyGrossSalary: 1319.16 }, net: 1217.33 },
+  { input: { ...widowedHalfTimeEmployeeWithOneKid, monthlyGrossSalary: 2100 }, net: 1788.34 },
+  { input: { ...widowedHalfTimeEmployeeWithOneKid, monthlyGrossSalary: 2328.33 }, net: 1896.54 },
+  { input: { ...widowedHalfTimeEmployeeWithOneKid, monthlyGrossSalary: 2500 }, net: 1980.01 },
+  { input: { ...widowedHalfTimeEmployeeWithOneKid, monthlyGrossSalary: 3000 }, net: 2223.13 },
+  { input: { ...widowedHalfTimeEmployeeWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2679.70 },
+  { input: { ...widowedHalfTimeEmployeeWithOneKid, monthlyGrossSalary: 5000 }, net: 3105.01 },
+
   { input: { ...partTimeWorker, monthlyGrossSalary: 1743.56 }, net: 1743.56 },
   { input: { ...partTimeWorker, monthlyGrossSalary: 1800 }, net: 1790.93 },
   { input: { ...partTimeWorker, monthlyGrossSalary: 1900 }, net: 1803.88 },
@@ -413,4 +639,105 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 3000 }, net: 2270.90 },    // Work bonus
   { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 4029.16 }, net: 2681.70 }, // Withholding tier 3
   { input: { ...employeeWithOtherNetIncome, monthlyGrossSalary: 5000 }, net: 3107.01 },    // Withholding tier 4
+
+  { input: { ...halfTimeWorker, monthlyGrossSalary: 1319.16 }, net: 1209.17 },           // Withholding tier 1
+  { input: { ...halfTimeWorkerWithOneKid, monthlyGrossSalary: 1319.16 }, net: 1209.17 }, // Withholding tier 1
+  { input: { ...workerWithOneKid, monthlyGrossSalary: 2100 }, net: 2051.03 },            // Work bonus
+  { input: { ...workerWithOneKid, monthlyGrossSalary: 2328.33 }, net: 2122.25 },         // Withholding tier 2
+  { input: { ...workerWithOneKid, monthlyGrossSalary: 2500 }, net: 2149.63 },            // Work bonus
+  { input: { ...workerWithOneKid, monthlyGrossSalary: 3000 }, net: 2251.97 },            // Work bonus
+  { input: { ...workerWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2652.70 },         // Withholding tier 3
+  { input: { ...workerWithOneKid, monthlyGrossSalary: 5000 }, net: 3073.50 },            // Withholding tier 4
+
+  { input: { ...workerWithOneDisabledKid, monthlyGrossSalary: 2100 }, net: 2070.03 },    // Work bonus
+  { input: { ...workerWithOneDisabledKid, monthlyGrossSalary: 2328.33 }, net: 2204.25 }, // Withholding tier 2
+  { input: { ...workerWithOneDisabledKid, monthlyGrossSalary: 2500 }, net: 2231.63 },    // Work bonus
+  { input: { ...workerWithOneDisabledKid, monthlyGrossSalary: 3000 }, net: 2333.97 },    // Work bonus
+  { input: { ...workerWithOneDisabledKid, monthlyGrossSalary: 4029.16 }, net: 2734.70 }, // Withholding tier 3
+  { input: { ...workerWithOneDisabledKid, monthlyGrossSalary: 5000 }, net: 3155.50 },    // Withholding tier 4
+
+  { input: { ...workerWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 2100 }, net: 2070.03 },    // Work bonus
+  { input: { ...workerWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 2328.33 }, net: 2228.57 }, // Withholding tier 2
+  { input: { ...workerWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 2500 }, net: 2323.93 },    // Work bonus
+  { input: { ...workerWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 3000 }, net: 2549.97 },    // Work bonus
+  { input: { ...workerWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 4029.16 }, net: 2950.70 }, // Withholding tier 3
+  { input: { ...workerWithOneAbleAndOneDisabledKid, monthlyGrossSalary: 5000 }, net: 3371.50 },    // Withholding tier 4
+
+  { input: { ...workerWith100Kids, monthlyGrossSalary: 2100 }, net: 2070.03 },    // Work bonus
+  { input: { ...workerWith100Kids, monthlyGrossSalary: 2328.33 }, net: 2228.57 }, // Withholding tier 2
+  { input: { ...workerWith100Kids, monthlyGrossSalary: 2500 }, net: 2323.93 },    // Work bonus
+  { input: { ...workerWith100Kids, monthlyGrossSalary: 3000 }, net: 2609.35 },    // Work bonus
+  { input: { ...workerWith100Kids, monthlyGrossSalary: 4029.16 }, net: 3418.04 }, // Withholding tier 3
+  { input: { ...workerWith100Kids, monthlyGrossSalary: 5000 }, net: 4240.31 },    // Withholding tier 4
+
+  { input: { ...disabledWorker, monthlyGrossSalary: 2100 }, net: 2002.03 },    // Work bonus
+  { input: { ...disabledWorker, monthlyGrossSalary: 2328.33 }, net: 2073.25 }, // Withholding tier 2
+  { input: { ...disabledWorker, monthlyGrossSalary: 2500 }, net: 2100.63 },    // Work bonus
+  { input: { ...disabledWorker, monthlyGrossSalary: 3000 }, net: 2202.97 },    // Work bonus
+  { input: { ...disabledWorker, monthlyGrossSalary: 4029.16 }, net: 2603.70 }, // Withholding tier 3
+  { input: { ...disabledWorker, monthlyGrossSalary: 5000 }, net: 3024.50 },    // Withholding tier 4
+
+  { input: { ...workerWithGroupInsurance, monthlyGrossSalary: 2100 }, net: 1923.28 },    // Work bonus
+  { input: { ...workerWithGroupInsurance, monthlyGrossSalary: 2328.33 }, net: 1994.50 }, // Withholding tier 2
+  { input: { ...workerWithGroupInsurance, monthlyGrossSalary: 2500 }, net: 2021.88 },    // Work bonus
+  { input: { ...workerWithGroupInsurance, monthlyGrossSalary: 3000 }, net: 2124.22 },    // Work bonus
+  { input: { ...workerWithGroupInsurance, monthlyGrossSalary: 4029.16 }, net: 2524.95 }, // Withholding tier 3
+  { input: { ...workerWithGroupInsurance, monthlyGrossSalary: 5000 }, net: 2945.75 },    // Withholding tier 4
+
+  { input: { ...workerWithOtherNetIncome, monthlyGrossSalary: 2100 }, net: 2053.03 },    // Work bonus
+  { input: { ...workerWithOtherNetIncome, monthlyGrossSalary: 2328.33 }, net: 2124.25 }, // Withholding tier 2
+  { input: { ...workerWithOtherNetIncome, monthlyGrossSalary: 2500 }, net: 2151.63 },    // Work bonus
+  { input: { ...workerWithOtherNetIncome, monthlyGrossSalary: 3000 }, net: 2253.97 },    // Work bonus
+  { input: { ...workerWithOtherNetIncome, monthlyGrossSalary: 4029.16 }, net: 2654.70 }, // Withholding tier 3
+  { input: { ...workerWithOtherNetIncome, monthlyGrossSalary: 5000 }, net: 3075.50 },    // Withholding tier 4
+
+  { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 2100 }, net: 2065.92 },    // Capped work bonus
+  { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 2328.33 }, net: 2224.46 },
+  { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 2500 }, net: 2319.82 },
+  { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 3000 }, net: 2489.33 },
+  { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 4029.16 }, net: 2973.20 },
+  { input: { ...marriedWorkerOneIncome, monthlyGrossSalary: 5000 }, net: 3448.41 },
+
+  { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 2100 }, net: 1788.27 },
+  { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 2328.33 }, net: 1981.66 },
+  { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 2500 }, net: 2127.06 },
+  { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 3000 }, net: 2437.27 },
+  { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 4029.16 }, net: 2973.20 },
+  { input: { ...marriedHalfTimeWorkerOneIncome, monthlyGrossSalary: 5000 }, net: 3448.41 },
+
+  { input: { ...marriedHalfTimeWorkerTwoIncomes, monthlyGrossSalary: 2100 }, net: 1669.00 },
+  { input: { ...marriedHalfTimeWorkerTwoIncomes, monthlyGrossSalary: 2328.33 }, net: 1778.46 },
+  { input: { ...marriedHalfTimeWorkerTwoIncomes, monthlyGrossSalary: 2500 }, net: 1860.75 },
+  { input: { ...marriedHalfTimeWorkerTwoIncomes, monthlyGrossSalary: 3000 }, net: 2100.44 },
+  { input: { ...marriedHalfTimeWorkerTwoIncomes, monthlyGrossSalary: 4029.16 }, net: 2558.87 },
+  { input: { ...marriedHalfTimeWorkerTwoIncomes, monthlyGrossSalary: 5000 }, net: 2979.66 },
+
+  { input: { ...marriedWorkerTwoIncomes, monthlyGrossSalary: 2100 }, net: 1948.92 },    // Capped work bonus
+  { input: { ...marriedWorkerTwoIncomes, monthlyGrossSalary: 2328.33 }, net: 2020.14 },
+  { input: { ...marriedWorkerTwoIncomes, monthlyGrossSalary: 2500 }, net: 2047.52 },
+  { input: { ...marriedWorkerTwoIncomes, monthlyGrossSalary: 3000 }, net: 2149.86 },
+  { input: { ...marriedWorkerTwoIncomes, monthlyGrossSalary: 4029.16 }, net: 2558.87 },
+  { input: { ...marriedWorkerTwoIncomes, monthlyGrossSalary: 5000 }, net: 2979.66 },
+
+  { input: { ...divorcedWorkerWithOneKid, monthlyGrossSalary: 2100 }, net: 2051.03 },            // Work bonus
+  { input: { ...divorcedWorkerWithOneKid, monthlyGrossSalary: 2328.33 }, net: 2122.25 },         // Withholding tier 2
+  { input: { ...divorcedWorkerWithOneKid, monthlyGrossSalary: 2500 }, net: 2149.63 },            // Work bonus
+  { input: { ...divorcedWorkerWithOneKid, monthlyGrossSalary: 3000 }, net: 2251.97 },            // Work bonus
+  { input: { ...divorcedWorkerWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2652.70 },         // Withholding tier 3
+  { input: { ...divorcedWorkerWithOneKid, monthlyGrossSalary: 5000 }, net: 3073.50 },            // Withholding tier 4
+
+  { input: { ...widowedWorkerWithOneKid, monthlyGrossSalary: 2100 }, net: 2051.03 },            // Work bonus
+  { input: { ...widowedWorkerWithOneKid, monthlyGrossSalary: 2328.33 }, net: 2122.25 },         // Withholding tier 2
+  { input: { ...widowedWorkerWithOneKid, monthlyGrossSalary: 2500 }, net: 2149.63 },            // Work bonus
+  { input: { ...widowedWorkerWithOneKid, monthlyGrossSalary: 3000 }, net: 2251.97 },            // Work bonus
+  { input: { ...widowedWorkerWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2652.70 },         // Withholding tier 3
+  { input: { ...widowedWorkerWithOneKid, monthlyGrossSalary: 5000 }, net: 3073.50 },            // Withholding tier 4
+
+  { input: { ...widowedHalfTimeWorkerWithOneKid, monthlyGrossSalary: 1319.16 }, net: 1209.17 },
+  { input: { ...widowedHalfTimeWorkerWithOneKid, monthlyGrossSalary: 2100 }, net: 1771.11 },
+  { input: { ...widowedHalfTimeWorkerWithOneKid, monthlyGrossSalary: 2328.33 }, net: 1880.57 },
+  { input: { ...widowedHalfTimeWorkerWithOneKid, monthlyGrossSalary: 2500 }, net: 1962.86 },
+  { input: { ...widowedHalfTimeWorkerWithOneKid, monthlyGrossSalary: 3000 }, net: 2202.55 },
+  { input: { ...widowedHalfTimeWorkerWithOneKid, monthlyGrossSalary: 4029.16 }, net: 2652.70 },
+  { input: { ...widowedHalfTimeWorkerWithOneKid, monthlyGrossSalary: 5000 }, net: 3073.50 },
 ]

@@ -17,7 +17,9 @@
     "title": "Gezinssituatie",
     "isolated": "Alleenstaand",
     "married_or_cohabitant_2_incomes": "Gehuwd of wettelijk samenwonend (2 inkomens)",
-    "married_or_cohabitant_1_income": "Gehuwd of wettelijk samenwonend (1 inkomen)",
+    "married_or_cohabitant_2_incomes_partner_low_pension": "Gehuwd of wettelijk samenwonend (inkomsten echtgenoot uitsluitend pensioen < €548 netto/maand)",
+    "married_or_cohabitant_2_incomes_partner_low_other_revenue": "Gehuwd of wettelijk samenwonend (inkomsten echtgenoot andere < €275 netto/maand)",
+    "married_or_cohabitant_1_income": "Gehuwd of wettelijk samenwonend (1 inkomst of echtgenoot < €165 netto/maand)",
     "non_remarried_widow": "Niet hertrouwde weduwe/weduwenaar",
     "divorced_or_separated": "Gescheiden/feitelijke scheiding"
   },

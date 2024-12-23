@@ -73,8 +73,11 @@ export enum FamilySituation {
   ISOLATED = 'isolated',
   MARRIED_OR_COHABITANT_1_INCOME = 'married_or_cohabitant_1_income',
   MARRIED_OR_COHABITANT_2_INCOMES = 'married_or_cohabitant_2_incomes',
+  MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION = 'married_or_cohabitant_2_incomes_partner_low_pension',
+  MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE = 'married_or_cohabitant_2_incomes_partner_low_other_revenue',
   NON_REMARRIED_WIDOW = 'non_remarried_widow',
   DIVORCED_OR_SEPARATED = 'divorced_or_separated',
+  _ISOLATED_IGNORE_EXEMPTED_TIER = 'isolated_ignore_exempted_tier',
 }
 
 interface DependentPeople {
@@ -203,16 +206,18 @@ export class TaxCalculatorService {
     {
       from: D(5_836.14).div(3).plus(0.01),
       to: D(6_570.54).div(3),
+      flatAmount: D(0),
+      includedInFlatAmount: D(1_945.38),
       taxRate: D(5.9),
       minAmount: D(15.45).div(3),
     },
     {
       from: D(6_570.54).div(3).plus(0.01),
       to: D(Infinity),
-      flatAmount: D(43.32),
+      flatAmount: D(43.32).div(3),
       includedInFlatAmount: D(6_570.54).div(3),
       taxRate: D(1.1),
-      maxAmount: D(154.92).minus(D(43.32)).div(D(3)),
+      maxAmount: D(154.92).div(3),
     },
   ];
   private readonly specialSocialCotisationTiersMarriedOneIncome: SocialSecurityTier[] = [
@@ -224,15 +229,16 @@ export class TaxCalculatorService {
     {
       from: D(1_945.39),
       to: D(2_190.18),
+      includedInFlatAmount: D(1_945.38),
       taxRate: D(5.9),
     },
     {
       from: D(2_190.19),
       to: D(Infinity),
-      flatAmount: D(43.32),
+      flatAmount: D(43.32).div(3),
       includedInFlatAmount: D(2_190.18),
       taxRate: D(1.1),
-      maxAmount: D(182.82).minus(D(43.32)).div(D(3)),
+      maxAmount: D(182.82).div(3),
     },
   ];
 
@@ -243,12 +249,25 @@ export class TaxCalculatorService {
     let annualBaseTax = D(0);
     const taxesByTier: TaxesForTierInternal[] = [];
 
-    if (familySituation === 'isolated' || familySituation === 'married_or_cohabitant_2_incomes') {
+    if (familySituation !== FamilySituation.MARRIED_OR_COHABITANT_1_INCOME) {
       let remainingToTax = annualTaxableIncome;
       let currentTier = 0;
+      let taxTiers = this.taxTiers.map(tier => Object.create(tier));
+
+      if (familySituation === FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER) {
+        const firstTaxTier = taxTiers.splice(0, 1)[0];
+        taxTiers[0].from = firstTaxTier.from;
+        currentTier = 0;
+
+        taxesByTier.push({
+          toTax: firstTaxTier.to.minus(firstTaxTier.from).plus(0.01),
+          percentage: D(0),
+          taxes: D(0),
+        });
+      }
 
       while (remainingToTax.gt(0)) {
-        const currentTaxTier = this.taxTiers[currentTier];
+        const currentTaxTier = taxTiers[currentTier];
         const tierRange = currentTaxTier.to.minus(currentTaxTier.from).plus(0.01);
 
         let toTax = Decimal.min(remainingToTax, tierRange);
@@ -277,14 +296,14 @@ export class TaxCalculatorService {
         revenueAttributedToPartner = D(13_060.0);
       }
 
-      let partnerRevenueTaxes = this.calculateAnnualBaseTax('isolated', revenueAttributedToPartner);
+      let partnerRevenueTaxes = this.calculateAnnualBaseTax(FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER, revenueAttributedToPartner);
       let remainingToTax = annualTaxableIncome.minus(revenueAttributedToPartner);
 
-      let ownRevenueTaxes = this.calculateAnnualBaseTax('isolated', remainingToTax);
+      let ownRevenueTaxes = this.calculateAnnualBaseTax(FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER, remainingToTax);
 
       return {
         taxesByTier: ownRevenueTaxes.taxesByTier,
-        total: partnerRevenueTaxes.total.plus(ownRevenueTaxes.total).toDP(2),
+        total: partnerRevenueTaxes.total.plus(ownRevenueTaxes.total).minus(5_660.30).clampedTo(0, Infinity).toDP(2),
       };
     }
   }
@@ -305,7 +324,14 @@ export class TaxCalculatorService {
       case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES:
         currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedTwoIncomes;
         break;
+      // Par 'conjoint qui a des revenus professionnels', il faut entendre le conjoint qui,
+      // conformément à la réglementation en matière de précompte professionnel,
+      // a des revenus professionnels dont le montant est supérieur au plafond fixé
+      // pour l'application de la réduction du précompte professionnel pour autres charges de famille,
+      // accordée lorsque l'autre conjoint bénéficie également de revenus professionnels.
       case FamilySituation.MARRIED_OR_COHABITANT_1_INCOME:
+      case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION:
+      case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE:
         currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedOneIncome;
         break;
       default:
@@ -330,8 +356,6 @@ export class TaxCalculatorService {
 
       tierFound = true;
 
-      let tierCotisation = D(0);
-
       if (currentSpecialSocialCotisationTier.flatAmount) {
         specialSocialCotisation = currentSpecialSocialCotisationTier.flatAmount;
       }
@@ -344,11 +368,11 @@ export class TaxCalculatorService {
         );
       }
 
-      if (currentSpecialSocialCotisationTier.minAmount && tierCotisation.lt(currentSpecialSocialCotisationTier.minAmount)) {
+      if (currentSpecialSocialCotisationTier.minAmount && specialSocialCotisation.lt(currentSpecialSocialCotisationTier.minAmount)) {
         specialSocialCotisation = currentSpecialSocialCotisationTier.minAmount;
       }
 
-      if (currentSpecialSocialCotisationTier.maxAmount && tierCotisation.gt(currentSpecialSocialCotisationTier.maxAmount)) {
+      if (currentSpecialSocialCotisationTier.maxAmount && specialSocialCotisation.gt(currentSpecialSocialCotisationTier.maxAmount)) {
         specialSocialCotisation = currentSpecialSocialCotisationTier.maxAmount;
       }
     }
@@ -560,6 +584,15 @@ export class TaxCalculatorService {
       )
     ) {
       annualTaxReductions = annualTaxReductions.plus(588.00);
+    }
+
+    switch (input.familySituation) {
+      case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION:
+        annualTaxReductions = annualTaxReductions.plus(3_288.00);
+        break;
+      case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE:
+        annualTaxReductions = annualTaxReductions.plus(1_650.00);
+        break;
     }
 
     // Ensure we don't get negative reductions

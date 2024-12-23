@@ -17,7 +17,9 @@
     "title": "Situation familiale",
     "isolated": "Isolé",
     "married_or_cohabitant_2_incomes": "Marié ou cohabitation légale (2 revenus)",
-    "married_or_cohabitant_1_income": "Marié ou cohabitation légale (1 revenu)",
+    "married_or_cohabitant_2_incomes_partner_low_pension": "Marié ou cohabitation légale (partenaire touche uniquement une pension < 548 € net/mois)",
+    "married_or_cohabitant_2_incomes_partner_low_other_revenue": "Marié ou cohabitation légale (partenaire touche uniquement autres revenus < 275 € net/mois)",
+    "married_or_cohabitant_1_income": "Marié ou cohabitation légale (1 revenu ou partenaire < 165 € net/mois)",
     "non_remarried_widow": "Veuf ou veuve non-remarié(e)",
     "divorced_or_separated": "Divorcé ou séparation de fait"
   },
