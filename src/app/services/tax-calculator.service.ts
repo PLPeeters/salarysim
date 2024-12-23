@@ -73,6 +73,8 @@ export enum FamilySituation {
   ISOLATED = 'isolated',
   MARRIED_OR_COHABITANT_1_INCOME = 'married_or_cohabitant_1_income',
   MARRIED_OR_COHABITANT_2_INCOMES = 'married_or_cohabitant_2_incomes',
+  NON_REMARRIED_WIDOW = 'non_remarried_widow',
+  DIVORCED_OR_SEPARATED = 'divorced_or_separated',
 }
 
 interface DependentPeople {
@@ -295,17 +297,19 @@ export class TaxCalculatorService {
     let currentSpecialSocialCotisationTiers: SocialSecurityTier[]
 
     switch (familySituation) {
-      case 'isolated':
+      case FamilySituation.ISOLATED:
+      case FamilySituation.DIVORCED_OR_SEPARATED:
+      case FamilySituation.NON_REMARRIED_WIDOW:
         currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersIsolated;
         break;
-      case 'married_or_cohabitant_2_incomes':
+      case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES:
         currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedTwoIncomes;
         break;
-      case 'married_or_cohabitant_1_income':
+      case FamilySituation.MARRIED_OR_COHABITANT_1_INCOME:
         currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedOneIncome;
         break;
       default:
-        throw Error("What the hell")
+        throw Error(`Unexpected family situation: ${familySituation}.`)
     }
 
     if (status === Status.WORKER) {
@@ -549,7 +553,12 @@ export class TaxCalculatorService {
       annualTaxReductions = annualTaxReductions.plus(588.00);
     }
 
-    if (numDependentChildren > 0 && input.familySituation === FamilySituation.ISOLATED) {
+    if (numDependentChildren > 0 && (
+        input.familySituation === FamilySituation.ISOLATED ||
+        input.familySituation === FamilySituation.NON_REMARRIED_WIDOW ||
+        input.familySituation === FamilySituation.DIVORCED_OR_SEPARATED
+      )
+    ) {
       annualTaxReductions = annualTaxReductions.plus(588.00);
     }
 
