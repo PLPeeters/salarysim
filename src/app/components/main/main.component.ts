@@ -179,13 +179,7 @@ export class MainComponent implements OnInit {
         this.onLanguageChange();
       });
 
-    const userLang = (navigator.language || navigator.languages[0]).split('-')[0];
 
-    if (this.availableLangs.indexOf(userLang) !== -1) {
-      this.translocoService.setActiveLang(userLang);
-    } else {
-      this.translocoService.setActiveLang(this.translocoService.getDefaultLang());
-    }
   }
 
   onLanguageChange() {
