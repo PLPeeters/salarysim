@@ -103,13 +103,13 @@
                   <td>
                     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('children') }}</mat-label>
-                      <input matInput type="number" formControlName="numDependentChildren">
+                      <input matInput type="number" min="0" formControlName="numDependentChildren">
                     </mat-form-field>
                   </td>
                   <td>
                     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('children' )}}</mat-label>
-                      <input matInput type="number" formControlName="numDisabledDependentChildren">
+                      <input matInput type="number" min="0" formControlName="numDisabledDependentChildren">
                     </mat-form-field>
                   </td>
                 </tr>
@@ -127,13 +127,13 @@
                   <td>
                     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('others') }}</mat-label>
-                      <input matInput type="number" formControlName="numDependentOthers">
+                      <input matInput type="number" min="0" formControlName="numDependentOthers">
                     </mat-form-field>
                   </td>
                   <td>
                     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('others' )}}</mat-label>
-                      <input matInput type="number" formControlName="numDisabledDependentOthers">
+                      <input matInput type="number" min="0" formControlName="numDisabledDependentOthers">
                     </mat-form-field>
                   </td>
                 </tr>
@@ -148,7 +148,7 @@
           <div *ngIf="salaryForm.get('groupInsurance')?.value">
             <mat-form-field appearance="outline">
               <mat-label>{{ t('personal_contribution') }}</mat-label>
-              <input matInput type="number" step="0.01" formControlName="groupInsurancePersonalCotisation">
+              <input matInput type="number" min="0.01" step="0.01" formControlName="groupInsurancePersonalCotisation">
 
               @if (currentLocale != 'fr-BE') {
                 <mat-icon matPrefix>euro</mat-icon>
@@ -162,7 +162,7 @@
         <!-- Monthly Gross Income -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ t('monthly_gross_income') }}</mat-label>
-          <input matInput type="number" step="0.01" formControlName="grossSalary">
+          <input matInput type="number" min="0.01" step="0.01" formControlName="grossSalary">
 
           @if (currentLocale != 'fr-BE') {
             <mat-icon matPrefix>euro</mat-icon>
@@ -173,7 +173,7 @@
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ t('other_net_income') }}</mat-label>
-          <input matInput type="number" step="0.01" formControlName="otherNetIncome">
+          <input matInput type="number" min="0.01" step="0.01" formControlName="otherNetIncome">
 
           @if (currentLocale != 'fr-BE') {
             <mat-icon matPrefix>euro</mat-icon>
