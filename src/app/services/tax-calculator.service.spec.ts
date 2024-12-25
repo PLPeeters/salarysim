@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TaxCalculatorService } from './tax-calculator.service';
-import { INPUTS_TO_NET } from './inputs-to-net';
+import { FamilySituation, TaxCalculatorService } from './tax-calculator.service';
+import { INPUTS_TO_NET, simpleEmployee } from './inputs-to-net';
 
 describe('TaxCalculatorService', () => {
   let service: TaxCalculatorService;
@@ -23,5 +23,14 @@ describe('TaxCalculatorService', () => {
       const result = service.calculateNetSalary(input);
       expect(result.netSalary).toBe(expectedNet);
     });
+  });
+
+  it('should throw an error when called with the _ISOLATED_IGNORE_EXEMPTED_TIER family situation', () => {
+    const input = {
+      ...simpleEmployee,
+      familySituation: FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER,
+    };
+
+    expect(() => service.calculateNetSalary(input)).toThrow();
   });
 });

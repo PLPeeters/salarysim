@@ -566,9 +566,6 @@ export class TaxCalculatorService {
       case 7:
         annualTaxReductions = annualTaxReductions.plus(17_148.00);
         break;
-      case 8:
-        annualTaxReductions = annualTaxReductions.plus(20_808.00);
-        break;
       default:
         annualTaxReductions = annualTaxReductions.plus(20_808.00);
         annualTaxReductions = annualTaxReductions.plus(D(3_660.00).times(numDependentChildren - 8));
