@@ -70,6 +70,8 @@
   "average_tax_rate_evolution": "Evolutie gemiddeld belastingtarief",
   "average_tax_rate": "Gemiddeld belastingtarief",
   "average_tax_pct": "Gemiddeld belastingtarief (%)",
+  "taxation_evolution": "Evolutie van belastingen",
+  "taxation_evolution_proportional": "Evolutie van de samenstelling van belastingen",
   "relative_net_increase_title": "Relatieve nettoverhoging voor een bruto loonsverhoging van {{amount}} op basis van het beginloon",
   "relative_net_increase": "Relatieve nettoverhoging",
   "relative_net_increase_explanation_1": "Deze grafiek toont het aandeel van een bruto loonsverhoging van {{amount}} dat resulteert in een netto loonsverhoging, relatief ten opzichte van het beginloon. Met andere woorden, het is het deel van de verhoging dat uiteindelijk in het portemonnee terechtkomt.",

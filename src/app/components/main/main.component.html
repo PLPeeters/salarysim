@@ -502,5 +502,102 @@
       </ngx-charts-line-chart>
     </mat-card-content>
   </mat-card>
+
+  <mat-card *ngIf="taxData" class="charts-card">
+    <mat-card-header>
+      <mat-card-title>{{ t('taxation_evolution', {'amount': formatAmount(graphsStep) }) }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content #ContainerRef>
+      <ngx-charts-area-chart-stacked
+        *ngIf="taxData"
+        [view]="[ContainerRef.offsetWidth - 32, max(min(400, window.innerHeight - 16), 300)]"
+        [scheme]="'vivid'"
+        [results]="taxData"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true"
+        [xAxisLabel]="t('gross_salary')"
+        [yAxisLabel]="t('net_increase_pct')"
+        [animations]="true"
+        [showGridLines]="true"
+        [roundDomains]="true"
+        [xAxisTickFormatting]="formatAmountTickFormattingFn"
+        [yAxisTickFormatting]="formatAmountTickFormattingFn"
+        [legendPosition]="legendPosition"
+        [legendTitle]="''"
+        [ngClass]="{'legend-below': legendPosition === LegendPosition.Below}"
+        [rotateXAxisTicks]="true"
+        [timeline]="true"
+        [tooltipDisabled]="false">
+        <ng-template #tooltipTemplate let-model="model">
+          <div class="tooltip-label">{{formatAmount(model.name)}}</div>
+          <div class="tooltip-val">{{ model.series }}: {{formatAmount(model.value)}}</div>
+        </ng-template>
+
+        <ng-template #seriesTooltipTemplate let-series="model">
+            <div class="tooltip-label">
+              <div>{{formatAmount(series[0].name)}}</div>
+            </div>
+
+            @for (singleSeries of series; track $index) {
+              <div class="tooltip-item">
+                <div class="tooltip-item-color" [style]="{'background-color': singleSeries.color}"></div>
+                <span>{{singleSeries.series}}: {{formatAmount(singleSeries.value)}}</span>
+              </div>
+            }
+        </ng-template>
+      </ngx-charts-area-chart-stacked>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="taxDataProportional" class="charts-card">
+    <mat-card-header>
+      <mat-card-title>{{ t('taxation_evolution_proportional', {'amount': formatAmount(graphsStep) }) }}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content #ContainerRef>
+      <ngx-charts-area-chart-stacked
+        *ngIf="taxDataProportional"
+        [view]="[ContainerRef.offsetWidth - 32, max(min(400, window.innerHeight - 16), 300)]"
+        [scheme]="'vivid'"
+        [results]="taxDataProportional"
+        [xAxis]="true"
+        [yAxis]="true"
+        [legend]="true"
+        [xAxisLabel]="t('gross_salary')"
+        [yAxisLabel]="t('net_increase_pct')"
+        [animations]="true"
+        [showGridLines]="true"
+        [roundDomains]="false"
+        [xAxisTickFormatting]="formatAmountTickFormattingFn"
+        [yAxisTickFormatting]="formatPct"
+        [yScaleMin]="0"
+        [legendPosition]="legendPosition"
+        [legendTitle]="''"
+        [ngClass]="{'legend-below': legendPosition === LegendPosition.Below}"
+        [rotateXAxisTicks]="true"
+        [timeline]="true"
+        [tooltipDisabled]="false">
+        <ng-template #tooltipTemplate let-model="model">
+          <div class="tooltip-label">{{formatAmount(model.name)}}</div>
+          <div class="tooltip-val">{{ model.series }}: {{formatPct(model.value)}}</div>
+        </ng-template>
+
+        <ng-template #seriesTooltipTemplate let-series="model">
+            <div class="tooltip-label">
+              <div>{{formatAmount(series[0].name)}}</div>
+            </div>
+
+            @for (singleSeries of series; track $index) {
+              <div class="tooltip-item">
+                <div class="tooltip-item-color" [style]="{'background-color': singleSeries.color}"></div>
+                <span>{{singleSeries.series}}: {{formatPct(singleSeries.value)}}</span>
+              </div>
+            }
+        </ng-template>
+      </ngx-charts-area-chart-stacked>
+    </mat-card-content>
+  </mat-card>
 </div>
 }

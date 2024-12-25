@@ -54,6 +54,8 @@ export class MainComponent implements OnInit {
   chartData: any[] = [];
   relativeChartData: any[] = [];
   averageTaxRateChartData: any[] = [];
+  taxData: any[] = [];
+  taxDataProportional: any[] = [];
   showWithHoldingTaxBreakdown = false;
 
   graphsStartingSalary = 2_050;
@@ -68,6 +70,9 @@ export class MainComponent implements OnInit {
   private netSalaryString: String = '';
   private relativeNetIncreaseString: String = '';
   private averageTaxRateString: String = '';
+  private socialCotisationsString: String = '';
+  private specialSocialCotisationString: String = '';
+  private professionalWithholdingTaxString: String = '';
 
   formatAmountTickFormattingFn = this.formatAmount.bind(this);
   formatPctTickFormattingFn = this.formatPct.bind(this);
@@ -189,11 +194,17 @@ export class MainComponent implements OnInit {
       netSalary: this.translocoService.selectTranslate('net_salary').pipe(take(1)),
       relativeNetIncrease: this.translocoService.selectTranslate('relative_net_increase').pipe(take(1)),
       averageTaxRate: this.translocoService.selectTranslate('average_tax_rate').pipe(take(1)),
+      socialCotisationsString: this.translocoService.selectTranslate('personal_social_contributions').pipe(take(1)),
+      specialSocialCotisationString: this.translocoService.selectTranslate('special_social_cotisations').pipe(take(1)),
+      professionalWithholdingTaxString: this.translocoService.selectTranslate('professional_withholding_tax').pipe(take(1)),
     }).subscribe(translations => {
       this.grossSalaryString = translations.grossSalary;
       this.netSalaryString = translations.netSalary;
       this.relativeNetIncreaseString = translations.relativeNetIncrease;
       this.averageTaxRateString = translations.averageTaxRate;
+      this.socialCotisationsString = translations.socialCotisationsString;
+      this.specialSocialCotisationString = translations.specialSocialCotisationString;
+      this.professionalWithholdingTaxString = translations.professionalWithholdingTaxString;
 
       this.updateChartData();
       this.loading = false;;
@@ -334,6 +345,54 @@ export class MainComponent implements OnInit {
         series: salaries.map(salary => ({
           name: salary.gross,
           value: salary.taxation.averageTaxRate
+        }))
+      },
+    ];
+
+    this.taxData = [
+      {
+        name: this.socialCotisationsString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.socialCotisationsAfterReductions,
+        }))
+      },
+      {
+        name: this.professionalWithholdingTaxString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.taxesAfterReductions,
+        }))
+      },
+      {
+        name: this.specialSocialCotisationString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.specialSocialCotisations,
+        }))
+      },
+    ];
+
+    this.taxDataProportional = [
+      {
+        name: this.socialCotisationsString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.socialCotisationsAfterReductionsProportion,
+        }))
+      },
+      {
+        name: this.professionalWithholdingTaxString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.taxesAfterReductionsProportion,
+        }))
+      },
+      {
+        name: this.specialSocialCotisationString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.specialSocialCotisationsProportion,
         }))
       },
     ];

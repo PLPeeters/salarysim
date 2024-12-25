@@ -12,14 +12,19 @@ export interface SalaryResult {
   grossSalary: number;
   socialCotisations: number;
   specialSocialCotisations: number;
+  specialSocialCotisationsProportion: number;
   employmentBonus: number;
   employmentBonusWasCapped: boolean;
+  socialCotisationsAfterReductions: number;
+  socialCotisationsAfterReductionsProportion: number;
   taxableIncome: number;
   monthlyTaxes: number;
   monthlyTaxesByTier: TaxesForTier[];
   otherMonthlyTaxReductions: number;
   monthlyTaxReductionsForLowSalaries: number;
   monthlyTaxReductionsForGroupInsurance: number;
+  taxesAfterReductions: number;
+  taxesAfterReductionsProportion: number;
   netToGrossRatio: number;
   averageTaxRate: number;
   netSalary: number;
@@ -629,18 +634,34 @@ export class TaxCalculatorService {
       taxes: taxesForTier.taxes.div(12).toDP(2).toNumber(),
     }));
 
+    const socialCotisationsAfterReductions = socialCotisations.minus(employmentBonus).clampedTo(0, Infinity);
+    const taxesAfterReductions = monthlyTaxes.minus(monthlyTaxReductionsForLowSalaries).minus(monthlyTaxReductionsForLowSalaries).clampedTo(0, Infinity);
+
+    const taxationGrandTotal = socialCotisationsAfterReductions
+      .plus(taxesAfterReductions)
+      .plus(specialSocialCotisations);
+
+    const specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
+    const socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
+    const taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+
     return {
       grossSalary: grossSalary.toNumber(),
       socialCotisations: socialCotisations.toNumber(),
       specialSocialCotisations: specialSocialCotisations.toNumber(),
+      specialSocialCotisationsProportion: specialSocialCotisationsProportion.toNumber(),
       employmentBonus: employmentBonus.toNumber(),
       employmentBonusWasCapped: employmentBonusWasCapped,
+      socialCotisationsAfterReductions: socialCotisationsAfterReductions.toNumber(),
+      socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion.toNumber(),
       taxableIncome: taxableIncome.toNumber(),
       monthlyTaxes: monthlyTaxes.toNumber(),
       monthlyTaxesByTier,
       otherMonthlyTaxReductions: monthlyTaxReductions.toNumber(),
       monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toNumber(),
       monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance.toNumber(),
+      taxesAfterReductions: taxesAfterReductions.toNumber(),
+      taxesAfterReductionsProportion: taxesAfterReductionsProportion.toNumber(),
       netToGrossRatio: netSalary.div(grossSalary).times(100).toNumber(),
       averageTaxRate: grossSalary.minus(netSalary).div(grossSalary).times(100).toNumber(),
       netSalary: netSalary.toNumber(),
