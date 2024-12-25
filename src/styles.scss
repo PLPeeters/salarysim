@@ -36,10 +36,14 @@ table.dependents-table {
   }
 }
 
-.legend-below ngx-charts-legend {
+.legend-below .chart-legend {
   display: block;
 
   & ul {
-    width: initial !important;
+    width: initial;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: break-spaces;
   }
 }
