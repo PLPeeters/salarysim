@@ -66,6 +66,8 @@
   "average_tax_rate_evolution": "Average Tax Rate Evolution",
   "average_tax_rate": "Average tax rate",
   "average_tax_pct": "Average tax (%)",
+  "taxation_evolution": "Evolution of Taxes",
+  "taxation_evolution_proportional": "Evolution of Proportional Tax Breakdown",
   "relative_net_increase_title": "Relative Net Increase for a {{amount}} Gross Raise by Initial Salary",
   "relative_net_increase": "Relative net increase",
   "relative_net_increase_explanation_1": "This graph illustrates the proportion of a {{amount}} gross raise that translates into a net raise, relative to the initial gross salary. In other words, it is the proportion of the raise that will actually make a difference in your pocket.",

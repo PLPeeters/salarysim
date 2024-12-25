@@ -66,6 +66,8 @@
   "average_tax_rate_evolution": "Évolution du taux d'impostion moyen",
   "average_tax_rate": "Taux d'imposition moyen",
   "average_tax_pct": "Taux d'imposition moyen (%)",
+  "taxation_evolution": "Évolution des différentes retenues",
+  "taxation_evolution_proportional": "Évolution de la composition des impôts",
   "relative_net_increase_title": "Augmentation nette relative pour une augmentation brute de {{amount}} selon le salaire initial",
   "relative_net_increase": "Augmentation nette relative",
   "relative_net_increase_explanation_1": "Ce graphique illustre la proportion d'une augmentation brute de {{amount}} qui se traduit en une augmentation nette, en fonction salaire brut initial. Autrement dit, c'est la proportion de l'augmentation qui sera réellement perçue.",
