@@ -123,3 +123,9 @@ mat-icon.inline {
   vertical-align: middle;
   margin-right: -5px;
 }
+
+mat-option, mat-select-trigger {
+  sup {
+    font-variant: small-caps;
+  }
+}

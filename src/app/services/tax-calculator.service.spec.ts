@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { FamilySituation, TaxCalculatorService } from './tax-calculator.service';
-import { INPUTS_TO_NET, simpleEmployee } from './inputs-to-net';
+import { INPUTS_TO_NET, simpleEmployee } from './data/2024-inputs-to-net';
 
 describe('TaxCalculatorService', () => {
   let service: TaxCalculatorService;
@@ -29,6 +29,15 @@ describe('TaxCalculatorService', () => {
     const input = {
       ...simpleEmployee,
       familySituation: FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER,
+    };
+
+    expect(() => service.calculateNetSalary(input)).toThrow();
+  });
+
+  it('should throw an error when called with an unsupported year', () => {
+    const input = {
+      ...simpleEmployee,
+      revenueYear: 2023,
     };
 
     expect(() => service.calculateNetSalary(input)).toThrow();

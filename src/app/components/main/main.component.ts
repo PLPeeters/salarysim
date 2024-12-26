@@ -15,9 +15,16 @@ import { MatTableModule } from '@angular/material/table';
 import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
 import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { forkJoin, take } from 'rxjs';
-import { FamilySituation, SalaryResult, Status, TaxCalculatorService, WorkRegime } from '../../services/tax-calculator.service';
+import { FamilySituation, SalaryResult, Status, taxationInfo2024, taxationInfo2025, TaxCalculatorService, WorkRegime } from '../../services/tax-calculator.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 
+
+interface RevenueYear {
+  year: number;
+  isFinal: boolean;
+}
 
 @Component({
   selector: 'app-main',
@@ -38,6 +45,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     FlexLayoutModule,
     MatChipsModule,
     MatTooltipModule,
+    MatSelectModule,
+    MatOptionModule,
     TranslocoModule,
   ],
   providers: [
@@ -58,11 +67,26 @@ export class MainComponent implements OnInit {
   taxDataProportional: any[] = [];
   showWithHoldingTaxBreakdown = false;
 
-  graphsStartingSalary = 2_050;
-  graphsEndingSalary = 6_000;
+  lowPensionJanuaryThreshold: number = -1;
+  lowOtherRevenueJanuaryThreshold: number = -1;
+  noRevenueJanuaryThreshold: number = -1;
+  maxYearlyEmploymentBonus: number = -1;
+  dependentRetireeAgeThreshold: number = -1;
+
+  graphsStartingSalary = 2_100;
+  graphsEndingSalary = 6_500;
   graphsStep = 25;
 
   availableLangs = this.getAvailableLangs();
+  supportedRevenueYears: RevenueYear[] = [
+    taxationInfo2024,
+    taxationInfo2025,
+  ].map(taxationInfo => {
+    return {
+      year: taxationInfo.year,
+      isFinal: taxationInfo.isFinal,
+    };
+  });
 
   loading: boolean = true;
   currentLocale: String = '';
@@ -98,6 +122,7 @@ export class MainComponent implements OnInit {
     private mediaMatcher: MediaMatcher,
   ) {
     this.salaryForm = this.fb.group({
+      revenueYear: [this.supportedRevenueYears[this.supportedRevenueYears.length - 1], Validators.required],
       status: [Status.EMPLOYEE, Validators.required],
       workRegime: [WorkRegime.FULL_TIME, Validators.required],
       workedTimePerWeek: [null],
@@ -108,7 +133,7 @@ export class MainComponent implements OnInit {
       dependentPeople: [false],
       numDependentChildren: [null],
       numDisabledDependentChildren: [null],
-      numDependent65Plussers: [null],
+      numDependentRetirees: [null],
       numDependentOthers: [null],
       numDisabledDependentOthers: [null],
       groupInsurance: [false],
@@ -140,52 +165,17 @@ export class MainComponent implements OnInit {
 
   ngOnInit() {
     // Watch for form changes to update validations
-    this.salaryForm.get('dependentPeople')?.valueChanges.subscribe(hasChildren => {
-      const numChildren = this.salaryForm.get('numDependentChildren');
-      const numDisabledChildren = this.salaryForm.get('numDisabledDependentChildren');
-      const num65Plussers = this.salaryForm.get('numDependent65Plussers');
-      const numOthers = this.salaryForm.get('numDependentOthers');
-      const numDisabledOthers = this.salaryForm.get('numDisabledDependentOthers');
+    this.salaryForm.get('dependentPeople')?.valueChanges.subscribe(this.onHasChildrenChanged.bind(this));
+    this.salaryForm.get('revenueYear')?.valueChanges.subscribe(this.onRevenueYearChanged.bind(this));
+    this.salaryForm.get('workRegime')?.valueChanges.subscribe(this.onWorkRegimeChanged.bind(this));
 
-      if (hasChildren) {
-        numChildren?.setValidators([Validators.min(0)]);
-        numDisabledChildren?.setValidators([Validators.min(0)]);
-        num65Plussers?.setValidators([Validators.min(0)]);
-        numOthers?.setValidators([Validators.min(0)]);
-        numDisabledOthers?.setValidators([Validators.min(0)]);
-      } else {
-        numChildren?.clearValidators();
-        numDisabledChildren?.clearValidators();
-        num65Plussers?.clearValidators();
-        numOthers?.clearValidators();
-        numDisabledOthers?.clearValidators();
-      }
-
-      this.salaryForm.updateValueAndValidity();
-    });
-
-    this.salaryForm.get('workRegime')?.valueChanges.subscribe(workRegime => {
-      const workedTimePerWeek = this.salaryForm.get('workedTimePerWeek');
-      const fullTimeHoursPerWeek = this.salaryForm.get('fullTimeHoursPerWeek');
-
-      if (workRegime == 'part_time') {
-        workedTimePerWeek?.setValidators([Validators.min(1)]);
-        fullTimeHoursPerWeek?.setValidators([Validators.min(1)]);
-      } else {
-        workedTimePerWeek?.clearValidators();
-        fullTimeHoursPerWeek?.clearValidators();
-      }
-
-      this.salaryForm.updateValueAndValidity();
-    });
+    this.onRevenueYearChanged(this.salaryForm.get('revenueYear')?.value);
 
     this.translocoService.langChanges$
       .subscribe(currentLang => {
         this.currentLocale = `${currentLang}-BE`;
         this.onLanguageChange();
       });
-
-
   }
 
   onLanguageChange() {
@@ -225,10 +215,71 @@ export class MainComponent implements OnInit {
     this.translocoService.setActiveLang(locale);
   }
 
+  onRevenueYearChanged(revenueYear: RevenueYear) {
+    let taxationInfo;
+
+    switch (revenueYear.year) {
+      case 2024:
+        taxationInfo = taxationInfo2024;
+        break;
+      case 2025:
+        taxationInfo = taxationInfo2025;
+        break;
+      default:
+        throw Error(`Unexpected taxation year: ${revenueYear}.`);
+    }
+
+    this.lowPensionJanuaryThreshold = taxationInfo.lowPensionJanuaryThreshold;
+    this.lowOtherRevenueJanuaryThreshold = taxationInfo.lowOtherRevenueJanuaryThreshold;
+    this.noRevenueJanuaryThreshold = taxationInfo.noRevenueJanuaryThreshold;
+    this.maxYearlyEmploymentBonus = taxationInfo.employmentBonusInfo.maxYearlyAmount.toNumber();
+    this.dependentRetireeAgeThreshold = taxationInfo.dependentRetireeAgeThreshold;
+  }
+
+  onWorkRegimeChanged(workRegime: WorkRegime) {
+    const workedTimePerWeek = this.salaryForm.get('workedTimePerWeek');
+    const fullTimeHoursPerWeek = this.salaryForm.get('fullTimeHoursPerWeek');
+
+    if (workRegime === WorkRegime.PART_TIME) {
+      workedTimePerWeek?.setValidators([Validators.min(1)]);
+      fullTimeHoursPerWeek?.setValidators([Validators.min(1)]);
+    } else {
+      workedTimePerWeek?.clearValidators();
+      fullTimeHoursPerWeek?.clearValidators();
+    }
+
+    this.salaryForm.updateValueAndValidity();
+  }
+
+  onHasChildrenChanged(hasChildren: boolean) {
+    const numChildren = this.salaryForm.get('numDependentChildren');
+    const numDisabledChildren = this.salaryForm.get('numDisabledDependentChildren');
+    const numRetirees = this.salaryForm.get('numDependentRetirees');
+    const numOthers = this.salaryForm.get('numDependentOthers');
+    const numDisabledOthers = this.salaryForm.get('numDisabledDependentOthers');
+
+    if (hasChildren) {
+      numChildren?.setValidators([Validators.min(0)]);
+      numDisabledChildren?.setValidators([Validators.min(0)]);
+      numRetirees?.setValidators([Validators.min(0)]);
+      numOthers?.setValidators([Validators.min(0)]);
+      numDisabledOthers?.setValidators([Validators.min(0)]);
+    } else {
+      numChildren?.clearValidators();
+      numDisabledChildren?.clearValidators();
+      numRetirees?.clearValidators();
+      numOthers?.clearValidators();
+      numDisabledOthers?.clearValidators();
+    }
+
+    this.salaryForm.updateValueAndValidity();
+  }
+
   private calculateNetSalary(
     monthlyGrossSalary: number,
   ): SalaryResult {
     const salaryCalculatorInput = {
+      revenueYear: this.salaryForm.value.revenueYear.year,
       status: this.salaryForm.value.status,
       workRegime: {
         type: this.salaryForm.value.workRegime,
@@ -239,7 +290,7 @@ export class MainComponent implements OnInit {
       dependentPeople: {
         numDependentChildren: this.salaryForm.value.numDependentChildren || 0,
         numDisabledDependentChildren: this.salaryForm.value.numDisabledDependentChildren || 0,
-        numDependent65Plussers: this.salaryForm.value.numDependent65Plussers || 0,
+        numDependentRetirees: this.salaryForm.value.numDependentRetirees || 0,
         numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
         numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
       },

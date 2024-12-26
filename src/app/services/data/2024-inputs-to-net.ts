@@ -1,11 +1,12 @@
-import { FamilySituation, SalaryCalculationInput, Status, WorkRegime } from "./tax-calculator.service";
+import { FamilySituation, SalaryCalculationInput, Status, WorkRegime } from "../tax-calculator.service";
 
 interface Situation {
   input: SalaryCalculationInput;
   net: number;
-}
+};
 
 export const simpleEmployee: SalaryCalculationInput = {
+  revenueYear: 2024,
   status: Status.EMPLOYEE,
   workRegime: {
     type: WorkRegime.FULL_TIME,
@@ -16,7 +17,7 @@ export const simpleEmployee: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 0,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -52,7 +53,7 @@ const halfTimeEmployeeWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -62,7 +63,7 @@ const employeeWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -72,7 +73,7 @@ const employeeWithOneDisabledKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 0,
     numDisabledDependentChildren: 1,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -82,7 +83,7 @@ const employeeWithOneAbleAndOneDisabledKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 1,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -92,7 +93,7 @@ const employeeWithFourKids: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 4,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -102,7 +103,7 @@ const employeeWithFiveKids: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 5,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -112,7 +113,7 @@ const employeeWithSixKids: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 6,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -122,7 +123,7 @@ const employeeWithSevenKids: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 7,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -132,7 +133,7 @@ const employeeWithEightKids: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 8,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -142,7 +143,7 @@ const employeeWith100Kids: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 100,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -185,7 +186,7 @@ const divorcedEmployeeWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -196,7 +197,7 @@ const widowedEmployeeWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -207,7 +208,7 @@ const widowedHalfTimeEmployeeWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -243,7 +244,7 @@ const halfTimeWorkerWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -253,7 +254,7 @@ const workerWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -263,7 +264,7 @@ const workerWithOneDisabledKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 0,
     numDisabledDependentChildren: 1,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -273,7 +274,7 @@ const workerWithOneAbleAndOneDisabledKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 1,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -283,7 +284,7 @@ const workerWith100Kids: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 100,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -334,7 +335,7 @@ const divorcedWorkerWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -345,7 +346,7 @@ const widowedWorkerWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },
@@ -356,7 +357,7 @@ const widowedHalfTimeWorkerWithOneKid: SalaryCalculationInput = {
   dependentPeople: {
     numDependentChildren: 1,
     numDisabledDependentChildren: 0,
-    numDependent65Plussers: 0,
+    numDependentRetirees: 0,
     numDependentOthers: 0,
     numDisabledDependentOthers: 0,
   },

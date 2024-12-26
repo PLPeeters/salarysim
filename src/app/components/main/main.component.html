@@ -21,6 +21,19 @@
   <mat-card>
     <mat-card-content>
       <form [formGroup]="salaryForm" (ngSubmit)="onSubmit()">
+        <!-- Revenue year -->
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ t('revenue_year') }}</mat-label>
+          <mat-select formControlName="revenueYear">
+            <mat-select-trigger>
+              {{ salaryForm.get('revenueYear')?.value.year }}<sup *ngIf="!salaryForm.get('revenueYear')?.value.isFinal">{{ t('preview') }}</sup>
+            </mat-select-trigger>
+            @for (revenueYear of supportedRevenueYears; track $index) {
+              <mat-option [value]="revenueYear">{{ revenueYear.year }}<sup *ngIf="!revenueYear.isFinal">{{ t('preview') }}</sup></mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
         <!-- Status -->
         <mat-card-subtitle>{{ t('status') }}</mat-card-subtitle>
         <mat-radio-group formControlName="status" class="radio-group">
@@ -55,13 +68,13 @@
             {{ t('family_situation.married_or_cohabitant_2_incomes') }}
           </mat-radio-button>
           <mat-radio-button [value]="FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION">
-            {{ t('family_situation.married_or_cohabitant_2_incomes_partner_low_pension') }}
+            {{ t('family_situation.married_or_cohabitant_2_incomes_partner_low_pension', {amount: lowPensionJanuaryThreshold}) }}
           </mat-radio-button>
           <mat-radio-button [value]="FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE">
-            {{ t('family_situation.married_or_cohabitant_2_incomes_partner_low_other_revenue') }}
+            {{ t('family_situation.married_or_cohabitant_2_incomes_partner_low_other_revenue', {amount: lowOtherRevenueJanuaryThreshold}) }}
           </mat-radio-button>
           <mat-radio-button [value]="FamilySituation.MARRIED_OR_COHABITANT_1_INCOME">
-            {{ t('family_situation.married_or_cohabitant_1_income') }}
+            {{ t('family_situation.married_or_cohabitant_1_income', {amount: noRevenueJanuaryThreshold}) }}
           </mat-radio-button>
           <mat-radio-button [value]="FamilySituation.DIVORCED_OR_SEPARATED">
             {{ t('family_situation.divorced_or_separated') }}
@@ -114,11 +127,15 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="text-right">{{ t('65_plus') }}</td>
+                  <td class="text-right">
+                    {{dependentRetireeAgeThreshold}}+
+                  </td>
                   <td colspan="2">
                     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
-                      <mat-label>{{ t('65_plus') }}</mat-label>
-                      <input matInput type="number" formControlName="numDependent65Plussers">
+                      <mat-label>
+                        {{dependentRetireeAgeThreshold}}+
+                      </mat-label>
+                      <input matInput type="number" formControlName="numDependentRetirees">
                     </mat-form-field>
                   </td>
                 </tr>
@@ -225,7 +242,7 @@
               @if(result.employmentBonusWasCapped) {
                 ({{ t('capped') }}
                 <mat-icon
-                  [matTooltip]="t('capped_tooltip')"
+                  [matTooltip]="t('capped_tooltip', {amount: formatAmount(maxYearlyEmploymentBonus)})"
                   matTooltipPosition="above"
                   class="inline">
                   help
@@ -451,10 +468,10 @@
 
   <mat-card *ngIf="chartData" class="charts-card">
     <mat-card-header>
-      <mat-card-title>{{ t('relative_net_increase_title', {'amount': formatAmount(graphsStep) }) }}</mat-card-title>
+      <mat-card-title>{{ t('relative_net_increase_title', {amount: formatAmount(graphsStep) }) }}</mat-card-title>
       <mat-card-subtitle>
-        <p>{{ t('relative_net_increase_explanation_1', {'amount': formatAmount(graphsStep) }) }}</p>
-        <p>{{ t('relative_net_increase_explanation_2', {'amount1': formatAmount(2500), 'amount2': formatAmount(2500 + graphsStep) }) }}</p>
+        <p>{{ t('relative_net_increase_explanation_1', {amount: formatAmount(graphsStep) }) }}</p>
+        <p>{{ t('relative_net_increase_explanation_2', {amount1: formatAmount(2500), amount2: formatAmount(2500 + graphsStep) }) }}</p>
       </mat-card-subtitle>
     </mat-card-header>
 
@@ -505,7 +522,7 @@
 
   <mat-card *ngIf="taxData" class="charts-card">
     <mat-card-header>
-      <mat-card-title>{{ t('taxation_evolution', {'amount': formatAmount(graphsStep) }) }}</mat-card-title>
+      <mat-card-title>{{ t('taxation_evolution', {amount: formatAmount(graphsStep) }) }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
@@ -553,7 +570,7 @@
 
   <mat-card *ngIf="taxDataProportional" class="charts-card">
     <mat-card-header>
-      <mat-card-title>{{ t('taxation_evolution_proportional', {'amount': formatAmount(graphsStep) }) }}</mat-card-title>
+      <mat-card-title>{{ t('taxation_evolution_proportional', {amount: formatAmount(graphsStep) }) }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>

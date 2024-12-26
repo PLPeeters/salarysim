@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Decimal } from 'decimal.js';
+import { taxationInfo as taxationInfo2024 } from './data/2024';
+import { taxationInfo as taxationInfo2025 } from './data/2025';
+import { TaxationInfo } from './data/interfaces';
 
 
 interface MonthlyTaxReductionsForLowSalaries {
@@ -7,6 +10,8 @@ interface MonthlyTaxReductionsForLowSalaries {
   employmentBonus: Decimal;
   employmentBonusWasCapped: boolean;
 }
+
+export { taxationInfo2024, taxationInfo2025 }
 
 export interface SalaryResult {
   grossSalary: number;
@@ -88,12 +93,13 @@ export enum FamilySituation {
 interface DependentPeople {
   numDependentChildren: number;
   numDisabledDependentChildren: number;
-  numDependent65Plussers: number;
+  numDependentRetirees: number;
   numDependentOthers: number;
   numDisabledDependentOthers: number;
 }
 
 export interface SalaryCalculationInput {
+  revenueYear: number,
   status: Status,
   workRegime: WorkRegimeDetails,
   familySituation: FamilySituation,
@@ -111,144 +117,8 @@ const D = (value: number | string | null): Decimal => new Decimal(value || 0);
   providedIn: 'root'
 })
 export class TaxCalculatorService {
-  private readonly flatRateProfessionalExpenseTiers = [
-    {
-      from: D(0.01),
-      to: D(19_166.67),
-      flat_rate: D(0),
-      percentage: D(30),
-    },
-    {
-      from: D(19_166.68),
-      to: D(Infinity),
-      flat_rate: D(5_750.00),
-      percentage: D(0),
-    }
-  ];
-
-  private readonly taxTiers = [
-    {
-      from: D(0.01),
-      to: D(10_580.00),
-      percentage: D(0),
-    },
-    {
-      from: D(10_580.01),
-      to: D(15_830.00),
-      percentage: D(26.75),
-    },
-    {
-      from: D(15_830.01),
-      to: D(27_940.00),
-      percentage: D(42.80),
-    },
-    {
-      from: D(27_940.01),
-      to: D(48_350.00),
-      percentage: D(48.15),
-    },
-    {
-      from: D(48_350.01),
-      to: D(Infinity),
-      percentage: D(53.50),
-    }
-  ];
-
-  // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/special_contributions/other_specialcontributions/specialsocialsecuritycontribution.html
-  private readonly specialSocialCotisationTiersIsolated: SocialSecurityTier[] = [
-    {
-      from: D(0.01),
-      to: D(1_945.38),
-      flatAmount: D(0),
-      taxRate: D(0),
-    },
-    {
-      from: D(1_945.39),
-      to: D(2_190.18),
-      flatAmount: D(0),
-      includedInFlatAmount: D(1_945.38),
-      taxRate: D(4.22),
-    },
-    {
-      from: D(2_190.19),
-      to: D(3_737.00),
-      flatAmount: D(30.99).div(3),
-      includedInFlatAmount: D(2_190.18),
-      taxRate: D(1.1),
-    },
-    {
-      from: D(3_737.01),
-      to: D(4_100.00),
-      flatAmount: D(82.05).div(3),
-      includedInFlatAmount: D(3_737.00),
-      taxRate: D(3.38),
-    },
-    {
-      from: D(4_100.01),
-      to: D(6_038.82),
-      flatAmount: D(118.83).div(3),
-      includedInFlatAmount: D(4_100.00),
-      taxRate: D(1.10),
-    },
-    {
-      from: D(6_038.83),
-      to: D(Infinity),
-      flatAmount: D(182.82).div(3),
-      includedInFlatAmount: D(6_038.82),
-      taxRate: D(0),
-    }
-  ];
-  private readonly specialSocialCotisationTiersMarriedTwoIncomes: SocialSecurityTier[] = [
-    {
-      from: D(0.01),
-      to: D(3_285.29).div(3),
-      taxRate: D(0),
-    },
-    {
-      from: D(3_285.29).div(3).plus(0.01),
-      to: D(5_836.14).div(3),
-      flatAmount: D(15.45).div(3),
-    },
-    {
-      from: D(5_836.14).div(3).plus(0.01),
-      to: D(6_570.54).div(3),
-      flatAmount: D(0),
-      includedInFlatAmount: D(1_945.38),
-      taxRate: D(5.9),
-      minAmount: D(15.45).div(3),
-    },
-    {
-      from: D(6_570.54).div(3).plus(0.01),
-      to: D(Infinity),
-      flatAmount: D(43.32).div(3),
-      includedInFlatAmount: D(6_570.54).div(3),
-      taxRate: D(1.1),
-      maxAmount: D(154.92).div(3),
-    },
-  ];
-  private readonly specialSocialCotisationTiersMarriedOneIncome: SocialSecurityTier[] = [
-    {
-      from: D(0.01),
-      to: D(1_945.38),
-      taxRate: D(0),
-    },
-    {
-      from: D(1_945.39),
-      to: D(2_190.18),
-      includedInFlatAmount: D(1_945.38),
-      taxRate: D(5.9),
-    },
-    {
-      from: D(2_190.19),
-      to: D(Infinity),
-      flatAmount: D(43.32).div(3),
-      includedInFlatAmount: D(2_190.18),
-      taxRate: D(1.1),
-      maxAmount: D(182.82).div(3),
-    },
-  ];
-
   private calculateAnnualBaseTax(
+    taxationInfo: TaxationInfo,
     familySituation: String,
     annualTaxableIncome: Decimal,
   ): Taxes {
@@ -258,7 +128,7 @@ export class TaxCalculatorService {
     if (familySituation !== FamilySituation.MARRIED_OR_COHABITANT_1_INCOME) {
       let remainingToTax = annualTaxableIncome;
       let currentTier = 0;
-      let taxTiers = this.taxTiers.map(tier => Object.create(tier));
+      let taxTiers = taxationInfo.taxTiers.map(tier => Object.create(tier));
 
       if (familySituation === FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER) {
         const firstTaxTier = taxTiers.splice(0, 1)[0];
@@ -298,23 +168,73 @@ export class TaxCalculatorService {
     } else {
       let revenueAttributedToPartner = annualTaxableIncome.times(30).div(100);
 
-      if (revenueAttributedToPartner.gt(13_060)) {
-        revenueAttributedToPartner = D(13_060.0);
+      if (revenueAttributedToPartner.gt(taxationInfo.maxRevenueAttributedToPartner)) {
+        revenueAttributedToPartner = taxationInfo.maxRevenueAttributedToPartner;
       }
 
-      let partnerRevenueTaxes = this.calculateAnnualBaseTax(FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER, revenueAttributedToPartner);
+      let partnerRevenueTaxes = this.calculateAnnualBaseTax(
+        taxationInfo,
+        FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER,
+        revenueAttributedToPartner,
+      );
       let remainingToTax = annualTaxableIncome.minus(revenueAttributedToPartner);
 
-      let ownRevenueTaxes = this.calculateAnnualBaseTax(FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER, remainingToTax);
+      let ownRevenueTaxes = this.calculateAnnualBaseTax(
+        taxationInfo,
+        FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER,
+        remainingToTax,
+      );
+
+      const partnerRevenueTaxesByTier = partnerRevenueTaxes.taxesByTier;
+      const taxesByTier = ownRevenueTaxes.taxesByTier.reduce<TaxesForTierInternal[]>((taxesByTier, taxesForTier, tierIndex) => {
+        let partnerToTax;
+        let partnerTaxes;
+
+        if (tierIndex < partnerRevenueTaxesByTier.length) {
+          partnerToTax = partnerRevenueTaxesByTier[tierIndex].toTax;
+          partnerTaxes = partnerRevenueTaxesByTier[tierIndex].taxes;
+        } else {
+          partnerToTax = 0;
+          partnerTaxes = 0;
+        }
+
+        let toTax;
+        let taxes;
+
+        const totalTaxes = taxesForTier.taxes.plus(partnerTaxes);
+        const totalToTax = taxesForTier.toTax.plus(partnerToTax);
+
+        if (tierIndex === 1) {
+          const exemptedAmount = Decimal.min(taxationInfo.taxExemptQuota.times(2), totalToTax);
+          const exemptedTaxes = Decimal.min(taxationInfo.taxExemptQuotaTax.times(2), totalTaxes);
+
+          taxesByTier[tierIndex - 1].toTax = taxesByTier[tierIndex - 1].toTax.plus(exemptedAmount);
+
+          toTax = totalToTax.minus(exemptedAmount);
+          taxes = totalTaxes.minus(exemptedTaxes);
+        } else {
+          toTax = totalToTax;
+          taxes = totalTaxes;
+        }
+
+        taxesByTier.push({
+          toTax,
+          percentage: taxesForTier.percentage,
+          taxes,
+        });
+
+        return taxesByTier;
+      }, []);
 
       return {
-        taxesByTier: ownRevenueTaxes.taxesByTier,
-        total: partnerRevenueTaxes.total.plus(ownRevenueTaxes.total).minus(5_660.30).clampedTo(0, Infinity).toDP(2),
+        taxesByTier: taxesByTier,
+        total: partnerRevenueTaxes.total.plus(ownRevenueTaxes.total).minus(taxationInfo.taxExemptQuotaTax.times(2)).clampedTo(0, Infinity).toDP(2),
       };
     }
   }
 
   private calculateSpecialSocialCotisation(
+    taxationInfo: TaxationInfo,
     status: Status,
     familySituation: FamilySituation,
     grossSalary: Decimal,
@@ -325,10 +245,10 @@ export class TaxCalculatorService {
       case FamilySituation.ISOLATED:
       case FamilySituation.DIVORCED_OR_SEPARATED:
       case FamilySituation.NON_REMARRIED_WIDOW:
-        currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersIsolated;
+        currentSpecialSocialCotisationTiers = taxationInfo.specialSocialCotisationTiersIsolated;
         break;
       case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES:
-        currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedTwoIncomes;
+        currentSpecialSocialCotisationTiers = taxationInfo.specialSocialCotisationTiersMarriedTwoIncomes;
         break;
       // Par 'conjoint qui a des revenus professionnels', il faut entendre le conjoint qui,
       // conformément à la réglementation en matière de précompte professionnel,
@@ -338,7 +258,7 @@ export class TaxCalculatorService {
       case FamilySituation.MARRIED_OR_COHABITANT_1_INCOME:
       case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION:
       case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE:
-        currentSpecialSocialCotisationTiers = this.specialSocialCotisationTiersMarriedOneIncome;
+        currentSpecialSocialCotisationTiers = taxationInfo.specialSocialCotisationTiersMarriedOneIncome;
         break;
       default:
         throw Error(`Unexpected family situation: ${familySituation}.`)
@@ -388,6 +308,7 @@ export class TaxCalculatorService {
 
   // https://www.socialsecurity.be/employer/instructions/dmfa/fr/latest/instructions/deductions/workers_reductions/workbonus.html
   private calculateEmploymentBonusAndTaxReductions(
+    taxationInfo: TaxationInfo,
     status: Status,
     workRegime: WorkRegimeDetails,
     grossSalary: Decimal,
@@ -407,42 +328,32 @@ export class TaxCalculatorService {
     let employmentBonus = D(0);
     let monthlyTaxReductionsForLowSalaries = D(0);
 
-    let employmentBonusA = D(0);
+    let employmentBonusInfo;
 
-    if (grossSalaryForEmploymentBonus.lte(3_207.40)) {
-      if (status === Status.EMPLOYEE) {
-        employmentBonusA = D(118.22).minus(
-          D(0.2442).times(
-            Decimal.max(grossSalaryForEmploymentBonus.minus(2_723.36), 0)
-          )
-        ).toDP(2);
-      } else {
-        employmentBonusA = D(127.68).minus(
-          D(0.2638).times(
-            Decimal.max(grossSalaryForEmploymentBonus.minus(2_723.36), 0)
-          )
-        ).toDP(2);
-      }
+    if (status === Status.EMPLOYEE) {
+      employmentBonusInfo = taxationInfo.employmentBonusInfo.employee;
+    } else {
+      employmentBonusInfo = taxationInfo.employmentBonusInfo.worker;
     }
 
+    let employmentBonusA = D(0);
     let employmentBonusB = D(0);
 
-    if (grossSalaryForEmploymentBonus.lte(2_723.36)) {
-      if (status === Status.EMPLOYEE) {
-        employmentBonusB = D(159.43)
-          .minus(
-            D(0.2699).times(
-              Decimal.max(grossSalaryForEmploymentBonus.minus(2_132.59), 0)
-            )
-          ).toDP(2);
-      } else {
-        employmentBonusB = D(172.18).minus(
-            D(0.2915).times(
-              Decimal.max(grossSalaryForEmploymentBonus.minus(2_132.59), 0)
-            )
-          ).toDP(2);
+    [employmentBonusInfo.partA, employmentBonusInfo.partB].forEach((partInfo, index) => {
+      if (grossSalaryForEmploymentBonus.lte(partInfo.maxSalary)) {
+        const bonus = partInfo.flatAmount.minus(
+          partInfo.multiplier.times(
+            Decimal.max(grossSalaryForEmploymentBonus.minus(partInfo.amountToExclude), 0)
+          )
+        ).toDP(2);
+
+        if (index === 0) {
+          employmentBonusA = bonus;
+        } else {
+          employmentBonusB = bonus;
+        }
       }
-    }
+    });
 
     employmentBonusA = employmentBonusA.times(employmentBonusMultiplier);
     employmentBonusB = employmentBonusB.times(employmentBonusMultiplier);
@@ -463,7 +374,7 @@ export class TaxCalculatorService {
     }
 
     // Le montant total de la réduction par travailleur ne peut être supérieur à 3.331,80 EUR par année calendrier à partir du 1er mai 2024.
-    const monthlyMaximum = D(3_331.8).div(12);
+    const monthlyMaximum = taxationInfo.employmentBonusInfo.maxYearlyAmount.div(12);
     let employmentBonusWasCapped = false;
 
     if (employmentBonus.gt(monthlyMaximum)) {
@@ -479,9 +390,13 @@ export class TaxCalculatorService {
 
     monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries
       .plus(
-        employmentBonusA.times(33.14).div(100)
+        employmentBonusA
+          .times(taxationInfo.employmentBonusInfo.partAProfessionalWithHoldingTaxReductionPercentage)
+          .div(100)
       ).plus(
-        employmentBonusB.times(52.54).div(100)
+        employmentBonusB
+          .times(taxationInfo.employmentBonusInfo.partBProfessionalWithHoldingTaxReductionPercentage)
+          .div(100)
       ).toDP(2);
 
     return {
@@ -492,16 +407,30 @@ export class TaxCalculatorService {
   }
 
   calculateNetSalary(input: SalaryCalculationInput): SalaryResult {
+    let taxationInfo: TaxationInfo;
+
+    switch (input.revenueYear) {
+      case 2024:
+        taxationInfo = taxationInfo2024;
+        break;
+      case 2025:
+        taxationInfo = taxationInfo2025;
+        break;
+      default:
+        throw Error(`Unsupported year: ${input.revenueYear}.`)
+    }
+
     const grossSalary = new Decimal(input.monthlyGrossSalary);
     let socialCotisations: Decimal;
 
     if (input.status === Status.EMPLOYEE) {
-      socialCotisations = grossSalary.times(13.07).div(100).toDP(2);
+      socialCotisations = grossSalary.times(taxationInfo.socialCotisationsPercentage).div(100).toDP(2);
     } else {
-      socialCotisations = grossSalary.times(1.08).times(13.07).div(100).toDP(2);
+      socialCotisations = grossSalary.times(1.08).times(taxationInfo.socialCotisationsPercentage).div(100).toDP(2);
     }
 
     const employmentBonusAndTaxReductions = this.calculateEmploymentBonusAndTaxReductions(
+      taxationInfo,
       input.status,
       input.workRegime,
       grossSalary,
@@ -518,9 +447,13 @@ export class TaxCalculatorService {
     // Calculate flat rate professional expenses
     let flatRateProfessionalExpenses = D(0);
 
-    for (const tier of this.flatRateProfessionalExpenseTiers) {
+    for (const tier of taxationInfo.flatRateProfessionalExpenseTiers) {
       if (roundedAnnualGrossIncome.lte(tier.to)) {
-        flatRateProfessionalExpenses = tier.flat_rate.plus(roundedAnnualGrossIncome.times(tier.percentage).div(100)).toDP(2);
+        flatRateProfessionalExpenses = tier.flat_rate
+          .plus(
+            roundedAnnualGrossIncome
+              .times(tier.percentage.div(100))
+          ).toDP(2);
         break;
       }
     }
@@ -529,11 +462,13 @@ export class TaxCalculatorService {
 
     // Calculate annual base tax
     const annualTaxes = this.calculateAnnualBaseTax(
+      taxationInfo,
       input.familySituation,
       annualTaxableIncome,
     );
     const annualBaseTax = annualTaxes.total;
     const specialSocialCotisations = this.calculateSpecialSocialCotisation(
+      taxationInfo,
       input.status,
       input.familySituation,
       grossSalary,
@@ -546,38 +481,48 @@ export class TaxCalculatorService {
       case 0:
         break;
       case 1:
-        annualTaxReductions = annualTaxReductions.plus(588.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyDependentChildrenReductions.one);
         break;
       case 2:
-        annualTaxReductions = annualTaxReductions.plus(1_572.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyDependentChildrenReductions.two);
         break;
       case 3:
-        annualTaxReductions = annualTaxReductions.plus(4_164.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyDependentChildrenReductions.three);
         break;
       case 4:
-        annualTaxReductions = annualTaxReductions.plus(7_212.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyDependentChildrenReductions.four);
         break;
       case 5:
-        annualTaxReductions = annualTaxReductions.plus(10_512.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyDependentChildrenReductions.five);
         break;
       case 6:
-        annualTaxReductions = annualTaxReductions.plus(13_812.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyDependentChildrenReductions.six);
         break;
       case 7:
-        annualTaxReductions = annualTaxReductions.plus(17_148.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyDependentChildrenReductions.seven);
         break;
       default:
-        annualTaxReductions = annualTaxReductions.plus(20_808.00);
-        annualTaxReductions = annualTaxReductions.plus(D(3_660.00).times(numDependentChildren - 8));
+        const aboveSevenInfo = taxationInfo.yearlyDependentChildrenReductions.aboveSeven;
+
+        annualTaxReductions = annualTaxReductions.plus(aboveSevenInfo.flatAmount);
+        annualTaxReductions = annualTaxReductions.plus(
+          aboveSevenInfo.amountPerChild
+          .times(numDependentChildren - aboveSevenInfo.numIncludedChildren)
+        );
     }
 
-    annualTaxReductions = annualTaxReductions.plus(D(1_884.00).times(input.dependentPeople.numDependent65Plussers));
+    annualTaxReductions = annualTaxReductions.plus(
+      taxationInfo.yearlyReductionPerDependentRetiree
+        .times(input.dependentPeople.numDependentRetirees)
+    );
 
     const numDependentOthers = input.dependentPeople.numDependentOthers + 2 * input.dependentPeople.numDisabledDependentOthers;
-    annualTaxReductions = annualTaxReductions.plus(D(588.00).times(numDependentOthers));
+    annualTaxReductions = annualTaxReductions.plus(
+      taxationInfo.yearlyReductionPerDependentOther.times(numDependentOthers)
+    );
 
     if (input.disabled) {
-      annualTaxReductions = annualTaxReductions.plus(588.00);
+      annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyReductionIfDisabled);
     }
 
     if ((input.familySituation === FamilySituation.MARRIED_OR_COHABITANT_1_INCOME ||
@@ -585,7 +530,7 @@ export class TaxCalculatorService {
         input.familySituation === FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION ||
         input.familySituation === FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE
       ) && input.hasDisabledPartner) {
-      annualTaxReductions = annualTaxReductions.plus(588.00);
+      annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyReductionIfPartnerDisabled);
     }
 
     if (numDependentChildren > 0 && (
@@ -594,15 +539,15 @@ export class TaxCalculatorService {
         input.familySituation === FamilySituation.DIVORCED_OR_SEPARATED
       )
     ) {
-      annualTaxReductions = annualTaxReductions.plus(588.00);
+      annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyReductionIfIsolatedWithChildren);
     }
 
     switch (input.familySituation) {
       case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_PENSION:
-        annualTaxReductions = annualTaxReductions.plus(3_288.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyReductionIfPartnerLowPension);
         break;
       case FamilySituation.MARRIED_OR_COHABITANT_2_INCOMES_PARTNER_LOW_OTHER_REVENUE:
-        annualTaxReductions = annualTaxReductions.plus(1_650.00);
+        annualTaxReductions = annualTaxReductions.plus(taxationInfo.yearlyReductionIfPartnerLowOtherRevenue);
         break;
     }
 
