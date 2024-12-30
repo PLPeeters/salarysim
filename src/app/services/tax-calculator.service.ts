@@ -929,7 +929,11 @@ export class TaxCalculatorService {
     }));
 
     const socialCotisationsAfterReductions = socialCotisations.minus(employmentBonus).clampedTo(0, Infinity);
-    const taxesAfterReductions = monthlyTaxes.minus(monthlyTaxReductionsForLowSalaries).minus(monthlyTaxReductionsForLowSalaries).clampedTo(0, Infinity);
+    const taxesAfterReductions = monthlyTaxes
+      .minus(monthlyTaxReductions)
+      .minus(monthlyTaxReductionsForGroupInsurance)
+      .minus(monthlyTaxReductionsForLowSalaries)
+      .clampedTo(0, Infinity);
 
     const taxationGrandTotal = socialCotisationsAfterReductions
       .plus(taxesAfterReductions)
