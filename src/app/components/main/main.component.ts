@@ -583,13 +583,17 @@ export class MainComponent implements OnInit {
   }
 
   formatAmount(value: any) {
+    const options = {
+      minimumFractionDigits: 2,
+    };
+
     switch (this.currentLocale) {
       case 'fr-BE':
-        return `${value.toLocaleString(this.currentLocale)} €`.replace(' ', ' ');
+        return `${value.toLocaleString(this.currentLocale, options)} €`.replace(' ', ' ');
       case 'nl-BE':
-        return `€ ${value.toLocaleString(this.currentLocale)}`
+        return `€ ${value.toLocaleString(this.currentLocale, options)}`
       default:
-        return `€${value.toLocaleString(this.currentLocale)}`
+        return `€${value.toLocaleString(this.currentLocale, options)}`
     }
   }
 
