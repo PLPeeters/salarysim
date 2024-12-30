@@ -7,4 +7,9 @@ footer {
     margin-top: 16px;
     margin-bottom: 16px;
   }
+
+  ::ng-deep a[rel*="license"] img {
+    max-height: 24px;
+    margin-top: 8px;
+  }
 }
