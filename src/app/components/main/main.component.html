@@ -432,11 +432,13 @@
           <span matListItemLine>{{ formatAmount(result.specialSocialCotisations) }}</span>
         </mat-list-item>
 
-        <mat-list-item>
-          <mat-icon matListItemIcon>add</mat-icon>
-          <span matListItemTitle>{{ t('other_net_income') }}</span>
-          <span matListItemLine>{{ formatAmount(result.otherNetIncome) }}</span>
-        </mat-list-item>
+        @if (result.otherNetIncome) {
+          <mat-list-item>
+            <mat-icon matListItemIcon>add</mat-icon>
+            <span matListItemTitle>{{ t('other_net_income') }}</span>
+            <span matListItemLine>{{ formatAmount(result.otherNetIncome) }}</span>
+          </mat-list-item>
+        }
 
         <mat-list-item>
           <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
