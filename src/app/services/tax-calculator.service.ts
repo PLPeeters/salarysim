@@ -11,9 +11,46 @@ interface MonthlyTaxReductionsForLowSalaries {
   employmentBonusWasCapped: boolean;
 }
 
+export enum TaxationPeriod {
+  Monthly = 'monthly',
+  Annual = 'annual',
+}
+
+enum ExceptionalAllocationType {
+  HolidayPay = 'double_holiday_pay',
+  Bonus = 'bonus',
+}
+
 export { taxationInfo2024, taxationInfo2025 }
 
-export interface SalaryResult {
+export interface TaxationResultInternal {
+  grossSalary: Decimal;
+  socialCotisations: Decimal;
+  specialSocialCotisations: Decimal;
+  specialSocialCotisationsProportion: Decimal;
+  employmentBonus: Decimal;
+  employmentBonusWasCapped: boolean;
+  socialCotisationsAfterReductions: Decimal;
+  socialCotisationsAfterReductionsProportion: Decimal;
+  taxableIncome: Decimal;
+  professionalWithholdingTaxes: Decimal;
+  professionalWithholdingTaxesByTier: TaxesForTierInternal[];
+  otherMonthlyTaxReductions: Decimal;
+  monthlyTaxReductionsForLowSalaries: Decimal;
+  monthlyTaxReductionsForGroupInsurance: Decimal;
+  otherNetIncome: Decimal;
+  taxesAfterReductions: Decimal;
+  taxesAfterReductionsProportion: Decimal;
+  netToGrossRatio: Decimal;
+  averageTaxRate: Decimal;
+  netSalary: Decimal;
+  groupInsurancePersonalCotisation: number;
+  bonusTaxation: ExceptionalAllocationTaxationInternal;
+  holidayPayTaxation: ExceptionalAllocationTaxationInternal;
+  netIncome: Decimal;
+}
+
+export interface TaxationResult {
   grossSalary: number;
   socialCotisations: number;
   specialSocialCotisations: number;
@@ -23,17 +60,21 @@ export interface SalaryResult {
   socialCotisationsAfterReductions: number;
   socialCotisationsAfterReductionsProportion: number;
   taxableIncome: number;
-  monthlyTaxes: number;
-  monthlyTaxesByTier: TaxesForTier[];
+  professionalWithholdingTaxes: number;
+  professionalWithholdingTaxesByTier: TaxesForTier[];
   otherMonthlyTaxReductions: number;
   monthlyTaxReductionsForLowSalaries: number;
   monthlyTaxReductionsForGroupInsurance: number;
+  otherNetIncome: number;
   taxesAfterReductions: number;
   taxesAfterReductionsProportion: number;
   netToGrossRatio: number;
   averageTaxRate: number;
   netSalary: number;
   groupInsurancePersonalCotisation: number;
+  bonusTaxation: ExceptionalAllocationTaxation;
+  holidayPayTaxation: ExceptionalAllocationTaxation;
+  netIncome: number;
 }
 
 interface SocialSecurityTier {
@@ -98,17 +139,51 @@ interface DependentPeople {
   numDisabledDependentOthers: number;
 }
 
-export interface SalaryCalculationInput {
-  revenueYear: number,
-  status: Status,
-  workRegime: WorkRegimeDetails,
-  familySituation: FamilySituation,
-  dependentPeople: DependentPeople,
-  disabled: boolean,
-  hasDisabledPartner: boolean,
-  groupInsurancePersonalCotisation: number,
-  otherNetIncome: number,
-  monthlyGrossSalary: number,
+export interface MonthlyIncome {
+  grossSalary: number;
+  holidayPay?: number;
+  bonus?: number;
+  otherNetIncome?: number;
+}
+
+export interface SalaryCalculationInput extends MonthlyIncome {
+  period: TaxationPeriod.Monthly;
+  revenueYear: number;
+  status: Status;
+  workRegime: WorkRegimeDetails;
+  familySituation: FamilySituation;
+  dependentPeople: DependentPeople;
+  disabled: boolean;
+  hasDisabledPartner: boolean;
+  yearlyGrossIncome?: number;
+  groupInsurancePersonalCotisation: number;
+}
+
+export interface YearlySalaryCalculationInput {
+  period: TaxationPeriod.Annual;
+  revenueYear: number;
+  status: Status;
+  workRegime: WorkRegimeDetails;
+  familySituation: FamilySituation;
+  dependentPeople: DependentPeople;
+  disabled: boolean;
+  hasDisabledPartner: boolean;
+  groupInsurancePersonalCotisation: number;
+  monthlyIncomes: MonthlyIncome[];
+}
+
+interface ExceptionalAllocationTaxationInternal {
+  grossAllocation: Decimal;
+  socialCotisations: Decimal;
+  professionalWithholdingTax: Decimal;
+  netExceptionalAllocation: Decimal;
+}
+
+interface ExceptionalAllocationTaxation {
+  grossAllocation: number;
+  socialCotisations: number;
+  professionalWithholdingTax: number;
+  netExceptionalAllocation: number;
 }
 
 const D = (value: number | string | null): Decimal => new Decimal(value || 0);
@@ -406,21 +481,297 @@ export class TaxCalculatorService {
     };
   }
 
-  calculateNetSalary(input: SalaryCalculationInput): SalaryResult {
-    let taxationInfo: TaxationInfo;
-
-    switch (input.revenueYear) {
+  private getTaxationInfo(revenueYear: number): TaxationInfo {
+    switch (revenueYear) {
       case 2024:
-        taxationInfo = taxationInfo2024;
-        break;
+        return taxationInfo2024;
       case 2025:
-        taxationInfo = taxationInfo2025;
-        break;
+        return taxationInfo2025;
       default:
-        throw Error(`Unsupported year: ${input.revenueYear}.`)
+        throw Error(`Unsupported year: ${revenueYear}.`)
+    }
+  }
+
+  calculateExceptionalAllocationTaxation(
+    taxationInfo: TaxationInfo,
+    annualGross: Decimal,
+    exceptionalAllocationAmount: Decimal,
+    numDependentChildren: number,
+    exceptionalAllocationType: ExceptionalAllocationType,
+  ): ExceptionalAllocationTaxationInternal {
+    let taxationPercentage = D(0);
+
+    for (let taxationTier of taxationInfo.exceptionalAllocationsTaxation) {
+      if (annualGross <= taxationTier.annualGrossRange.to) {
+        if (exceptionalAllocationType === ExceptionalAllocationType.HolidayPay) {
+          taxationPercentage = taxationTier.holidayPayPercentage;
+        } else {
+          taxationPercentage = taxationTier.otherAllocationsPercentage;
+        }
+
+        break;
+      }
     }
 
-    const grossSalary = new Decimal(input.monthlyGrossSalary);
+    let exoneratedAmount = D(0);
+    let reductionPercentage = D(0);
+
+    if (numDependentChildren > 0) {
+      for (let exonerationTier of taxationInfo.exceptionalAllocationsDependentChildrenExonerationTiers) {
+        if (numDependentChildren === exonerationTier.numChildren && annualGross.lte(exonerationTier.limit)) {
+          exoneratedAmount = exonerationTier.limit.minus(annualGross);
+          break;
+        }
+      }
+
+      for (let reductionTier of taxationInfo.exceptionalAllocationsDependentChildrenReductionTiers) {
+        if (numDependentChildren === reductionTier.numChildren && annualGross.lte(reductionTier.maxAnnualGross)) {
+          reductionPercentage = reductionTier.reductionPercentage;
+          break;
+        }
+      }
+    }
+
+    let socialCotisations;
+
+    if (exceptionalAllocationType === ExceptionalAllocationType.HolidayPay) {
+      socialCotisations = exceptionalAllocationAmount.times(D(85).div(92)).times(taxationInfo.socialCotisationsPercentage.div(100)).toDP(2);
+    } else {
+      socialCotisations = exceptionalAllocationAmount.times(taxationInfo.socialCotisationsPercentage.div(100)).toDP(2);
+    }
+
+    const taxableExceptionalAllocation = exceptionalAllocationAmount.minus(socialCotisations);
+    const professionalWithholdingTax = Decimal.max(taxableExceptionalAllocation.minus(exoneratedAmount), 0)
+      .times(taxationPercentage.div(100))
+      .times(D(1).minus(reductionPercentage.div(100)))
+      .toDP(2);
+    // const professionalWithholdingTax = taxableExceptionalAllocation.times(taxationPercentage.div(100)).toDP(2);
+    const netExceptionalAllocation = taxableExceptionalAllocation.minus(professionalWithholdingTax);
+
+    return {
+      grossAllocation: exceptionalAllocationAmount,
+      socialCotisations: socialCotisations,
+      professionalWithholdingTax: professionalWithholdingTax,
+      netExceptionalAllocation: netExceptionalAllocation,
+    };
+  }
+
+  calculateTaxation(input: SalaryCalculationInput | YearlySalaryCalculationInput): TaxationResult {
+    let totalGross = D(0);
+    let grossSalary = D(0);
+    let socialCotisations = D(0);
+    let socialCotisationsAfterReductions = D(0);
+    let specialSocialCotisations = D(0);
+    let employmentBonus = D(0);
+    let employmentBonusWasCapped = false;
+    let taxableIncome = D(0);
+    let professionalWithholdingTaxes = D(0);
+    let professionalWithholdingTaxesByTierInternal: TaxesForTierInternal[] = [];
+    let monthlyTaxReductionsForLowSalaries = D(0);
+    let monthlyTaxReductionsForGroupInsurance = D(0);
+    let otherNetIncome = D(0);
+    let otherMonthlyTaxReductions = D(0);
+    let taxesAfterReductions = D(0);
+    let netSalary = D(0);
+    let groupInsurancePersonalCotisations = D(0);
+    let totalHolidayPayTaxation: ExceptionalAllocationTaxationInternal = {
+      grossAllocation: D(0),
+      socialCotisations: D(0),
+      professionalWithholdingTax: D(0),
+      netExceptionalAllocation: D(0),
+    };
+    let totalBonusTaxation: ExceptionalAllocationTaxationInternal = {
+      grossAllocation: D(0),
+      socialCotisations: D(0),
+      professionalWithholdingTax: D(0),
+      netExceptionalAllocation: D(0),
+    };
+
+    switch (input.period) {
+      case TaxationPeriod.Annual:
+        let yearlyGross = D(0);
+
+        input.monthlyIncomes.forEach(monthlyIncome => {
+          yearlyGross = yearlyGross.plus(monthlyIncome.grossSalary)
+        });
+
+        input.monthlyIncomes.forEach(monthlyIncome => {
+          const monthlyTaxation = this.calculateMonthlyTaxation({
+            ...((input as unknown) as SalaryCalculationInput),
+            grossSalary: monthlyIncome.grossSalary,
+            groupInsurancePersonalCotisation: input.groupInsurancePersonalCotisation,
+            holidayPay: monthlyIncome.holidayPay,
+            bonus: monthlyIncome.bonus,
+            otherNetIncome: monthlyIncome.otherNetIncome,
+            yearlyGrossIncome: yearlyGross.toNumber(),
+          });
+
+          totalGross = totalGross
+            .plus(monthlyIncome.grossSalary)
+            .plus(monthlyIncome.bonus || 0)
+            .plus(monthlyIncome.holidayPay || 0)
+            .plus(monthlyIncome.otherNetIncome || 0);
+          grossSalary = grossSalary
+            .plus(monthlyTaxation.grossSalary);
+          socialCotisations = socialCotisations
+            .plus(monthlyTaxation.socialCotisations);
+          socialCotisationsAfterReductions = socialCotisationsAfterReductions
+            .plus(monthlyTaxation.socialCotisationsAfterReductions);
+          specialSocialCotisations = specialSocialCotisations
+            .plus(monthlyTaxation.specialSocialCotisations);
+          employmentBonus = employmentBonus
+            .plus(monthlyTaxation.employmentBonus);
+          employmentBonusWasCapped = employmentBonusWasCapped || monthlyTaxation.employmentBonusWasCapped;
+          taxableIncome = taxableIncome
+            .plus(monthlyTaxation.taxableIncome);
+          professionalWithholdingTaxes = professionalWithholdingTaxes
+            .plus(monthlyTaxation.professionalWithholdingTaxes);
+          monthlyTaxation.professionalWithholdingTaxesByTier.forEach((professionalWithholdingTaxTier, index) => {
+            if (index >= professionalWithholdingTaxesByTierInternal.length) {
+              professionalWithholdingTaxesByTierInternal.push({
+                toTax: D(0),
+                percentage: D(0),
+                taxes: D(0),
+              })
+            }
+
+            const currentTier = professionalWithholdingTaxesByTierInternal[index];
+            currentTier.toTax = currentTier.toTax.plus(professionalWithholdingTaxTier.toTax);
+            currentTier.percentage = professionalWithholdingTaxTier.percentage;
+            currentTier.taxes = currentTier.toTax.plus(professionalWithholdingTaxTier.taxes);
+          });
+          monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries
+            .plus(monthlyTaxation.monthlyTaxReductionsForLowSalaries);
+          monthlyTaxReductionsForGroupInsurance = monthlyTaxReductionsForGroupInsurance
+            .plus(monthlyTaxation.monthlyTaxReductionsForGroupInsurance);
+          otherNetIncome = otherNetIncome
+            .plus(monthlyTaxation.otherNetIncome);
+          otherMonthlyTaxReductions = otherMonthlyTaxReductions
+            .plus(monthlyTaxation.otherMonthlyTaxReductions);
+          taxesAfterReductions = taxesAfterReductions
+            .plus(monthlyTaxation.taxesAfterReductions);
+          netSalary = netSalary
+            .plus(monthlyTaxation.netSalary);
+          groupInsurancePersonalCotisations = groupInsurancePersonalCotisations.plus(input.groupInsurancePersonalCotisation);
+
+          totalHolidayPayTaxation.grossAllocation = totalHolidayPayTaxation.grossAllocation
+            .plus(monthlyTaxation.holidayPayTaxation.grossAllocation);
+          totalHolidayPayTaxation.socialCotisations = totalHolidayPayTaxation.socialCotisations
+            .plus(monthlyTaxation.holidayPayTaxation.socialCotisations);
+          totalHolidayPayTaxation.professionalWithholdingTax = totalHolidayPayTaxation.professionalWithholdingTax
+            .plus(monthlyTaxation.holidayPayTaxation.professionalWithholdingTax);
+          totalHolidayPayTaxation.netExceptionalAllocation = totalHolidayPayTaxation.netExceptionalAllocation
+            .plus(monthlyTaxation.holidayPayTaxation.netExceptionalAllocation);
+
+          totalBonusTaxation.grossAllocation = totalBonusTaxation.grossAllocation
+            .plus(monthlyTaxation.bonusTaxation.grossAllocation);
+          totalBonusTaxation.socialCotisations = totalBonusTaxation.socialCotisations
+            .plus(monthlyTaxation.bonusTaxation.socialCotisations);
+          totalBonusTaxation.professionalWithholdingTax = totalBonusTaxation.professionalWithholdingTax
+            .plus(monthlyTaxation.bonusTaxation.professionalWithholdingTax);
+          totalBonusTaxation.netExceptionalAllocation = totalBonusTaxation.netExceptionalAllocation
+            .plus(monthlyTaxation.bonusTaxation.netExceptionalAllocation);
+        });
+
+        break;
+      case TaxationPeriod.Monthly:
+        const monthlyTaxation = this.calculateMonthlyTaxation(input);
+
+        totalGross = D(input.grossSalary)
+          .plus(input.bonus || 0)
+          .plus(input.holidayPay || 0)
+          .plus(input.otherNetIncome || 0);
+        grossSalary = monthlyTaxation.grossSalary;
+        socialCotisations = monthlyTaxation.socialCotisations;
+        socialCotisationsAfterReductions = monthlyTaxation.socialCotisationsAfterReductions;
+        specialSocialCotisations = monthlyTaxation.specialSocialCotisations;
+        employmentBonus = monthlyTaxation.employmentBonus;
+        employmentBonusWasCapped = monthlyTaxation.employmentBonusWasCapped;
+        taxableIncome = monthlyTaxation.taxableIncome;
+        professionalWithholdingTaxes = monthlyTaxation.professionalWithholdingTaxes;
+        professionalWithholdingTaxesByTierInternal = monthlyTaxation.professionalWithholdingTaxesByTier;
+        monthlyTaxReductionsForLowSalaries = monthlyTaxation.monthlyTaxReductionsForLowSalaries;
+        monthlyTaxReductionsForGroupInsurance = monthlyTaxation.monthlyTaxReductionsForGroupInsurance;
+        otherNetIncome = monthlyTaxation.otherNetIncome;
+        otherMonthlyTaxReductions = monthlyTaxation.otherMonthlyTaxReductions;
+        taxesAfterReductions = monthlyTaxation.taxesAfterReductions;
+        netSalary = monthlyTaxation.netSalary;
+        groupInsurancePersonalCotisations = D(input.groupInsurancePersonalCotisation);
+
+        totalHolidayPayTaxation.grossAllocation = monthlyTaxation.holidayPayTaxation.grossAllocation;
+        totalHolidayPayTaxation.socialCotisations = monthlyTaxation.holidayPayTaxation.socialCotisations;
+        totalHolidayPayTaxation.professionalWithholdingTax = monthlyTaxation.holidayPayTaxation.professionalWithholdingTax;
+        totalHolidayPayTaxation.netExceptionalAllocation = monthlyTaxation.holidayPayTaxation.netExceptionalAllocation;
+
+        totalBonusTaxation.grossAllocation = monthlyTaxation.bonusTaxation.grossAllocation;
+        totalBonusTaxation.socialCotisations = monthlyTaxation.bonusTaxation.socialCotisations;
+        totalBonusTaxation.professionalWithholdingTax = monthlyTaxation.bonusTaxation.professionalWithholdingTax;
+        totalBonusTaxation.netExceptionalAllocation = monthlyTaxation.bonusTaxation.netExceptionalAllocation;
+
+        break;
+    }
+
+    const professionalWithholdingTaxesByTier: TaxesForTier[] = professionalWithholdingTaxesByTierInternal.map(tier => ({
+      toTax: tier.toTax.toNumber(),
+      percentage: tier.percentage.toNumber(),
+      taxes: tier.taxes.toNumber(),
+    }));
+    const netIncome = netSalary
+      .plus(totalHolidayPayTaxation.netExceptionalAllocation)
+      .plus(totalBonusTaxation.netExceptionalAllocation);
+
+    const netToGrossRatio = netIncome.div(totalGross).times(100);
+    const averageTaxRate = totalGross.minus(netIncome).div(totalGross).times(100);
+
+    const taxationGrandTotal = socialCotisationsAfterReductions
+      .plus(taxesAfterReductions)
+      .plus(specialSocialCotisations);
+
+    const specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
+    const socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
+    const taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+
+    return {
+      grossSalary: grossSalary.toNumber(),
+      socialCotisations: socialCotisations.toNumber(),
+      specialSocialCotisations: specialSocialCotisations.toNumber(),
+      specialSocialCotisationsProportion: specialSocialCotisationsProportion.toNumber(),
+      employmentBonus: employmentBonus.toNumber(),
+      employmentBonusWasCapped: employmentBonusWasCapped,
+      socialCotisationsAfterReductions: socialCotisationsAfterReductions.toNumber(),
+      socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion.toNumber(),
+      taxableIncome: taxableIncome.toNumber(),
+      professionalWithholdingTaxes: professionalWithholdingTaxes.toNumber(),
+      professionalWithholdingTaxesByTier,
+      otherMonthlyTaxReductions: otherMonthlyTaxReductions.toNumber(),
+      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toNumber(),
+      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance.toNumber(),
+      otherNetIncome: otherNetIncome.toNumber(),
+      taxesAfterReductions: taxesAfterReductions.toNumber(),
+      taxesAfterReductionsProportion: taxesAfterReductionsProportion.toNumber(),
+      netToGrossRatio: netToGrossRatio.toNumber(),
+      averageTaxRate: averageTaxRate.toNumber(),
+      netSalary: netSalary.toNumber(),
+      groupInsurancePersonalCotisation: groupInsurancePersonalCotisations.toNumber(),
+      holidayPayTaxation: {
+        grossAllocation: totalHolidayPayTaxation.grossAllocation.toNumber(),
+        socialCotisations: totalHolidayPayTaxation.socialCotisations.toNumber(),
+        professionalWithholdingTax: totalHolidayPayTaxation.professionalWithholdingTax.toNumber(),
+        netExceptionalAllocation: totalHolidayPayTaxation.netExceptionalAllocation.toNumber(),
+      },
+      bonusTaxation: {
+        grossAllocation: totalBonusTaxation.grossAllocation.toNumber(),
+        socialCotisations: totalBonusTaxation.socialCotisations.toNumber(),
+        professionalWithholdingTax: totalBonusTaxation.professionalWithholdingTax.toNumber(),
+        netExceptionalAllocation: totalBonusTaxation.netExceptionalAllocation.toNumber(),
+      },
+      netIncome: netIncome.toNumber(),
+    };
+  }
+
+  calculateMonthlyTaxation(input: SalaryCalculationInput): TaxationResultInternal {
+    const taxationInfo = this.getTaxationInfo(input.revenueYear);
+    const grossSalary = new Decimal(input.grossSalary);
     let socialCotisations: Decimal;
 
     if (input.status === Status.EMPLOYEE) {
@@ -557,6 +908,7 @@ export class TaxCalculatorService {
     const monthlyTaxes = annualBaseTax.div(12).toDP(2);
     const monthlyTaxReductions = annualTaxReductions.div(12).toDP(2);
     const monthlyTaxReductionsForGroupInsurance = D(input.groupInsurancePersonalCotisation).times(30).div(100).toDP(2);
+    const otherNetIncome = D(input.otherNetIncome || 0);
 
     const netSalary = taxableIncome.minus(
       Decimal.max(
@@ -568,12 +920,12 @@ export class TaxCalculatorService {
       )
     ).minus(specialSocialCotisations)
       .minus(input.groupInsurancePersonalCotisation)
-      .plus(input.otherNetIncome);
+      .plus(otherNetIncome);
 
-    const monthlyTaxesByTier: TaxesForTier[] = annualTaxes.taxesByTier.map(taxesForTier => ({
-      toTax: taxesForTier.toTax.div(12).toDP(2).toNumber(),
-      percentage: taxesForTier.percentage.toNumber(),
-      taxes: taxesForTier.taxes.div(12).toDP(2).toNumber(),
+    const monthlyTaxesByTier: TaxesForTierInternal[] = annualTaxes.taxesByTier.map(taxesForTier => ({
+      toTax: taxesForTier.toTax.div(12).toDP(2),
+      percentage: taxesForTier.percentage,
+      taxes: taxesForTier.taxes.div(12).toDP(2),
     }));
 
     const socialCotisationsAfterReductions = socialCotisations.minus(employmentBonus).clampedTo(0, Infinity);
@@ -587,27 +939,60 @@ export class TaxCalculatorService {
     const socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
     const taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
 
+    const annualGross = input.yearlyGrossIncome ? D(input.yearlyGrossIncome) : grossSalary.times(12);
+
+    const holidayPayTaxationResult = this.calculateExceptionalAllocationTaxation(
+      taxationInfo,
+      annualGross,
+      D(input.holidayPay || 0),
+      numDependentChildren,
+      ExceptionalAllocationType.HolidayPay,
+    );
+    const bonusTaxationResult = this.calculateExceptionalAllocationTaxation(
+      taxationInfo,
+      annualGross,
+      D(input.bonus || 0),
+      numDependentChildren,
+      ExceptionalAllocationType.Bonus,
+    );
+
+    const netIncome = netSalary
+      .plus(holidayPayTaxationResult.netExceptionalAllocation)
+      .plus(bonusTaxationResult.netExceptionalAllocation);
+
+    const totalGross = grossSalary
+      .plus(input.holidayPay || 0)
+      .plus(input.bonus || 0)
+      .plus(otherNetIncome);
+
+    const netToGrossRatio = netIncome.div(totalGross).times(100);
+    const averageTaxRate = totalGross.minus(netIncome).div(totalGross).times(100);
+
     return {
-      grossSalary: grossSalary.toNumber(),
-      socialCotisations: socialCotisations.toNumber(),
-      specialSocialCotisations: specialSocialCotisations.toNumber(),
-      specialSocialCotisationsProportion: specialSocialCotisationsProportion.toNumber(),
-      employmentBonus: employmentBonus.toNumber(),
+      grossSalary: grossSalary,
+      socialCotisations: socialCotisations,
+      specialSocialCotisations: specialSocialCotisations,
+      specialSocialCotisationsProportion: specialSocialCotisationsProportion,
+      employmentBonus: employmentBonus,
       employmentBonusWasCapped: employmentBonusWasCapped,
-      socialCotisationsAfterReductions: socialCotisationsAfterReductions.toNumber(),
-      socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion.toNumber(),
-      taxableIncome: taxableIncome.toNumber(),
-      monthlyTaxes: monthlyTaxes.toNumber(),
-      monthlyTaxesByTier,
-      otherMonthlyTaxReductions: monthlyTaxReductions.toNumber(),
-      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toNumber(),
-      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance.toNumber(),
-      taxesAfterReductions: taxesAfterReductions.toNumber(),
-      taxesAfterReductionsProportion: taxesAfterReductionsProportion.toNumber(),
-      netToGrossRatio: netSalary.div(grossSalary).times(100).toNumber(),
-      averageTaxRate: grossSalary.minus(netSalary).div(grossSalary).times(100).toNumber(),
-      netSalary: netSalary.toNumber(),
+      socialCotisationsAfterReductions: socialCotisationsAfterReductions,
+      socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion,
+      taxableIncome: taxableIncome,
+      professionalWithholdingTaxes: monthlyTaxes,
+      professionalWithholdingTaxesByTier: monthlyTaxesByTier,
+      otherMonthlyTaxReductions: monthlyTaxReductions,
+      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries,
+      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance,
+      otherNetIncome: otherNetIncome,
+      taxesAfterReductions: taxesAfterReductions,
+      taxesAfterReductionsProportion: taxesAfterReductionsProportion,
+      netToGrossRatio: netToGrossRatio,
+      averageTaxRate: averageTaxRate,
+      netSalary: netSalary,
       groupInsurancePersonalCotisation: input.groupInsurancePersonalCotisation,
+      holidayPayTaxation: holidayPayTaxationResult,
+      bonusTaxation: bonusTaxationResult,
+      netIncome: netIncome,
     };
   }
 }

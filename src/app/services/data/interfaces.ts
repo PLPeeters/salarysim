@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { SalaryCalculationInput, YearlySalaryCalculationInput } from "../tax-calculator.service";
 
 export interface SocialSecurityTier {
   from: Decimal,
@@ -60,8 +61,36 @@ export interface DependentChildrenReductions {
   aboveSeven: DefaultDependentChildrenReduction;
 };
 
+export interface DecimalRange {
+  from: Decimal;
+  to: Decimal;
+}
+
+export interface ExceptionalAllocationTaxationTier {
+  annualGrossRange: DecimalRange;
+  otherAllocationsPercentage: Decimal;
+  holidayPayPercentage: Decimal;
+};
+
+export interface ExceptionalAllocationTaxationTier {
+  annualGrossRange: DecimalRange;
+  otherAllocationsPercentage: Decimal;
+  holidayPayPercentage: Decimal;
+};
+
+export interface AnnualLimitBasedOnDependentChildren {
+  numChildren: number;
+  limit: Decimal;
+};
+
+export interface AnnualReductionBasedOnDependentChildren {
+  numChildren: number;
+  reductionPercentage: Decimal;
+  maxAnnualGross: Decimal;
+};
+
 export interface TaxationInfo {
-  year: number,
+  year: number;
   isFinal: boolean;
   socialCotisationsPercentage: Decimal;
   flatRateProfessionalExpenseTiers: FlatRateProfessionalExpensesTier[];
@@ -88,4 +117,14 @@ export interface TaxationInfo {
   yearlyReductionIfPartnerLowOtherRevenue: Decimal;
   noRevenueJanuaryThreshold: number;
   yearlyReductionIfIsolatedWithChildren: Decimal;
+
+  exceptionalAllocationsTaxation: ExceptionalAllocationTaxationTier[];
+  exceptionalAllocationsDependentChildrenExonerationTiers: AnnualLimitBasedOnDependentChildren[];
+  exceptionalAllocationsDependentChildrenReductionTiers: AnnualReductionBasedOnDependentChildren[];
+};
+
+export interface Situation {
+  input: SalaryCalculationInput | YearlySalaryCalculationInput;
+  netSalary: number;
+  netIncome?: number;
 };

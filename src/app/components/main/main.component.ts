@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { LayoutModule, MediaMatcher } from '@angular/cdk/layout';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -12,18 +12,25 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
 import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { forkJoin, take } from 'rxjs';
-import { FamilySituation, SalaryResult, Status, taxationInfo2024, taxationInfo2025, TaxCalculatorService, WorkRegime } from '../../services/tax-calculator.service';
+import { FamilySituation, TaxationResult, Status, taxationInfo2024, taxationInfo2025, TaxCalculatorService, WorkRegime, SalaryCalculationInput, YearlySalaryCalculationInput, TaxationPeriod } from '../../services/tax-calculator.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
+import { DisableScrollDirective } from '../../directives/disable-scroll.directive';
 
 
 interface RevenueYear {
   year: number;
   isFinal: boolean;
+}
+
+enum Mode {
+  SingleMonth = 'single_month',
+  FullYear = 'full_year',
 }
 
 @Component({
@@ -47,7 +54,9 @@ interface RevenueYear {
     MatTooltipModule,
     MatSelectModule,
     MatOptionModule,
+    MatTabsModule,
     TranslocoModule,
+    DisableScrollDirective,
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
@@ -59,13 +68,14 @@ export class MainComponent implements OnInit {
   private translocoService = inject(TranslocoService);
   private taxCalculatorService = inject(TaxCalculatorService);
   salaryForm: FormGroup;
-  result: SalaryResult | null = null;
+  result: TaxationResult | null = null;
   chartData: any[] = [];
   relativeChartData: any[] = [];
   averageTaxRateChartData: any[] = [];
   taxData: any[] = [];
   taxDataProportional: any[] = [];
   showWithHoldingTaxBreakdown = false;
+  periodTabIndex = 0;
 
   lowPensionJanuaryThreshold: number = -1;
   lowOtherRevenueJanuaryThreshold: number = -1;
@@ -115,6 +125,7 @@ export class MainComponent implements OnInit {
   WorkRegime = WorkRegime;
   Status = Status;
   FamilySituation = FamilySituation;
+  Mode = Mode;
 
   constructor(
     private fb: FormBuilder,
@@ -138,10 +149,23 @@ export class MainComponent implements OnInit {
       numDisabledDependentOthers: [null],
       groupInsurance: [false],
       groupInsurancePersonalCotisation: [null],
+      mode: [Mode.SingleMonth, [Validators.required]],
       grossSalary: [null, [Validators.required, Validators.min(0)]],
-      otherNetIncome: [null],
+      holidayPay: [null, [Validators.min(0)]],
+      bonus: [null, [Validators.min(0)]],
+      otherNetIncome: [null, [Validators.min(0)]],
+      incomeByMonth: this.fb.array(Array.from({ length: 12 }, () =>
+        this.fb.group({
+          grossSalary: [null, [Validators.required, Validators.min(0)]],
+          bonus: [null, [Validators.min(0)]],
+          holidayPay: [null, [Validators.min(0)]],
+          otherNetIncome: [null, [Validators.min(0)]],
+        })
+      )),
       indexation: [null],
     });
+
+    this.onPeriodTabSelected();
 
     this.mediaQueries = this.mediaMatcher.matchMedia('(orientation: portrait)');
     this.mediaQueryListener = () => {
@@ -168,6 +192,7 @@ export class MainComponent implements OnInit {
     this.salaryForm.get('dependentPeople')?.valueChanges.subscribe(this.onHasChildrenChanged.bind(this));
     this.salaryForm.get('revenueYear')?.valueChanges.subscribe(this.onRevenueYearChanged.bind(this));
     this.salaryForm.get('workRegime')?.valueChanges.subscribe(this.onWorkRegimeChanged.bind(this));
+    this.salaryForm.get('mode')?.valueChanges.subscribe(this.onModeChanged.bind(this));
 
     this.onRevenueYearChanged(this.salaryForm.get('revenueYear')?.value);
 
@@ -213,6 +238,62 @@ export class MainComponent implements OnInit {
 
   setLocale(locale: string) {
     this.translocoService.setActiveLang(locale);
+  }
+
+  get monthlySalaryRows(): FormArray {
+    return this.salaryForm.get('incomeByMonth') as FormArray;
+  }
+
+  copyMonthlySalaryRowToRest(index: number) {
+    const controls = this.monthlySalaryRows.controls.slice(index) as FormGroup[];
+    const firstControl = controls.splice(0, 1)[0] as FormGroup;
+
+    controls.forEach((followingFormGroup: FormGroup) => {
+      const followingFormGroupControls = followingFormGroup.controls;
+
+      for (let controlName in followingFormGroupControls) {
+        const value = firstControl.controls[controlName].value;
+
+        if (value) {
+          followingFormGroupControls[controlName]
+            .setValue(firstControl.controls[controlName].value);
+        }
+      }
+    });
+  }
+
+  onPeriodTabSelected() {
+    const mode = this.salaryForm.get('mode');
+
+    if (this.periodTabIndex === 0) {
+      mode?.setValue(Mode.SingleMonth);
+    } else {
+      mode?.setValue(Mode.FullYear);
+    }
+
+    mode?.markAsDirty();
+    this.salaryForm.updateValueAndValidity();
+  }
+
+  onModeChanged(mode: Mode) {
+    const grossSalary = this.salaryForm.get('grossSalary');
+    const monthlySalaryRowControls = this.monthlySalaryRows.controls as FormGroup[];
+
+    if (mode === Mode.SingleMonth) {
+      grossSalary?.setValidators([Validators.required, Validators.min(0.01)]);
+      monthlySalaryRowControls.forEach(formGroup => {
+        formGroup.controls['grossSalary'].clearValidators();
+        formGroup.controls['grossSalary'].updateValueAndValidity();
+      });
+    } else {
+      grossSalary?.clearValidators();
+      monthlySalaryRowControls.forEach(formGroup => {
+        formGroup.controls['grossSalary'].setValidators([Validators.required, Validators.min(0)]);
+        formGroup.controls['grossSalary'].updateValueAndValidity();
+      });
+    }
+
+    this.salaryForm.updateValueAndValidity();
   }
 
   onRevenueYearChanged(revenueYear: RevenueYear) {
@@ -275,10 +356,13 @@ export class MainComponent implements OnInit {
     this.salaryForm.updateValueAndValidity();
   }
 
-  private calculateNetSalary(
+  private calculateMonthlyNetSalary(
     monthlyGrossSalary: number,
-  ): SalaryResult {
-    const salaryCalculatorInput = {
+    holidayPay: number | null = null,
+    bonus: number | null = null,
+  ): TaxationResult {
+    const salaryCalculatorInput: SalaryCalculationInput = {
+      period: TaxationPeriod.Monthly,
       revenueYear: this.salaryForm.value.revenueYear.year,
       status: this.salaryForm.value.status,
       workRegime: {
@@ -298,17 +382,66 @@ export class MainComponent implements OnInit {
       hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
       groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurancePersonalCotisation || 0,
       otherNetIncome: this.salaryForm.value.otherNetIncome || 0,
-      monthlyGrossSalary,
+      grossSalary: monthlyGrossSalary,
     };
 
-    return this.taxCalculatorService.calculateNetSalary(salaryCalculatorInput);
+    if (holidayPay) {
+      salaryCalculatorInput.holidayPay = holidayPay;
+    }
+
+    if (bonus) {
+      salaryCalculatorInput.bonus = bonus;
+    }
+
+    return this.taxCalculatorService.calculateTaxation(salaryCalculatorInput);
+  }
+
+  private calculateAnnualNetSalary(): TaxationResult {
+    const salaryCalculatorInput: YearlySalaryCalculationInput = {
+      period: TaxationPeriod.Annual,
+      revenueYear: this.salaryForm.value.revenueYear.year,
+      status: this.salaryForm.value.status,
+      workRegime: {
+        type: this.salaryForm.value.workRegime,
+        workedTimePerWeek: this.salaryForm.value.workedTimePerWeek,
+        fullTimeHoursPerWeek: this.salaryForm.value.fullTimeHoursPerWeek
+      },
+      familySituation: this.salaryForm.value.familySituation,
+      dependentPeople: {
+        numDependentChildren: this.salaryForm.value.numDependentChildren || 0,
+        numDisabledDependentChildren: this.salaryForm.value.numDisabledDependentChildren || 0,
+        numDependentRetirees: this.salaryForm.value.numDependentRetirees || 0,
+        numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
+        numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
+      },
+      disabled: this.salaryForm.value.disabled,
+      hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
+      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurancePersonalCotisation || 0,
+      monthlyIncomes: this.salaryForm.value.incomeByMonth.map((incomeForMonth: any) => ({
+        grossSalary: incomeForMonth.grossSalary,
+        bonus: incomeForMonth.bonus,
+        holidayPay: incomeForMonth.holidayPay,
+        otherNetIncome: incomeForMonth.otherNetIncome,
+      })),
+    };
+
+    return this.taxCalculatorService.calculateTaxation(salaryCalculatorInput);
   }
 
   onSubmit() {
     if (this.salaryForm.valid) {
       const monthlyGrossSalary = this.salaryForm.value.grossSalary;
 
-      this.result = this.calculateNetSalary(monthlyGrossSalary);
+      if (this.salaryForm.value.mode === Mode.SingleMonth) {
+        this.result = this.calculateMonthlyNetSalary(
+          monthlyGrossSalary,
+          this.salaryForm.value.holidayPay,
+          this.salaryForm.value.bonus,
+        );
+      } else {
+        this.result = this.calculateAnnualNetSalary();
+      }
+
       this.updateChartData(monthlyGrossSalary);
 
       this.salaryForm.markAsPristine();
@@ -346,7 +479,7 @@ export class MainComponent implements OnInit {
     const salaries = salaryPoints.map(salary => {
       return {
         gross: salary,
-        taxation: this.calculateNetSalary(salary),
+        taxation: this.calculateMonthlyNetSalary(salary),
       }
     });
 
@@ -380,7 +513,7 @@ export class MainComponent implements OnInit {
             nextNet = salaries[index + 1].taxation.netSalary;
           } else {
             nextGross = salary.gross + this.graphsStep;
-            nextNet = this.calculateNetSalary(nextGross).netSalary;
+            nextNet = this.calculateMonthlyNetSalary(nextGross).netSalary;
           }
 
           return {

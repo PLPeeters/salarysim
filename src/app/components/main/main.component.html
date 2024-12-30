@@ -102,7 +102,7 @@
           </mat-checkbox>
 
           @if (salaryForm.get('dependentPeople')?.value) {
-            <table class="dependents-table">
+            <table class="full-width">
               <thead>
                 <tr>
                   <th class="text-right">{{ t('category') }}</th>
@@ -112,7 +112,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="text-right">{{ t('children') }}</td>
+                  <td class="text-right outline-neighbour-padding">{{ t('children') }}</td>
                   <td>
                     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('children') }}</mat-label>
@@ -127,7 +127,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="text-right">
+                  <td class="text-right outline-neighbour-padding">
                     {{dependentRetireeAgeThreshold}}+
                   </td>
                   <td colspan="2">
@@ -140,7 +140,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="text-right">{{ t('others') }}</td>
+                  <td class="text-right outline-neighbour-padding">{{ t('others') }}</td>
                   <td>
                     <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('others') }}</mat-label>
@@ -159,7 +159,7 @@
           }
 
           <mat-checkbox formControlName="groupInsurance">
-            {{ t('group_insurance_personal_contribution' )}}
+            {{ t('group_insurance' )}}
           </mat-checkbox>
 
           <div *ngIf="salaryForm.get('groupInsurance')?.value">
@@ -176,29 +176,137 @@
           </div>
         </div>
 
-        <!-- Monthly Gross Income -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ t('monthly_gross_income') }}</mat-label>
-          <input matInput type="number" min="0.01" step="0.01" formControlName="grossSalary">
+        <mat-card-subtitle>{{ t('income') }}</mat-card-subtitle>
 
-          @if (currentLocale != 'fr-BE') {
-            <mat-icon matPrefix>euro</mat-icon>
-          } @else {
-            <mat-icon matSuffix>euro</mat-icon>
-          }
-        </mat-form-field>
+        <mat-tab-group
+          class="m-t"
+          animationDuration="0ms"
+          (selectedTabChange)="onPeriodTabSelected()"
+          [(selectedIndex)]="periodTabIndex"
+          dynamicHeight="true">
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ t('other_net_income') }}</mat-label>
-          <input matInput type="number" min="0.01" step="0.01" formControlName="otherNetIncome">
+          <mat-tab [label]="t('single_month')">
+            <!-- Gross Salary -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ t('gross_salary_title') }}</mat-label>
+              <input matInput type="number" min="0.01" step="0.01" formControlName="grossSalary">
 
-          @if (currentLocale != 'fr-BE') {
-            <mat-icon matPrefix>euro</mat-icon>
-          } @else {
-            <mat-icon matSuffix>euro</mat-icon>
-          }
-        </mat-form-field>
+              @if (currentLocale != 'fr-BE') {
+                <mat-icon matPrefix>euro</mat-icon>
+              } @else {
+                <mat-icon matSuffix>euro</mat-icon>
+              }
+            </mat-form-field>
 
+            <!-- Other Net Income -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ t('other_net_income') }}</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="otherNetIncome">
+
+              @if (currentLocale != 'fr-BE') {
+                <mat-icon matPrefix>euro</mat-icon>
+              } @else {
+                <mat-icon matSuffix>euro</mat-icon>
+              }
+            </mat-form-field>
+
+            <!-- Holiday Pay -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ t('double_holiday_pay') }}</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="holidayPay">
+
+              @if (currentLocale != 'fr-BE') {
+                <mat-icon matPrefix>euro</mat-icon>
+              } @else {
+                <mat-icon matSuffix>euro</mat-icon>
+              }
+            </mat-form-field>
+
+            <!-- Bonus -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ t('bonus') }}</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="bonus">
+
+              @if (currentLocale != 'fr-BE') {
+                <mat-icon matPrefix>euro</mat-icon>
+              } @else {
+                <mat-icon matSuffix>euro</mat-icon>
+              }
+            </mat-form-field>
+          </mat-tab>
+          <mat-tab [label]="t('full_year')">
+            <table class="full-width">
+              <thead>
+                <tr>
+                  <th class="text-right">{{ t('month') }}</th>
+                  <th>{{ t('gross_salary_title') }}</th>
+                  <th>{{ t('double_holiday_pay') }}</th>
+                  <th>{{ t('bonus') }}</th>
+                  <th>{{ t('other_net_income') }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody formArrayName="incomeByMonth">
+                <tr *ngFor="let monthlySalaryRow of monthlySalaryRows.controls; let i = index" [formGroupName]="i">
+                  <td class="text-right outline-neighbour-padding">{{ i + 1 }}</td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('gross_salary_title') }}</mat-label>
+                      <input matInput type="number" min="0.01" step="0.01" formControlName="grossSalary">
+
+                      @if (currentLocale != 'fr-BE') {
+                        <mat-icon matPrefix>euro</mat-icon>
+                      } @else {
+                        <mat-icon matSuffix>euro</mat-icon>
+                      }
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('double_holiday_pay_short') }}</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="holidayPay">
+
+                      @if (currentLocale != 'fr-BE') {
+                        <mat-icon matPrefix>euro</mat-icon>
+                      } @else {
+                        <mat-icon matSuffix>euro</mat-icon>
+                      }
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('bonus') }}</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="bonus">
+
+                      @if (currentLocale != 'fr-BE') {
+                        <mat-icon matPrefix>euro</mat-icon>
+                      } @else {
+                        <mat-icon matSuffix>euro</mat-icon>
+                      }
+                    </mat-form-field>
+                  </td>
+                  <td>
+                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                      <mat-label>{{ t('other_net_income') }}</mat-label>
+                      <input matInput type="number" min="0" step="0.01" formControlName="otherNetIncome">
+
+                      @if (currentLocale != 'fr-BE') {
+                        <mat-icon matPrefix>euro</mat-icon>
+                      } @else {
+                        <mat-icon matSuffix>euro</mat-icon>
+                      }
+                    </mat-form-field>
+                  </td>
+                  <td class="outline-neighbour-padding">
+                    @if (i < monthlySalaryRows.controls.length - 1) {
+                      <a (click)="copyMonthlySalaryRowToRest(i)">{{ t('copy_to_rest') }}</a>
+                    }
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </mat-tab>
+        </mat-tab-group>
 
         <button mat-raised-button color="primary" type="submit" [disabled]="!salaryForm.valid || (result && salaryForm.pristine)">
           <mat-icon>calculate</mat-icon> {{ t('calculate') }}
@@ -208,9 +316,10 @@
   </mat-card>
 
   @if (result && !salaryForm.pristine) {
-    <mat-card appearance="outlined" class="warning">
+    <mat-card appearance="outlined" class="warning message">
       <mat-card-content>
-        {{ t('out_of_date_warning') }}
+        <mat-icon>warning</mat-icon>
+        <span>{{ t('out_of_date_warning') }}</span>
       </mat-card-content>
     </mat-card>
   }
@@ -269,15 +378,15 @@
               }
             </a>
           </span>
-          <span matListItemLine>{{ formatAmount(result.monthlyTaxes) }}</span>
+          <span matListItemLine>{{ formatAmount(result.professionalWithholdingTaxes) }}</span>
         </mat-list-item>
 
         @if (showWithHoldingTaxBreakdown) {
-          <mat-list-item>
+          <mat-list-item class="m-t">
             <mat-icon matListItemIcon class="material-symbols-outlined" style="align-self: baseline">
               subdirectory_arrow_right
             </mat-icon>
-            <table matListItemTitle mat-table [dataSource]="result.monthlyTaxesByTier">
+            <table matListItemTitle mat-table [dataSource]="result.professionalWithholdingTaxesByTier">
               <ng-container matColumnDef="taxBracket">
                 <th mat-header-cell *matHeaderCellDef>{{ t('percentage') }}</th>
                 <td mat-cell *matCellDef="let monthlyTaxesForTier">{{ formatPct(monthlyTaxesForTier.percentage) }}</td>
@@ -324,13 +433,102 @@
         </mat-list-item>
 
         <mat-list-item>
+          <mat-icon matListItemIcon>add</mat-icon>
+          <span matListItemTitle>{{ t('other_net_income') }}</span>
+          <span matListItemLine>{{ formatAmount(result.otherNetIncome) }}</span>
+        </mat-list-item>
+
+        <mat-list-item>
           <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
           <span matListItemTitle>{{ t('net_salary') }}</span>
           <span matListItemLine>{{ formatAmount(result.netSalary) }}</span>
         </mat-list-item>
+
+        @if (result.holidayPayTaxation.grossAllocation > 0) {
+          <mat-list-item class="mat-list-item-with-nested-mat-list">
+            <mat-icon matListItemIcon class="material-symbols-outlined">add</mat-icon>
+            <span matListItemTitle>{{ t('double_holiday_pay') }}</span>
+            <mat-list matListItemLine>
+              <mat-list-item>
+                <span matListItemTitle>{{ t('gross_double_holiday_pay') }}</span>
+                <span matListItemLine>{{ formatAmount(result.holidayPayTaxation.grossAllocation) }}</span>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon class="material-symbols-outlined">remove</mat-icon>
+                <span matListItemTitle>{{ t('personal_social_contributions') }}</span>
+                <span matListItemLine>{{ formatAmount(result.holidayPayTaxation.socialCotisations) }}</span>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon class="material-symbols-outlined">remove</mat-icon>
+                <span matListItemTitle>{{ t('professional_withholding_tax') }}</span>
+                <span matListItemLine>{{ formatAmount(result.holidayPayTaxation.professionalWithholdingTax) }}</span>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
+                <span matListItemTitle>{{ t('net_double_holiday_pay') }}</span>
+                <span matListItemLine>{{ formatAmount(result.holidayPayTaxation.netExceptionalAllocation) }}</span>
+              </mat-list-item>
+            </mat-list>
+          </mat-list-item>
+        }
+
+        @if (result.bonusTaxation.grossAllocation > 0) {
+          <mat-list-item class="mat-list-item-with-nested-mat-list">
+            <mat-icon matListItemIcon class="material-symbols-outlined">add</mat-icon>
+            <span matListItemTitle>{{ t('bonus') }}</span>
+            <mat-list matListItemLine>
+              <mat-list-item>
+                <span matListItemTitle>{{ t('gross_bonus') }}</span>
+                <span matListItemLine>{{ formatAmount(result.bonusTaxation.grossAllocation) }}</span>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon class="material-symbols-outlined">remove</mat-icon>
+                <span matListItemTitle>{{ t('personal_social_contributions') }}</span>
+                <span matListItemLine>{{ formatAmount(result.bonusTaxation.socialCotisations) }}</span>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon class="material-symbols-outlined">remove</mat-icon>
+                <span matListItemTitle>{{ t('professional_withholding_tax') }}</span>
+                <span matListItemLine>{{ formatAmount(result.bonusTaxation.professionalWithholdingTax) }}</span>
+              </mat-list-item>
+
+              <mat-list-item>
+                <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
+                <span matListItemTitle>{{ t('net_bonus') }}</span>
+                <span matListItemLine>{{ formatAmount(result.bonusTaxation.netExceptionalAllocation) }}</span>
+              </mat-list-item>
+            </mat-list>
+          </mat-list-item>
+        }
+
+        <mat-list-item>
+          <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
+          <span matListItemTitle>{{ t('net_income') }}</span>
+          <span matListItemLine>{{ formatAmount(result.netIncome) }}</span>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListItemIcon class="material-symbols-outlined">percent</mat-icon>
+          <span matListItemTitle>{{ t('average_tax_rate') }}</span>
+          <span matListItemLine>{{ formatPct(result.averageTaxRate) }}</span>
+        </mat-list-item>
       </mat-list>
     </mat-card-content>
   </mat-card>
+
+  @if (chartData && (salaryForm.get('mode')?.value === Mode.FullYear || salaryForm.get('bonus')?.value || salaryForm.get('holidayPay')?.value)) {
+    <mat-card appearance="outlined" class="info message">
+      <mat-card-content>
+        <mat-icon>info</mat-icon>
+        <span>{{ t('charts_only_base_data_info') }}</span>
+      </mat-card-content>
+    </mat-card>
+  }
 
   <!-- Charts Section -->
   <mat-card *ngIf="chartData" class="charts-card">

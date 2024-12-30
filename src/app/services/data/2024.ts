@@ -208,4 +208,172 @@ export const taxationInfo: TaxationInfo = {
   yearlyReductionIfPartnerLowOtherRevenue: D(1_650.00),
   noRevenueJanuaryThreshold: 165,
   yearlyReductionIfIsolatedWithChildren: D(588.00),
+
+  exceptionalAllocationsTaxation: [
+    {
+      annualGrossRange: {
+        from: D(0.01),
+        to: D(10_115.00),
+      },
+      holidayPayPercentage: D(0),
+      otherAllocationsPercentage: D(0),
+    },
+    {
+      annualGrossRange: {
+        from: D(10_115.01),
+        to: D(12_930.00),
+      },
+      holidayPayPercentage: D(19.17),
+      otherAllocationsPercentage: D(23.22),
+    },
+    {
+      annualGrossRange: {
+        from: D(12_930.01),
+        to: D(16_460.00),
+      },
+      holidayPayPercentage: D(21.20),
+      otherAllocationsPercentage: D(25.23),
+    },
+    {
+      annualGrossRange: {
+        from: D(16_460.01),
+        to: D(19_740.00),
+      },
+      holidayPayPercentage: D(26.25),
+      otherAllocationsPercentage: D(30.28),
+    },
+    {
+      annualGrossRange: {
+        from: D(19_740.01),
+        to: D(22_330.00),
+      },
+      holidayPayPercentage: D(31.30),
+      otherAllocationsPercentage: D(35.33),
+    },
+    {
+      annualGrossRange: {
+        from: D(22_330.01),
+        to: D(24_940.00),
+      },
+      holidayPayPercentage: D(34.33),
+      otherAllocationsPercentage: D(38.36),
+    },
+    {
+      annualGrossRange: {
+        from: D(24_940.01),
+        to: D(30_150.00),
+      },
+      holidayPayPercentage: D(36.34),
+      otherAllocationsPercentage: D(40.38),
+    },
+    {
+      annualGrossRange: {
+        from: D(30_150.01),
+        to: D(32_800.00),
+      },
+      holidayPayPercentage: D(39.37),
+      otherAllocationsPercentage: D(43.41),
+    },
+    {
+      annualGrossRange: {
+        from: D(32_800.01),
+        to: D(43_440.00),
+      },
+      holidayPayPercentage: D(42.39),
+      otherAllocationsPercentage: D(46.44),
+    },
+    {
+      annualGrossRange: {
+        from: D(43_440.01),
+        to: D(56_730.00),
+      },
+      holidayPayPercentage: D(47.44),
+      otherAllocationsPercentage: D(51.48),
+    },
+    {
+      annualGrossRange: {
+        from: D(56_730.01),
+        to: D(Infinity),
+      },
+      holidayPayPercentage: D(53.5),
+      otherAllocationsPercentage: D(53.5),
+    },
+  ],
+  exceptionalAllocationsDependentChildrenExonerationTiers: [
+    {
+      numChildren: 1,
+      limit: D(17_858),
+    },
+    {
+      numChildren: 2,
+      limit: D(21_280),
+    },
+    {
+      numChildren: 3,
+      limit: D(27_430),
+    },
+    {
+      numChildren: 4,
+      limit: D(34_280),
+    },
+    {
+      numChildren: 5,
+      limit: D(41_130),
+    },
+    {
+      numChildren: 6,
+      limit: D(47_980),
+    },
+    {
+      numChildren: 7,
+      limit: D(54_830),
+    },
+    {
+      numChildren: 8,
+      limit: D(61_680),
+    },
+    {
+      numChildren: 9,
+      limit: D(68_530),
+    },
+    {
+      numChildren: 10,
+      limit: D(75_380),
+    },
+    {
+      numChildren: 11,
+      limit: D(82_230),
+    },
+    {
+      numChildren: 12,
+      limit: D(89_080),
+    },
+  ],
+  exceptionalAllocationsDependentChildrenReductionTiers: [
+    {
+      numChildren: 1,
+      reductionPercentage: D(7.5),
+      maxAnnualGross: D(27_410),
+    },
+    {
+      numChildren: 2,
+      reductionPercentage: D(20),
+      maxAnnualGross: D(27_410),
+    },
+    {
+      numChildren: 3,
+      reductionPercentage: D(35),
+      maxAnnualGross: D(30_150),
+    },
+    {
+      numChildren: 4,
+      reductionPercentage: D(55),
+      maxAnnualGross: D(35_635),
+    },
+    {
+      numChildren: 5,
+      reductionPercentage: D(75),
+      maxAnnualGross: D(38_375),
+    },
+  ],
 };

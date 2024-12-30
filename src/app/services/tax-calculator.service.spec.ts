@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
-import { FamilySituation, TaxCalculatorService } from './tax-calculator.service';
 import { INPUTS_TO_NET, simpleEmployee } from './data/2024-inputs-to-net';
+import { FamilySituation, TaxationPeriod, TaxCalculatorService } from './tax-calculator.service';
 
 describe('TaxCalculatorService', () => {
   let service: TaxCalculatorService;
@@ -17,12 +17,27 @@ describe('TaxCalculatorService', () => {
 
   INPUTS_TO_NET.forEach(inputToNet => {
     const input = inputToNet.input;
-    const expectedNet = inputToNet.net;
+    const expectedNetSalary = inputToNet.netSalary;
+    const expectedNetIncome = inputToNet.netIncome;
+    let grossSalary;
 
-    it(`should calculate a net of ${expectedNet} for situation ${input.status}/${input.workRegime.type}/${input.monthlyGrossSalary}`, () => {
-      const result = service.calculateNetSalary(input);
-      expect(result.netSalary).toBe(expectedNet);
+    if (input.period === TaxationPeriod.Monthly) {
+      grossSalary = input.grossSalary;
+    } else {
+      grossSalary = input.monthlyIncomes[0]?.grossSalary;
+    }
+
+    it(`should calculate a net salary of ${expectedNetSalary} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+      const result = service.calculateTaxation(input);
+      expect(result.netSalary).toBe(expectedNetSalary);
     });
+
+    if (expectedNetIncome) {
+      it(`should calculate a net income of ${expectedNetIncome} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+        const result = service.calculateTaxation(input);
+        expect(result.netIncome).toBe(expectedNetIncome);
+      });
+    }
   });
 
   it('should throw an error when called with the _ISOLATED_IGNORE_EXEMPTED_TIER family situation', () => {
@@ -31,7 +46,7 @@ describe('TaxCalculatorService', () => {
       familySituation: FamilySituation._ISOLATED_IGNORE_EXEMPTED_TIER,
     };
 
-    expect(() => service.calculateNetSalary(input)).toThrow();
+    expect(() => service.calculateTaxation(input)).toThrow();
   });
 
   it('should throw an error when called with an unsupported year', () => {
@@ -40,6 +55,6 @@ describe('TaxCalculatorService', () => {
       revenueYear: 2023,
     };
 
-    expect(() => service.calculateNetSalary(input)).toThrow();
+    expect(() => service.calculateTaxation(input)).toThrow();
   });
 });

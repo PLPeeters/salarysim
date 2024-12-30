@@ -7,9 +7,26 @@
 mat-card {
   margin-bottom: 20px;
 
-  &.warning[appearance="outlined"] {
-    background-color: #ffd400;
-    border-color: #8d7600;
+  &[appearance="outlined"] {
+    &.warning {
+      background-color: #ffd400;
+      border-color: #8d7600;
+    }
+
+    &.info {
+      background-color: #aef4ff;
+      border-color: black;
+    }
+
+    &.message {
+      mat-icon, span {
+        vertical-align: middle;
+      }
+
+      span {
+        margin-left: 8px;
+      }
+    }
   }
 }
 
@@ -95,7 +112,6 @@ button[type="submit"] {
 
 .results-card mat-list-item {
   height: auto;
-  margin-bottom: 10px;
 }
 
 .charts-card {
@@ -128,4 +144,36 @@ mat-option, mat-select-trigger {
   sup {
     font-variant: small-caps;
   }
+}
+
+mat-list-item mat-list {
+  margin-top: -32px;
+
+  mat-list-item {
+    padding-left: 0;
+
+    mat-icon {
+      margin-left: 0;
+    }
+  }
+}
+
+.m-t {
+  margin-top: 16px;
+}
+
+.mat-list-item-with-nested-mat-list {
+  padding-top: 16px;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  padding-top: 24px;
+}
+
+td mat-form-field[appearance="outline"] {
+  margin-top: 8px;
+}
+
+td.outline-neighbour-padding {
+  padding-top: 8px;
 }
