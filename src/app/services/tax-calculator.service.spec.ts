@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
-import { INPUTS_TO_NET, simpleEmployee } from './data/2024-inputs-to-net';
 import { FamilySituation, TaxationPeriod, TaxCalculatorService } from './tax-calculator.service';
+import { INPUTS_TO_NET as INPUTS_TO_NET_2024, simpleEmployee } from './data/2024-inputs-to-net';
+import { INPUTS_TO_NET as INPUTS_TO_NET_2025 } from './data/2025-inputs-to-net';
 
 describe('TaxCalculatorService', () => {
   let service: TaxCalculatorService;
@@ -15,7 +16,32 @@ describe('TaxCalculatorService', () => {
     expect(service).toBeTruthy();
   });
 
-  INPUTS_TO_NET.forEach(inputToNet => {
+  INPUTS_TO_NET_2024.forEach(inputToNet => {
+    const input = inputToNet.input;
+    const expectedNetSalary = inputToNet.netSalary;
+    const expectedNetIncome = inputToNet.netIncome;
+    let grossSalary;
+
+    if (input.period === TaxationPeriod.Monthly) {
+      grossSalary = input.grossSalary;
+    } else {
+      grossSalary = input.monthlyIncomes[0]?.grossSalary;
+    }
+
+    it(`should calculate a net salary of ${expectedNetSalary} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+      const result = service.calculateTaxation(input);
+      expect(result.netSalary).toBe(expectedNetSalary);
+    });
+
+    if (expectedNetIncome) {
+      it(`should calculate a net income of ${expectedNetIncome} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+        const result = service.calculateTaxation(input);
+        expect(result.netIncome).toBe(expectedNetIncome);
+      });
+    }
+  });
+
+  INPUTS_TO_NET_2025.forEach(inputToNet => {
     const input = inputToNet.input;
     const expectedNetSalary = inputToNet.netSalary;
     const expectedNetIncome = inputToNet.netIncome;
