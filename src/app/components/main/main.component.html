@@ -330,7 +330,7 @@
       <mat-card-title>{{ t('net_salary') }}</mat-card-title>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content #ContainerRef>
       <mat-list>
         <mat-list-item>
           <span matListItemTitle>{{ t('gross_salary_title') }}</span>
@@ -518,6 +518,25 @@
           <span matListItemLine>{{ formatPct(result.averageTaxRate) }}</span>
         </mat-list-item>
       </mat-list>
+
+      <ngx-charts-sankey
+        *ngIf="sankeyData"
+        [view]="[ContainerRef.offsetWidth - 32, max(min(800, window.innerHeight - 16), 600)]"
+        [scheme]="'vivid'"
+        [results]="sankeyData"
+        [animations]="true"
+        [tooltipDisabled]="false">
+        <ng-template #tooltipTemplate let-model="model">
+          <div class="tooltip-label">
+            @if (model.name) {
+              {{ model.name }}
+            } @else {
+              {{ model.source }} &rarr; {{ model.target }}
+            }
+          </div>
+          <div class="tooltip-val">{{formatAmount(model.value)}}</div>
+        </ng-template>
+      </ngx-charts-sankey>
     </mat-card-content>
   </mat-card>
 

@@ -69,6 +69,7 @@ export class MainComponent implements OnInit {
   private taxCalculatorService = inject(TaxCalculatorService);
   salaryForm: FormGroup;
   result: TaxationResult | null = null;
+  sankeyData: any[] = [];
   chartData: any[] = [];
   relativeChartData: any[] = [];
   averageTaxRateChartData: any[] = [];
@@ -101,7 +102,11 @@ export class MainComponent implements OnInit {
   loading: boolean = true;
   currentLocale: String = '';
   private grossSalaryString: String = '';
+  private doubleHolidayPayString: String = '';
+  private bonusString: String = '';
+  private otherNetIncomeString: String = '';
   private netSalaryString: String = '';
+  private netIncomeString: String = '';
   private relativeNetIncreaseString: String = '';
   private averageTaxRateString: String = '';
   private socialCotisationsString: String = '';
@@ -206,7 +211,11 @@ export class MainComponent implements OnInit {
   onLanguageChange() {
     forkJoin({
       grossSalary: this.translocoService.selectTranslate('gross_salary').pipe(take(1)),
+      doubleHolidayPay: this.translocoService.selectTranslate('double_holiday_pay').pipe(take(1)),
+      bonus: this.translocoService.selectTranslate('bonus').pipe(take(1)),
+      otherNetIncome: this.translocoService.selectTranslate('other_net_income').pipe(take(1)),
       netSalary: this.translocoService.selectTranslate('net_salary').pipe(take(1)),
+      netIncome: this.translocoService.selectTranslate('net_income').pipe(take(1)),
       relativeNetIncrease: this.translocoService.selectTranslate('relative_net_increase').pipe(take(1)),
       averageTaxRate: this.translocoService.selectTranslate('average_tax_rate').pipe(take(1)),
       socialCotisationsString: this.translocoService.selectTranslate('personal_social_contributions').pipe(take(1)),
@@ -214,7 +223,11 @@ export class MainComponent implements OnInit {
       professionalWithholdingTaxString: this.translocoService.selectTranslate('professional_withholding_tax').pipe(take(1)),
     }).subscribe(translations => {
       this.grossSalaryString = translations.grossSalary;
+      this.doubleHolidayPayString = translations.doubleHolidayPay;
+      this.bonusString = translations.bonus;
+      this.otherNetIncomeString = translations.otherNetIncome;
       this.netSalaryString = translations.netSalary;
+      this.netIncomeString = translations.netIncome;
       this.relativeNetIncreaseString = translations.relativeNetIncrease;
       this.averageTaxRateString = translations.averageTaxRate;
       this.socialCotisationsString = translations.socialCotisationsString;
@@ -448,7 +461,45 @@ export class MainComponent implements OnInit {
     }
   }
 
+  private updateSankeyData() {
+    this.sankeyData = [];
+
+    if (this.result != null) {
+      if (this.result.socialCotisationsAfterReductions) {
+        this.sankeyData.push({ source: this.grossSalaryString, target: this.socialCotisationsString, value: this.result.socialCotisationsAfterReductions });
+      }
+
+      if (this.result.taxesAfterReductions) {
+        this.sankeyData.push({ source: this.grossSalaryString, target: this.professionalWithholdingTaxString, value: this.result.taxesAfterReductions });
+      }
+
+      if (this.result.specialSocialCotisations) {
+        this.sankeyData.push({ source: this.grossSalaryString, target: this.specialSocialCotisationString, value: this.result.specialSocialCotisations });
+      }
+
+      if (this.result.otherNetIncome) {
+        this.sankeyData.push({ source: this.otherNetIncomeString, target: this.netIncomeString, value: this.result.otherNetIncome });
+      }
+
+      if (this.result.holidayPayTaxation.grossAllocation) {
+        this.sankeyData.push({ source: this.doubleHolidayPayString, target: this.socialCotisationsString, value: this.result.holidayPayTaxation.socialCotisations });
+        this.sankeyData.push({ source: this.doubleHolidayPayString, target: this.professionalWithholdingTaxString, value: this.result.holidayPayTaxation.professionalWithholdingTax });
+        this.sankeyData.push({ source: this.doubleHolidayPayString, target: this.netIncomeString, value: this.result.holidayPayTaxation.netExceptionalAllocation });
+      }
+
+      if (this.result.bonusTaxation.grossAllocation) {
+        this.sankeyData.push({ source: this.bonusString, target: this.socialCotisationsString, value: this.result.bonusTaxation.socialCotisations });
+        this.sankeyData.push({ source: this.bonusString, target: this.professionalWithholdingTaxString, value: this.result.bonusTaxation.professionalWithholdingTax });
+        this.sankeyData.push({ source: this.bonusString, target: this.netIncomeString, value: this.result.bonusTaxation.netExceptionalAllocation });
+      }
+
+      this.sankeyData.push({ source: this.grossSalaryString, target: this.netIncomeString, value: this.result.netSalary - this.result.otherNetIncome });
+    }
+  }
+
   updateChartData(grossSalary: number | null = null) {
+    this.updateSankeyData();
+
     if (grossSalary != null) {
       if (grossSalary > this.graphsEndingSalary) {
         this.graphsEndingSalary = Math.ceil(grossSalary / 1000) * 1000;
