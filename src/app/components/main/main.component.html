@@ -508,11 +508,13 @@
           </mat-list-item>
         }
 
-        <mat-list-item>
-          <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
-          <span matListItemTitle>{{ t('net_income') }}</span>
-          <span matListItemLine>{{ formatAmount(result.netIncome) }}</span>
-        </mat-list-item>
+        @if (result.holidayPayTaxation.grossAllocation > 0 || result.bonusTaxation.grossAllocation > 0) {
+          <mat-list-item>
+            <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
+            <span matListItemTitle>{{ t('net_income') }}</span>
+            <span matListItemLine>{{ formatAmount(result.netIncome) }}</span>
+          </mat-list-item>
+        }
 
         <mat-list-item>
           <mat-icon matListItemIcon class="material-symbols-outlined">percent</mat-icon>
