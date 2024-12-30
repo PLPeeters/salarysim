@@ -155,16 +155,16 @@ export class MainComponent implements OnInit {
       groupInsurance: [false],
       groupInsurancePersonalCotisation: [null],
       mode: [Mode.SingleMonth, [Validators.required]],
-      grossSalary: [null, [Validators.required, Validators.min(0)]],
+      grossSalary: [null],
       holidayPay: [null, [Validators.min(0)]],
       bonus: [null, [Validators.min(0)]],
       otherNetIncome: [null, [Validators.min(0)]],
       incomeByMonth: this.fb.array(Array.from({ length: 12 }, () =>
         this.fb.group({
-          grossSalary: [null, [Validators.required, Validators.min(0)]],
-          bonus: [null, [Validators.min(0)]],
-          holidayPay: [null, [Validators.min(0)]],
-          otherNetIncome: [null, [Validators.min(0)]],
+          grossSalary: [null],
+          bonus: [null],
+          holidayPay: [null],
+          otherNetIncome: [null],
         })
       )),
       indexation: [null],
@@ -200,6 +200,7 @@ export class MainComponent implements OnInit {
     this.salaryForm.get('mode')?.valueChanges.subscribe(this.onModeChanged.bind(this));
 
     this.onRevenueYearChanged(this.salaryForm.get('revenueYear')?.value);
+    this.onModeChanged(this.salaryForm.get('mode')?.value);
 
     this.translocoService.langChanges$
       .subscribe(currentLang => {
