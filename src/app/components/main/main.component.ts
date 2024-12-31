@@ -329,6 +329,8 @@ export class MainComponent implements OnInit {
     this.noRevenueJanuaryThreshold = taxationInfo.noRevenueJanuaryThreshold;
     this.maxYearlyEmploymentBonus = taxationInfo.employmentBonusInfo.maxYearlyAmount.toNumber();
     this.dependentRetireeAgeThreshold = taxationInfo.dependentRetireeAgeThreshold;
+
+    this.updateChartData();
   }
 
   onWorkRegimeChanged(workRegime: WorkRegime) {
