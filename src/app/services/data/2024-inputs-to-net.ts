@@ -374,6 +374,8 @@ const simpleWorkerAnnual: YearlySalaryCalculationInput = {
 
 
 export const INPUTS_TO_NET: Situation[] = [
+  { input: { ...simpleEmployee, grossSalary: 0 }, netSalary: 0 },
+  { input: { ...simpleEmployee, grossSalary: 1 }, netSalary: 1 },
   { input: { ...simpleEmployee, grossSalary: 2070.48 }, netSalary: 1950.93 },
   { input: { ...simpleEmployee, grossSalary: 2100 }, netSalary: 1968.60 },
   { input: { ...simpleEmployee, grossSalary: 2150 }, netSalary: 1989.68 },

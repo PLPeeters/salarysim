@@ -720,16 +720,27 @@ export class TaxCalculatorService {
       .plus(totalHolidayPayTaxation.netExceptionalAllocation)
       .plus(totalBonusTaxation.netExceptionalAllocation);
 
-    const netToGrossRatio = netIncome.div(totalGross).times(100);
-    const averageTaxRate = totalGross.minus(netIncome).div(totalGross).times(100);
+    let netToGrossRatio = D(1);
+    let averageTaxRate = D(0);
+
+    if (!totalGross.isZero()) {
+      netToGrossRatio = netIncome.div(totalGross).times(100);
+      averageTaxRate = totalGross.minus(netIncome).div(totalGross).times(100);
+    }
 
     const taxationGrandTotal = socialCotisationsAfterReductions
       .plus(taxesAfterReductions)
       .plus(specialSocialCotisations);
 
-    const specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
-    const socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-    const taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+    let specialSocialCotisationsProportion = D(0);
+    let socialCotisationsAfterReductionsProportion = D(0);
+    let taxesAfterReductionsProportion = D(0);
+
+    if (!taxationGrandTotal.isZero()) {
+      specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
+      socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
+      taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+    }
 
     return {
       grossSalary: grossSalary.toNumber(),
@@ -939,9 +950,15 @@ export class TaxCalculatorService {
       .plus(taxesAfterReductions)
       .plus(specialSocialCotisations);
 
-    const specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
-    const socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-    const taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+    let specialSocialCotisationsProportion = D(0);
+    let socialCotisationsAfterReductionsProportion = D(0);
+    let taxesAfterReductionsProportion = D(0);
+
+    if (!taxationGrandTotal.isZero()) {
+      specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
+      socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
+      taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+    }
 
     const annualGross = input.yearlyGrossIncome ? D(input.yearlyGrossIncome) : grossSalary.times(12);
 
@@ -969,8 +986,13 @@ export class TaxCalculatorService {
       .plus(input.bonus || 0)
       .plus(otherNetIncome);
 
-    const netToGrossRatio = netIncome.div(totalGross).times(100);
-    const averageTaxRate = totalGross.minus(netIncome).div(totalGross).times(100);
+    let netToGrossRatio = D(1);
+    let averageTaxRate = D(0);
+
+    if (!totalGross.isZero()) {
+      netToGrossRatio = netIncome.div(totalGross).times(100);
+      averageTaxRate = totalGross.minus(netIncome).div(totalGross).times(100);
+    }
 
     return {
       grossSalary: grossSalary,
