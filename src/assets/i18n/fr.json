@@ -59,6 +59,7 @@
   "capped_tooltip": "Le montant annuel de la réduction ne peut pas excéder {{amount}}.",
   "taxable_gross_income": "Revenu brut imposable",
   "professional_withholding_tax": "Précompte professionnel",
+  "flat_rate_professional_expenses": "Frais professionnels forfaitaires (non taxés)",
   "hide_breakdown": "cacher le détail",
   "show_breakdown": "montrer le détail",
   "percentage": "Pourcentage",

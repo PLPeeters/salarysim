@@ -58,6 +58,7 @@
   "capped_tooltip": "The annual amount of the reduction cannot exceed {{amount}}.",
   "taxable_gross_income": "Taxable Gross Income",
   "professional_withholding_tax": "Professional Withholding Tax",
+  "flat_rate_professional_expenses": "Flat Rate Professional Expenses (Untaxed)",
   "hide_breakdown": "hide breakdown",
   "show_breakdown": "show breakdown",
   "percentage": "Percentage",

@@ -382,29 +382,41 @@
         </mat-list-item>
 
         @if (showWithHoldingTaxBreakdown) {
-          <mat-list-item class="m-t">
-            <mat-icon matListItemIcon class="material-symbols-outlined" style="align-self: baseline">
-              subdirectory_arrow_right
-            </mat-icon>
-            <table matListItemTitle mat-table [dataSource]="result.professionalWithholdingTaxesByTier">
-              <ng-container matColumnDef="taxBracket">
-                <th mat-header-cell *matHeaderCellDef>{{ t('percentage') }}</th>
-                <td mat-cell *matCellDef="let monthlyTaxesForTier">{{ formatPct(monthlyTaxesForTier.percentage) }}</td>
-              </ng-container>
+          <mat-list-item class="mat-list-item-with-nested-mat-list">
+            <span matListItemIcon></span>
+            <!-- <span matListItemTitle>{{ t('double_holiday_pay') }}</span> -->
+            <mat-list matListItemLine>
+              <mat-list-item>
+                <mat-icon matListItemIcon class="material-symbols-outlined" style="align-self: baseline">
+                  subdirectory_arrow_right
+                </mat-icon>
+                <span matListItemTitle>{{ t('flat_rate_professional_expenses') }}</span>
+                <span matListItemLine>{{ formatAmount(result.flatRateProfessionalExpenses) }}</span>
+              </mat-list-item>
 
-              <ng-container matColumnDef="toTax">
-                <th mat-header-cell *matHeaderCellDef>{{ t('to_tax') }}</th>
-                <td mat-cell *matCellDef="let monthlyTaxesForTier">{{ formatAmount(monthlyTaxesForTier.toTax) }}</td>
-              </ng-container>
+              <mat-list-item>
+                <mat-icon matListItemIcon></mat-icon>
+                <table mat-table [dataSource]="result.professionalWithholdingTaxesByTier">
+                  <ng-container matColumnDef="taxBracket">
+                    <th mat-header-cell *matHeaderCellDef>{{ t('percentage') }}</th>
+                    <td mat-cell *matCellDef="let monthlyTaxesForTier">{{ formatPct(monthlyTaxesForTier.percentage) }}</td>
+                  </ng-container>
 
-              <ng-container matColumnDef="taxes">
-                <th mat-header-cell *matHeaderCellDef>{{ t('taxes') }}</th>
-                <td mat-cell *matCellDef="let monthlyTaxesForTier">{{ formatAmount(monthlyTaxesForTier.taxes) }}</td>
-              </ng-container>
+                  <ng-container matColumnDef="toTax">
+                    <th mat-header-cell *matHeaderCellDef>{{ t('to_tax') }}</th>
+                    <td mat-cell *matCellDef="let monthlyTaxesForTier">{{ formatAmount(monthlyTaxesForTier.toTax) }}</td>
+                  </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="['taxBracket', 'toTax', 'taxes']"></tr>
-              <tr mat-row *matRowDef="let row; columns: ['taxBracket', 'toTax', 'taxes'];"></tr>
-            </table>
+                  <ng-container matColumnDef="taxes">
+                    <th mat-header-cell *matHeaderCellDef>{{ t('taxes') }}</th>
+                    <td mat-cell *matCellDef="let monthlyTaxesForTier">{{ formatAmount(monthlyTaxesForTier.taxes) }}</td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="['taxBracket', 'toTax', 'taxes']"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['taxBracket', 'toTax', 'taxes'];"></tr>
+                </table>
+              </mat-list-item>
+            </mat-list>
           </mat-list-item>
         }
 

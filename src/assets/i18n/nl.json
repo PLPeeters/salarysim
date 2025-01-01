@@ -63,6 +63,7 @@
   "capped_tooltip": "Het jaarlijks bedrag van de verminering mag niet meer bedragen dans {{amount}}.",
   "taxable_gross_income": "Belastbaar bruto inkomen",
   "professional_withholding_tax": "Bedrijfsvoorheffing",
+  "flat_rate_professional_expenses": "Forfaitaire beroepskosten (niet belast)",
   "hide_breakdown": "details verbergen",
   "show_breakdown": "details tonen",
   "percentage": "Percentage",
