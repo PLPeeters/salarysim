@@ -22,7 +22,7 @@
     <mat-card-content>
       <form [formGroup]="salaryForm" (ngSubmit)="onSubmit()">
         <!-- Revenue year -->
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-form-field appearance="fill" subscriptSizing="dynamic">
           <mat-label>{{ t('revenue_year') }}</mat-label>
           <mat-select formControlName="revenueYear">
             <mat-select-trigger>
@@ -49,12 +49,12 @@
         </mat-radio-group>
 
         @if (salaryForm.get('workRegime')?.value == 'part_time') {
-          <mat-form-field appearance="outline" class="extended-width">
+          <mat-form-field appearance="fill" class="extended-width">
             <mat-label>{{ t('worked_time_per_week') }}</mat-label>
             <input matInput type="number" formControlName="workedTimePerWeek">
           </mat-form-field>
           {{ t('out_of') }}
-          <mat-form-field appearance="outline" class="extended-width">
+          <mat-form-field appearance="fill" class="extended-width">
             <mat-label>{{ t('full_time_work_hours') }}</mat-label>
             <input matInput type="number" formControlName="fullTimeHoursPerWeek">
           </mat-form-field>
@@ -114,13 +114,13 @@
                 <tr>
                   <td class="text-right outline-neighbour-padding">{{ t('children') }}</td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('children') }}</mat-label>
                       <input matInput type="number" min="0" formControlName="numDependentChildren">
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('children' )}}</mat-label>
                       <input matInput type="number" min="0" formControlName="numDisabledDependentChildren">
                     </mat-form-field>
@@ -131,7 +131,7 @@
                     {{dependentRetireeAgeThreshold}}+
                   </td>
                   <td colspan="2">
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>
                         {{dependentRetireeAgeThreshold}}+
                       </mat-label>
@@ -142,13 +142,13 @@
                 <tr>
                   <td class="text-right outline-neighbour-padding">{{ t('others') }}</td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('others') }}</mat-label>
                       <input matInput type="number" min="0" formControlName="numDependentOthers">
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('others' )}}</mat-label>
                       <input matInput type="number" min="0" formControlName="numDisabledDependentOthers">
                     </mat-form-field>
@@ -163,7 +163,7 @@
           </mat-checkbox>
 
           <div *ngIf="salaryForm.get('groupInsurance')?.value">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="fill">
               <mat-label>{{ t('personal_contribution') }}</mat-label>
               <input matInput type="number" min="0.01" step="0.01" formControlName="groupInsurancePersonalCotisation">
 
@@ -187,7 +187,7 @@
 
           <mat-tab [label]="t('single_month')">
             <!-- Gross Salary -->
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="fill" class="full-width">
               <mat-label>{{ t('gross_salary_title') }}</mat-label>
               <input matInput type="number" min="0.01" step="0.01" formControlName="grossSalary">
 
@@ -199,7 +199,7 @@
             </mat-form-field>
 
             <!-- Other Net Income -->
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="fill" class="full-width">
               <mat-label>{{ t('other_net_income') }}</mat-label>
               <input matInput type="number" min="0" step="0.01" formControlName="otherNetIncome">
 
@@ -211,7 +211,7 @@
             </mat-form-field>
 
             <!-- Holiday Pay -->
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="fill" class="full-width">
               <mat-label>{{ t('double_holiday_pay') }}</mat-label>
               <input matInput type="number" min="0" step="0.01" formControlName="holidayPay">
 
@@ -223,7 +223,7 @@
             </mat-form-field>
 
             <!-- Bonus -->
-            <mat-form-field appearance="outline" class="full-width">
+            <mat-form-field appearance="fill" class="full-width">
               <mat-label>{{ t('bonus') }}</mat-label>
               <input matInput type="number" min="0" step="0.01" formControlName="bonus">
 
@@ -250,7 +250,7 @@
                 <tr *ngFor="let monthlySalaryRow of monthlySalaryRows.controls; let i = index" [formGroupName]="i">
                   <td class="text-right outline-neighbour-padding">{{ i + 1 }}</td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('gross_salary_title') }}</mat-label>
                       <input matInput type="number" min="0.01" step="0.01" formControlName="grossSalary">
 
@@ -262,7 +262,7 @@
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('double_holiday_pay_short') }}</mat-label>
                       <input matInput type="number" min="0" step="0.01" formControlName="holidayPay">
 
@@ -274,7 +274,7 @@
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('bonus') }}</mat-label>
                       <input matInput type="number" min="0" step="0.01" formControlName="bonus">
 
@@ -286,7 +286,7 @@
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
                       <mat-label>{{ t('other_net_income') }}</mat-label>
                       <input matInput type="number" min="0" step="0.01" formControlName="otherNetIncome">
 
@@ -572,7 +572,7 @@
     </mat-card-header>
     <mat-card-content>
       <form fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutGap="8px grid">
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ t('start') }}</mat-label>
           <input matInput type="number" [step]="graphsStep" min="0" [(ngModel)]="graphsStartingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
 
@@ -583,7 +583,7 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ t('end') }}</mat-label>
           <input matInput type="number" [step]="graphsStep" [min]="graphsStartingSalary" [(ngModel)]="graphsEndingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
 
@@ -594,7 +594,7 @@
           }
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width" subscriptSizing="dynamic">
+        <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
           <mat-label>{{ t('step') }}</mat-label>
           <input matInput type="number" step="10" min="10" [(ngModel)]="graphsStep" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
 
