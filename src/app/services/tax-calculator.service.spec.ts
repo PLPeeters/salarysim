@@ -28,13 +28,13 @@ describe('TaxCalculatorService', () => {
       grossSalary = input.monthlyIncomes[0]?.grossSalary;
     }
 
-    it(`should calculate a net salary of ${expectedNetSalary} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+    it(`should calculate a net salary of ${expectedNetSalary} for situation ${input.revenueYear}/${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
       const result = service.calculateTaxation(input);
       expect(result.netSalary).toBe(expectedNetSalary);
     });
 
     if (expectedNetIncome) {
-      it(`should calculate a net income of ${expectedNetIncome} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+      it(`should calculate a net income of ${expectedNetIncome} for situation ${input.revenueYear}/${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
         const result = service.calculateTaxation(input);
         expect(result.netIncome).toBe(expectedNetIncome);
       });
@@ -53,13 +53,13 @@ describe('TaxCalculatorService', () => {
       grossSalary = input.monthlyIncomes[0]?.grossSalary;
     }
 
-    it(`should calculate a net salary of ${expectedNetSalary} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+    it(`should calculate a net salary of ${expectedNetSalary} for situation ${input.revenueYear}/${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
       const result = service.calculateTaxation(input);
       expect(result.netSalary).toBe(expectedNetSalary);
     });
 
     if (expectedNetIncome) {
-      it(`should calculate a net income of ${expectedNetIncome} for situation ${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
+      it(`should calculate a net income of ${expectedNetIncome} for situation ${input.revenueYear}/${input.period}/${input.status}/${input.workRegime.type}/${grossSalary}`, () => {
         const result = service.calculateTaxation(input);
         expect(result.netIncome).toBe(expectedNetIncome);
       });
