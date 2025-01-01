@@ -33,6 +33,7 @@ export interface TaxationResultInternal {
   socialCotisationsAfterReductions: Decimal;
   socialCotisationsAfterReductionsProportion: Decimal;
   taxableIncome: Decimal;
+  flatRateProfessionalExpenses: Decimal;
   professionalWithholdingTaxes: Decimal;
   professionalWithholdingTaxesByTier: TaxesForTierInternal[];
   otherMonthlyTaxReductions: Decimal;
@@ -60,6 +61,7 @@ export interface TaxationResult {
   socialCotisationsAfterReductions: number;
   socialCotisationsAfterReductionsProportion: number;
   taxableIncome: number;
+  flatRateProfessionalExpenses: number;
   professionalWithholdingTaxes: number;
   professionalWithholdingTaxesByTier: TaxesForTier[];
   otherMonthlyTaxReductions: number;
@@ -313,7 +315,7 @@ export class TaxCalculatorService {
     status: Status,
     familySituation: FamilySituation,
     grossSalary: Decimal,
-    averageGrossSalaryForTrimester: Decimal | null = null,
+    averageGrossSalaryForTrimester: Decimal,
   ): Decimal {
     let currentSpecialSocialCotisationTiers: SocialSecurityTier[]
 
@@ -346,10 +348,6 @@ export class TaxCalculatorService {
       if (averageGrossSalaryForTrimester != null) {
         averageGrossSalaryForTrimester = averageGrossSalaryForTrimester.times(1.08);
       }
-    }
-
-    if (averageGrossSalaryForTrimester == null) {
-      averageGrossSalaryForTrimester = grossSalary;
     }
 
     let specialSocialCotisation = D(0);
@@ -397,8 +395,8 @@ export class TaxCalculatorService {
     workRegime: WorkRegimeDetails,
     grossSalary: Decimal,
     socialCotisations: Decimal,
-    alreadyPaidEmploymentBonusThisYear: Decimal = D(0),
-    remainingMonths: number = 12,
+    alreadyPaidEmploymentBonusThisYear: Decimal,
+    remainingMonths: number,
   ): MonthlyTaxReductionsForLowSalaries {
     let grossSalaryForEmploymentBonus = grossSalary;
     let employmentBonusMultiplier = D(1);
@@ -576,6 +574,7 @@ export class TaxCalculatorService {
     let employmentBonus = D(0);
     let employmentBonusWasCapped = false;
     let taxableIncome = D(0);
+    let flatRateProfessionalExpenses = D(0);
     let professionalWithholdingTaxes = D(0);
     let professionalWithholdingTaxesByTierInternal: TaxesForTierInternal[] = [];
     let monthlyTaxReductionsForLowSalaries = D(0);
@@ -613,6 +612,7 @@ export class TaxCalculatorService {
         employmentBonus = yearlyTaxation.employmentBonus;
         employmentBonusWasCapped = yearlyTaxation.employmentBonusWasCapped;
         taxableIncome = yearlyTaxation.taxableIncome;
+        flatRateProfessionalExpenses = yearlyTaxation.flatRateProfessionalExpenses;
         professionalWithholdingTaxes = yearlyTaxation.professionalWithholdingTaxes;
         professionalWithholdingTaxesByTierInternal = yearlyTaxation.professionalWithholdingTaxesByTier;
         monthlyTaxReductionsForLowSalaries = yearlyTaxation.monthlyTaxReductionsForLowSalaries;
@@ -648,6 +648,7 @@ export class TaxCalculatorService {
         employmentBonus = monthlyTaxation.employmentBonus;
         employmentBonusWasCapped = monthlyTaxation.employmentBonusWasCapped;
         taxableIncome = monthlyTaxation.taxableIncome;
+        flatRateProfessionalExpenses = monthlyTaxation.flatRateProfessionalExpenses;
         professionalWithholdingTaxes = monthlyTaxation.professionalWithholdingTaxes;
         professionalWithholdingTaxesByTierInternal = monthlyTaxation.professionalWithholdingTaxesByTier;
         monthlyTaxReductionsForLowSalaries = monthlyTaxation.monthlyTaxReductionsForLowSalaries;
@@ -712,6 +713,7 @@ export class TaxCalculatorService {
       socialCotisationsAfterReductions: socialCotisationsAfterReductions.toNumber(),
       socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion.toNumber(),
       taxableIncome: taxableIncome.toNumber(),
+      flatRateProfessionalExpenses: flatRateProfessionalExpenses.toNumber(),
       professionalWithholdingTaxes: professionalWithholdingTaxes.toNumber(),
       professionalWithholdingTaxesByTier,
       otherMonthlyTaxReductions: otherMonthlyTaxReductions.toNumber(),
@@ -1004,6 +1006,7 @@ export class TaxCalculatorService {
       socialCotisationsAfterReductions: socialCotisationsAfterReductions,
       socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion,
       taxableIncome: taxableIncome,
+      flatRateProfessionalExpenses: flatRateProfessionalExpenses,
       professionalWithholdingTaxes: monthlyTaxes,
       professionalWithholdingTaxesByTier: annualTaxes.taxesByTier,
       otherMonthlyTaxReductions: monthlyTaxReductions,
@@ -1050,6 +1053,7 @@ export class TaxCalculatorService {
     let specialSocialCotisations = yearlyTaxationResult.specialSocialCotisations.div(12).toDP(2);
     let employmentBonus = yearlyTaxationResult.employmentBonus.div(12).toDP(2);
     let professionalWithholdingTaxes = yearlyTaxationResult.professionalWithholdingTaxes.div(12).toDP(2);
+    let flatRateProfessionalExpenses = yearlyTaxationResult.flatRateProfessionalExpenses.div(12).toDP(2);
     let otherMonthlyTaxReductions = yearlyTaxationResult.otherMonthlyTaxReductions.div(12).toDP(2);
     let monthlyTaxReductionsForLowSalaries = yearlyTaxationResult.monthlyTaxReductionsForLowSalaries.div(12).toDP(2);
     let monthlyTaxReductionsForGroupInsurance = yearlyTaxationResult.monthlyTaxReductionsForGroupInsurance.div(12).toDP(2);
@@ -1126,6 +1130,7 @@ export class TaxCalculatorService {
       socialCotisationsAfterReductions: socialCotisationsAfterReductions,
       socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion,
       taxableIncome: taxableIncome,
+      flatRateProfessionalExpenses: flatRateProfessionalExpenses,
       professionalWithholdingTaxes: professionalWithholdingTaxes,
       professionalWithholdingTaxesByTier: monthlyProfessionalWithholdingTaxesByTier,
       otherMonthlyTaxReductions: otherMonthlyTaxReductions,

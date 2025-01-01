@@ -28,7 +28,7 @@ interface RevenueYear {
   isFinal: boolean;
 }
 
-enum Mode {
+export enum Mode {
   SingleMonth = 'single_month',
   FullYear = 'full_year',
 }
@@ -241,13 +241,7 @@ export class MainComponent implements OnInit {
   }
 
   getAvailableLangs(): string[] {
-    const availableLangs = this.translocoService.getAvailableLangs();
-
-    if ((availableLangs[0] as LangDefinition).id) {
-      return availableLangs.map(lang => (lang as LangDefinition).id);
-    }
-
-    return (availableLangs as string[]);
+    return this.translocoService.getAvailableLangs() as string[];
   }
 
   setLocale(locale: string) {
@@ -286,7 +280,6 @@ export class MainComponent implements OnInit {
     }
 
     mode?.markAsDirty();
-    this.salaryForm.updateValueAndValidity();
   }
 
   onModeChanged(mode: Mode) {
@@ -295,19 +288,21 @@ export class MainComponent implements OnInit {
 
     if (mode === Mode.SingleMonth) {
       grossSalary?.setValidators([Validators.required, Validators.min(0.01)]);
+      grossSalary?.updateValueAndValidity();
+
       monthlySalaryRowControls.forEach(formGroup => {
         formGroup.controls['grossSalary'].clearValidators();
         formGroup.controls['grossSalary'].updateValueAndValidity();
       });
     } else {
       grossSalary?.clearValidators();
+      grossSalary?.updateValueAndValidity();
+
       monthlySalaryRowControls.forEach(formGroup => {
         formGroup.controls['grossSalary'].setValidators([Validators.required, Validators.min(0)]);
         formGroup.controls['grossSalary'].updateValueAndValidity();
       });
     }
-
-    this.salaryForm.updateValueAndValidity();
   }
 
   onRevenueYearChanged(revenueYear: RevenueYear) {
@@ -339,10 +334,15 @@ export class MainComponent implements OnInit {
 
     if (workRegime === WorkRegime.PART_TIME) {
       workedTimePerWeek?.setValidators([Validators.min(1)]);
+      workedTimePerWeek?.updateValueAndValidity();
       fullTimeHoursPerWeek?.setValidators([Validators.min(1)]);
+      fullTimeHoursPerWeek?.updateValueAndValidity();
+;
     } else {
       workedTimePerWeek?.clearValidators();
+      workedTimePerWeek?.updateValueAndValidity();
       fullTimeHoursPerWeek?.clearValidators();
+      fullTimeHoursPerWeek?.updateValueAndValidity();
     }
 
     this.salaryForm.updateValueAndValidity();
@@ -357,19 +357,27 @@ export class MainComponent implements OnInit {
 
     if (hasChildren) {
       numChildren?.setValidators([Validators.min(0)]);
+      numChildren?.updateValueAndValidity();
       numDisabledChildren?.setValidators([Validators.min(0)]);
+      numDisabledChildren?.updateValueAndValidity();
       numRetirees?.setValidators([Validators.min(0)]);
+      numRetirees?.updateValueAndValidity();
       numOthers?.setValidators([Validators.min(0)]);
+      numOthers?.updateValueAndValidity();
       numDisabledOthers?.setValidators([Validators.min(0)]);
+      numDisabledOthers?.updateValueAndValidity();
     } else {
       numChildren?.clearValidators();
+      numChildren?.updateValueAndValidity();
       numDisabledChildren?.clearValidators();
+      numDisabledChildren?.updateValueAndValidity();
       numRetirees?.clearValidators();
+      numRetirees?.updateValueAndValidity();
       numOthers?.clearValidators();
+      numOthers?.updateValueAndValidity();
       numDisabledOthers?.clearValidators();
+      numDisabledOthers?.updateValueAndValidity();
     }
-
-    this.salaryForm.updateValueAndValidity();
   }
 
   private calculateMonthlyNetSalary(
@@ -643,23 +651,23 @@ export class MainComponent implements OnInit {
 
     switch (this.currentLocale) {
       case 'fr-BE':
-        return `${value.toLocaleString(this.currentLocale, options)} €`.replace(' ', ' ');
+        return `${value.toLocaleString(this.currentLocale, options)} €`.replace(' ', ' ');
       case 'nl-BE':
-        return `€ ${value.toLocaleString(this.currentLocale, options)}`
+        return `€ ${value.toLocaleString(this.currentLocale, options)}`
       default:
         return `€${value.toLocaleString(this.currentLocale, options)}`
     }
   }
 
   formatPct(value: any) {
-    return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
+    return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
   }
 
   formatPctRelative(value: any) {
     if (value > 0) {
-      return `+${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
+      return `+${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
     } else {
-      return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
+      return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
     }
   }
 }
