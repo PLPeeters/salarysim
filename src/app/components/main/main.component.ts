@@ -396,7 +396,7 @@ export class MainComponent implements OnInit {
       },
       disabled: this.salaryForm.value.disabled,
       hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurancePersonalCotisation || 0,
+      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalCotisation || 0 : 0,
       otherNetIncome: this.salaryForm.value.otherNetIncome || 0,
       grossSalary: monthlyGrossSalary,
     };
@@ -432,7 +432,7 @@ export class MainComponent implements OnInit {
       },
       disabled: this.salaryForm.value.disabled,
       hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurancePersonalCotisation || 0,
+      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalCotisation || 0 : 0,
       monthlyIncomes: this.salaryForm.value.incomeByMonth.map((incomeForMonth: any) => ({
         grossSalary: incomeForMonth.grossSalary,
         bonus: incomeForMonth.bonus,
