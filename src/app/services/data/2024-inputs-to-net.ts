@@ -22,7 +22,7 @@ export const simpleEmployee: SalaryCalculationInput = {
   },
   disabled: false,
   hasDisabledPartner: false,
-  groupInsurancePersonalCotisation: 0,
+  groupInsurancePersonalContribution: 0,
   otherNetIncome: 0,
   grossSalary: 0,
 };
@@ -153,7 +153,7 @@ const disabledEmployee: SalaryCalculationInput = {
 };
 const employeeWithGroupInsurance: SalaryCalculationInput = {
   ...simpleEmployee,
-  groupInsurancePersonalCotisation: 42.5,
+  groupInsurancePersonalContribution: 42.5,
 };
 const employeeWithOtherNetIncome: SalaryCalculationInput = {
   ...simpleEmployee,
@@ -299,7 +299,7 @@ const disabledWorker: SalaryCalculationInput = {
 };
 const workerWithGroupInsurance: SalaryCalculationInput = {
   ...simpleWorker,
-  groupInsurancePersonalCotisation: 42.5,
+  groupInsurancePersonalContribution: 42.5,
 };
 const workerWithOtherNetIncome: SalaryCalculationInput = {
   ...simpleWorker,

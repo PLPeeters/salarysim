@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { LayoutModule, MediaMatcher } from '@angular/cdk/layout';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -14,7 +14,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
-import { LangDefinition, TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { forkJoin, take } from 'rxjs';
 import { FamilySituation, TaxationResult, Status, taxationInfo2024, taxationInfo2025, TaxCalculatorService, WorkRegime, SalaryCalculationInput, YearlySalaryCalculationInput, TaxationPeriod } from '../../services/tax-calculator.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -153,18 +153,23 @@ export class MainComponent implements OnInit {
       numDependentOthers: [null],
       numDisabledDependentOthers: [null],
       groupInsurance: [false],
-      groupInsurancePersonalCotisation: [null],
+      groupInsurancePersonalContribution: [null],
+      mealVouchers: [false],
+      mealVouchersValue: [8, [Validators.min(1.09)]],
+      mealVouchersPersonalContribution: [1.09, [Validators.min(1.09)]],
       mode: [Mode.SingleMonth, [Validators.required]],
       grossSalary: [null],
+      numMealVouchers: [null, [Validators.min(0)]],
       holidayPay: [null, [Validators.min(0)]],
       bonus: [null, [Validators.min(0)]],
       otherNetIncome: [null, [Validators.min(0)]],
       incomeByMonth: this.fb.array(Array.from({ length: 12 }, () =>
         this.fb.group({
           grossSalary: [null],
-          bonus: [null],
-          holidayPay: [null],
-          otherNetIncome: [null],
+          bonus: [null, [Validators.min(0)]],
+          holidayPay: [null, [Validators.min(0)]],
+          otherNetIncome: [null, [Validators.min(0)]],
+          numMealVouchers: [null, [Validators.min(0)]],
         })
       )),
       indexation: [null],
@@ -402,10 +407,15 @@ export class MainComponent implements OnInit {
         numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
         numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
       },
+      mealVoucherAmounts: {
+        value: this.salaryForm.value.mealVouchersValue || 0,
+        personalContribution: this.salaryForm.value.mealVouchersPersonalContribution || 0,
+      },
       disabled: this.salaryForm.value.disabled,
       hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalCotisation || 0 : 0,
+      groupInsurancePersonalContribution: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalContribution || 0 : 0,
       otherNetIncome: this.salaryForm.value.otherNetIncome || 0,
+      numMealVouchers: this.salaryForm.value.mealVouchers ? this.salaryForm.value.numMealVouchers || 0 : 0,
       grossSalary: monthlyGrossSalary,
     };
 
@@ -438,14 +448,19 @@ export class MainComponent implements OnInit {
         numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
         numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
       },
+      mealVoucherAmounts: {
+        value: this.salaryForm.value.mealVouchersValue || 0,
+        personalContribution: this.salaryForm.value.mealVouchersPersonalContribution || 0,
+      },
       disabled: this.salaryForm.value.disabled,
       hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-      groupInsurancePersonalCotisation: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalCotisation || 0 : 0,
+      groupInsurancePersonalContribution: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalContribution || 0 : 0,
       monthlyIncomes: this.salaryForm.value.incomeByMonth.map((incomeForMonth: any) => ({
         grossSalary: incomeForMonth.grossSalary,
         bonus: incomeForMonth.bonus,
         holidayPay: incomeForMonth.holidayPay,
         otherNetIncome: incomeForMonth.otherNetIncome,
+        numMealVouchers: this.salaryForm.value.mealVouchers ? incomeForMonth.numMealVouchers || 0 : 0,
       })),
     };
 

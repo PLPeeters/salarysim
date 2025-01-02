@@ -5,12 +5,14 @@ export function getMonthlyIncomes(
   grossSalary: number,
   includeHolidayPay: boolean = true,
   include13thMonth: boolean = true,
+  numMealVouchers: number = 0,
 ): MonthlyIncome[] {
   const monthlyIncomes: MonthlyIncome[] = [];
 
   for (let i = 0; i < 12; i++) {
     monthlyIncomes.push({
       grossSalary: grossSalary,
+      numMealVouchers: numMealVouchers,
     })
   }
 

@@ -86,6 +86,7 @@
 
         <!-- Various Options -->
         <mat-card-subtitle>{{ t('other') }}</mat-card-subtitle>
+
         <div class="checkbox-section">
           <mat-checkbox formControlName="disabled">
             {{ t('i_am_disabled') }}
@@ -162,10 +163,10 @@
             {{ t('group_insurance' )}}
           </mat-checkbox>
 
-          <div *ngIf="salaryForm.get('groupInsurance')?.value">
-            <mat-form-field appearance="fill">
+          @if (salaryForm.get('groupInsurance')?.value) {
+            <mat-form-field appearance="fill" subscriptSizing="dynamic">
               <mat-label>{{ t('personal_contribution') }}</mat-label>
-              <input matInput type="number" min="0.01" step="0.01" formControlName="groupInsurancePersonalCotisation">
+              <input matInput type="number" min="0.01" step="0.01" formControlName="groupInsurancePersonalContribution">
 
               @if (currentLocale != 'fr-BE') {
                 <mat-icon matPrefix>euro</mat-icon>
@@ -173,7 +174,35 @@
                 <mat-icon matSuffix>euro</mat-icon>
               }
             </mat-form-field>
-          </div>
+          }
+
+          <mat-checkbox formControlName="mealVouchers">
+            {{ t('meal_vouchers' )}}
+          </mat-checkbox>
+
+          @if (salaryForm.get('mealVouchers')?.value) {
+            <mat-form-field appearance="fill" subscriptSizing="dynamic">
+              <mat-label>{{ t('value') }}</mat-label>
+              <input matInput type="number" [min]="salaryForm.get('mealVouchersPersonalContribution')?.value || 1.09" step="0.01" formControlName="mealVouchersValue">
+
+              @if (currentLocale != 'fr-BE') {
+                <mat-icon matPrefix>euro</mat-icon>
+              } @else {
+                <mat-icon matSuffix>euro</mat-icon>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="fill" subscriptSizing="dynamic">
+              <mat-label>{{ t('personal_contribution') }}</mat-label>
+              <input matInput type="number" min="1.09" step="0.01" formControlName="mealVouchersPersonalContribution">
+
+              @if (currentLocale != 'fr-BE') {
+                <mat-icon matPrefix>euro</mat-icon>
+              } @else {
+                <mat-icon matSuffix>euro</mat-icon>
+              }
+            </mat-form-field>
+          }
         </div>
 
         <mat-card-subtitle>{{ t('income') }}</mat-card-subtitle>
@@ -233,6 +262,14 @@
                 <mat-icon matSuffix>euro</mat-icon>
               }
             </mat-form-field>
+
+            <!-- Meal vouchers -->
+            @if (salaryForm.get('mealVouchers')?.value) {
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>{{ t('meal_vouchers') }}</mat-label>
+                <input matInput type="number" min="0" step="1" formControlName="numMealVouchers">
+              </mat-form-field>
+            }
           </mat-tab>
           <mat-tab [label]="t('full_year')">
             <table class="full-width">
@@ -243,6 +280,11 @@
                   <th>{{ t('double_holiday_pay') }}</th>
                   <th>{{ t('bonus') }}</th>
                   <th>{{ t('other_net_income') }}</th>
+
+                  @if (salaryForm.get('mealVouchers')?.value) {
+                    <th>{{ t('meal_vouchers') }}</th>
+                  }
+
                   <th></th>
                 </tr>
               </thead>
@@ -250,7 +292,7 @@
                 <tr *ngFor="let monthlySalaryRow of monthlySalaryRows.controls; let i = index" [formGroupName]="i">
                   <td class="text-right outline-neighbour-padding">{{ i + 1 }}</td>
                   <td>
-                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="variable-size" subscriptSizing="dynamic">
                       <mat-label>{{ t('gross_salary_title') }}</mat-label>
                       <input matInput type="number" min="0.01" step="0.01" formControlName="grossSalary">
 
@@ -262,7 +304,7 @@
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="variable-size" subscriptSizing="dynamic">
                       <mat-label>{{ t('double_holiday_pay_short') }}</mat-label>
                       <input matInput type="number" min="0" step="0.01" formControlName="holidayPay">
 
@@ -274,7 +316,7 @@
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="variable-size" subscriptSizing="dynamic">
                       <mat-label>{{ t('bonus') }}</mat-label>
                       <input matInput type="number" min="0" step="0.01" formControlName="bonus">
 
@@ -286,7 +328,7 @@
                     </mat-form-field>
                   </td>
                   <td>
-                    <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
+                    <mat-form-field appearance="fill" class="variable-size" subscriptSizing="dynamic">
                       <mat-label>{{ t('other_net_income') }}</mat-label>
                       <input matInput type="number" min="0" step="0.01" formControlName="otherNetIncome">
 
@@ -297,6 +339,16 @@
                       }
                     </mat-form-field>
                   </td>
+
+                  @if (salaryForm.get('mealVouchers')?.value) {
+                    <td>
+                      <mat-form-field appearance="fill" class="variable-size" subscriptSizing="dynamic">
+                        <mat-label>{{ t('meal_vouchers') }}</mat-label>
+                        <input matInput type="number" min="0" step="1" formControlName="numMealVouchers">
+                      </mat-form-field>
+                    </td>
+                  }
+
                   <td class="outline-neighbour-padding">
                     @if (i < monthlySalaryRows.controls.length - 1) {
                       <a (click)="copyMonthlySalaryRowToRest(i)">{{ t('copy_to_rest') }}</a>
@@ -444,6 +496,22 @@
           <span matListItemLine>{{ formatAmount(result.specialSocialCotisations) }}</span>
         </mat-list-item>
 
+        @if (result.groupInsurancePersonalContribution) {
+          <mat-list-item>
+            <mat-icon matListItemIcon>remove</mat-icon>
+            <span matListItemTitle>{{ t('group_insurance_personal_contribution') }}</span>
+            <span matListItemLine>{{ formatAmount(result.groupInsurancePersonalContribution) }}</span>
+          </mat-list-item>
+        }
+
+        @if (result.mealVouchersCost) {
+          <mat-list-item>
+            <mat-icon matListItemIcon>remove</mat-icon>
+            <span matListItemTitle>{{ t('meal_vouchers_contribution') }}</span>
+            <span matListItemLine>{{ formatAmount(result.mealVouchersCost) }}</span>
+          </mat-list-item>
+        }
+
         @if (result.otherNetIncome) {
           <mat-list-item>
             <mat-icon matListItemIcon>add</mat-icon>
@@ -457,6 +525,14 @@
           <span matListItemTitle>{{ t('net_salary') }}</span>
           <span matListItemLine>{{ formatAmount(result.netSalary) }}</span>
         </mat-list-item>
+
+        @if (result.mealVouchersValue) {
+          <mat-list-item>
+            <mat-icon matListItemIcon>add</mat-icon>
+            <span matListItemTitle>{{ t('meal_vouchers') }}</span>
+            <span matListItemLine>{{ formatAmount(result.mealVouchersValue) }}</span>
+          </mat-list-item>
+        }
 
         @if (result.holidayPayTaxation.grossAllocation > 0) {
           <mat-list-item class="mat-list-item-with-nested-mat-list">
@@ -520,7 +596,7 @@
           </mat-list-item>
         }
 
-        @if (result.holidayPayTaxation.grossAllocation > 0 || result.bonusTaxation.grossAllocation > 0) {
+        @if (result.netIncome != result.netSalary) {
           <mat-list-item>
             <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
             <span matListItemTitle>{{ t('net_income') }}</span>
