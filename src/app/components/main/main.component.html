@@ -360,9 +360,21 @@
           </mat-tab>
         </mat-tab-group>
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="!salaryForm.valid || (result && salaryForm.pristine)">
-          <mat-icon>calculate</mat-icon> {{ t('calculate') }}
-        </button>
+        <div>
+          @if (hasSavedData) {
+            <button mat-stroked-button type="button" (click)="clearFormFromLocalStorage()" class="float-right">
+              <mat-icon>delete</mat-icon> {{ t('clear_saved_data') }}
+            </button>
+          }
+
+          <button mat-raised-button color="primary" type="submit" [disabled]="!salaryForm.valid || salaryForm.pristine">
+            <mat-icon>calculate</mat-icon> {{ t('calculate') }}
+          </button>
+
+          <mat-checkbox formControlName="keepData" [disabled]="!salaryForm.valid || salaryForm.pristine">
+            {{ t('keep_data') }}
+          </mat-checkbox>
+        </div>
       </form>
     </mat-card-content>
   </mat-card>

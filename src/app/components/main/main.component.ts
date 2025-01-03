@@ -172,7 +172,7 @@ export class MainComponent implements OnInit {
           numMealVouchers: [null, [Validators.min(0)]],
         })
       )),
-      indexation: [null],
+      keepData: [false],
     });
 
     this.onPeriodTabSelected();
@@ -212,6 +212,8 @@ export class MainComponent implements OnInit {
         this.currentLocale = `${currentLang}-BE`;
         this.onLanguageChange();
       });
+
+    this.loadFormFromLocalStorage();
   }
 
   onLanguageChange() {
@@ -299,6 +301,8 @@ export class MainComponent implements OnInit {
         formGroup.controls['grossSalary'].clearValidators();
         formGroup.controls['grossSalary'].updateValueAndValidity();
       });
+
+      this.periodTabIndex = 0;
     } else {
       grossSalary?.clearValidators();
       grossSalary?.updateValueAndValidity();
@@ -307,6 +311,8 @@ export class MainComponent implements OnInit {
         formGroup.controls['grossSalary'].setValidators([Validators.required, Validators.min(0)]);
         formGroup.controls['grossSalary'].updateValueAndValidity();
       });
+
+      this.periodTabIndex = 1;
     }
   }
 
@@ -484,7 +490,37 @@ export class MainComponent implements OnInit {
       this.updateChartData(monthlyGrossSalary);
 
       this.salaryForm.markAsPristine();
+
+      if (this.salaryForm.value.keepData) {
+        this.persistFormToLocalStorage();
+      }
     }
+  }
+
+  private persistFormToLocalStorage() {
+    localStorage.setItem(this.FORM_LOCAL_STORAGE_KEY, JSON.stringify(this.salaryForm.value));
+    this.hasSavedData = true;
+  }
+
+  loadFormFromLocalStorage() {
+    try {
+      const formDataString = localStorage.getItem(this.FORM_LOCAL_STORAGE_KEY)
+
+      if (formDataString != null) {
+        const formValue = JSON.parse(formDataString);
+        formValue.revenueYear = this.supportedRevenueYears.find(o => o.year === formValue.revenueYear.year);
+
+        this.salaryForm.setValue(formValue);
+        this.hasSavedData = true;
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }
+
+  clearFormFromLocalStorage() {
+    localStorage.removeItem(this.FORM_LOCAL_STORAGE_KEY);
+    this.hasSavedData = false;
   }
 
   private updateSankeyData() {

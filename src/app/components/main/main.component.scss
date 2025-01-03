@@ -106,7 +106,7 @@ dt {
   width: 100%;
 }
 
-button[type="submit"] {
+button {
   margin: 20px 0;
 }
 
@@ -180,4 +180,8 @@ td mat-form-field {
 
 td.outline-neighbour-padding {
   padding-top: 8px;
+}
+
+.float-right {
+  float: right;
 }

@@ -50,6 +50,8 @@
   "copy_to_rest": "Copy to rest",
   "other_net_income": "Other Net Income",
   "calculate": "Calculate",
+  "clear_saved_data": "Clear saved data",
+  "keep_data": "Keep form data in browser",
   "out_of_date_warning": "The data below is out-of-date, rerun the calculation to update.",
   "charts_configuration": "Charts Configuration",
   "net_salary": "Net Salary",

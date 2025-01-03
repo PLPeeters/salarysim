@@ -55,6 +55,8 @@
   "monthly_gross_income": "Maandelijks bruto inkomen",
   "other_net_income": "Andere netto inkomsten",
   "calculate": "Berekenen",
+  "clear_saved_data": "Opgeslagen data wissen",
+  "keep_data": "Formulierdata in browser bewaren",
   "out_of_date_warning": "De onderstaande gegevens zijn verouderd, voer de berekening opnieuw uit om te updaten.",
   "charts_configuration": "Grafiekinstellingen",
   "net_salary": "Netto loon",
