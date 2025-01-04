@@ -89,6 +89,11 @@ export interface AnnualReductionBasedOnDependentChildren {
   maxAnnualGross: Decimal;
 };
 
+export interface VehicleAgeDepreciationTier {
+  ageRange: DecimalRange;
+  multiplier: Decimal;
+};
+
 export interface TaxationInfo {
   year: number;
   isFinal: boolean;
@@ -121,6 +126,16 @@ export interface TaxationInfo {
   exceptionalAllocationsTaxation: ExceptionalAllocationTaxationTier[];
   exceptionalAllocationsDependentChildrenExonerationTiers: AnnualLimitBasedOnDependentChildren[];
   exceptionalAllocationsDependentChildrenReductionTiers: AnnualReductionBasedOnDependentChildren[];
+
+  vehicleAgeDepreciationTiers: VehicleAgeDepreciationTier[];
+  baseCO2Percentage: Decimal;
+  minCO2Percentage: Decimal;
+  maxO2Percentage: Decimal;
+  defaultCO2Diesel: Decimal;
+  defaultCO2Other: Decimal;
+  referenceCO2Diesel: Decimal;
+  referenceCO2Other: Decimal;
+  minimumVehicleTaxedAmount: Decimal;
 };
 
 export interface Situation {

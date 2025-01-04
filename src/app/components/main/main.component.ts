@@ -1,26 +1,30 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { LayoutModule, MediaMatcher } from '@angular/cdk/layout';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatOptionModule } from '@angular/material/core';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { forkJoin, take } from 'rxjs';
-import { FamilySituation, TaxationResult, Status, taxationInfo2024, taxationInfo2025, TaxCalculatorService, WorkRegime, SalaryCalculationInput, YearlySalaryCalculationInput, TaxationPeriod } from '../../services/tax-calculator.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatOptionModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
+import { forkJoin, take } from 'rxjs';
 import { DisableScrollDirective } from '../../directives/disable-scroll.directive';
+import { FormattingService } from '../../services/formatting.service';
+import { FamilySituation, FuelType, SalaryCalculationInput, Status, taxationInfo2024, taxationInfo2025, TaxationPeriod, TaxationResult, TaxCalculatorService, VehicleInfo, WorkRegime, YearlySalaryCalculationInput } from '../../services/tax-calculator.service';
+import { FormComponent } from "./form/form.component";
+import { getDateFromMonthString } from './month-validator';
+import { WithholdingTaxBreakdownComponent } from "./withholding-tax-breakdown/withholding-tax-breakdown.component";
 
 
 interface RevenueYear {
@@ -57,6 +61,8 @@ export enum Mode {
     MatTabsModule,
     TranslocoModule,
     DisableScrollDirective,
+    FormComponent,
+    WithholdingTaxBreakdownComponent,
   ],
   providers: [
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
@@ -66,8 +72,11 @@ export enum Mode {
 })
 export class MainComponent implements OnInit {
   private translocoService = inject(TranslocoService);
+  private formattingService = inject(FormattingService);
   private taxCalculatorService = inject(TaxCalculatorService);
-  salaryForm: FormGroup;
+  isFormPristine: boolean = true;
+  formValue: any;
+  lastInput: SalaryCalculationInput | YearlySalaryCalculationInput | null = null;
   result: TaxationResult | null = null;
   sankeyData: any[] = [];
   chartData: any[] = [];
@@ -113,6 +122,9 @@ export class MainComponent implements OnInit {
   private specialSocialCotisationString: String = '';
   private professionalWithholdingTaxString: String = '';
 
+  formatAmount = this.formattingService.formatAmount;
+  formatPct = this.formattingService.formatPct;
+  formatPctRelative = this.formattingService.formatPctRelative;
   formatAmountTickFormattingFn = this.formatAmount.bind(this);
   formatPctTickFormattingFn = this.formatPct.bind(this);
   formatPctRelativeTickFormattingFn = this.formatPctRelative.bind(this);
@@ -131,52 +143,15 @@ export class MainComponent implements OnInit {
   Status = Status;
   FamilySituation = FamilySituation;
   Mode = Mode;
+  TaxationPeriod = TaxationPeriod;
+  fuelTypes = Object.values(FuelType);
+
+  showChartsWarning = false;
 
   constructor(
-    private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private mediaMatcher: MediaMatcher,
   ) {
-    this.salaryForm = this.fb.group({
-      revenueYear: [this.supportedRevenueYears[this.supportedRevenueYears.length - 1], Validators.required],
-      status: [Status.EMPLOYEE, Validators.required],
-      workRegime: [WorkRegime.FULL_TIME, Validators.required],
-      workedTimePerWeek: [null],
-      fullTimeHoursPerWeek: [38],
-      familySituation: [FamilySituation.ISOLATED, Validators.required],
-      disabled: [false],
-      hasDisabledPartner: [false],
-      dependentPeople: [false],
-      numDependentChildren: [null],
-      numDisabledDependentChildren: [null],
-      numDependentRetirees: [null],
-      numDependentOthers: [null],
-      numDisabledDependentOthers: [null],
-      groupInsurance: [false],
-      groupInsurancePersonalContribution: [null],
-      mealVouchers: [false],
-      mealVouchersValue: [8, [Validators.min(1.09)]],
-      mealVouchersPersonalContribution: [1.09, [Validators.min(1.09)]],
-      mode: [Mode.SingleMonth, [Validators.required]],
-      grossSalary: [null],
-      numMealVouchers: [null, [Validators.min(0)]],
-      holidayPay: [null, [Validators.min(0)]],
-      bonus: [null, [Validators.min(0)]],
-      otherNetIncome: [null, [Validators.min(0)]],
-      incomeByMonth: this.fb.array(Array.from({ length: 12 }, () =>
-        this.fb.group({
-          grossSalary: [null],
-          bonus: [null, [Validators.min(0)]],
-          holidayPay: [null, [Validators.min(0)]],
-          otherNetIncome: [null, [Validators.min(0)]],
-          numMealVouchers: [null, [Validators.min(0)]],
-        })
-      )),
-      keepData: [false],
-    });
-
-    this.onPeriodTabSelected();
-
     this.mediaQueries = this.mediaMatcher.matchMedia('(orientation: portrait)');
     this.mediaQueryListener = () => {
       this.cdr.detectChanges();
@@ -198,22 +173,11 @@ export class MainComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Watch for form changes to update validations
-    this.salaryForm.get('dependentPeople')?.valueChanges.subscribe(this.onHasChildrenChanged.bind(this));
-    this.salaryForm.get('revenueYear')?.valueChanges.subscribe(this.onRevenueYearChanged.bind(this));
-    this.salaryForm.get('workRegime')?.valueChanges.subscribe(this.onWorkRegimeChanged.bind(this));
-    this.salaryForm.get('mode')?.valueChanges.subscribe(this.onModeChanged.bind(this));
-
-    this.onRevenueYearChanged(this.salaryForm.get('revenueYear')?.value);
-    this.onModeChanged(this.salaryForm.get('mode')?.value);
-
     this.translocoService.langChanges$
       .subscribe(currentLang => {
         this.currentLocale = `${currentLang}-BE`;
         this.onLanguageChange();
       });
-
-    this.loadFormFromLocalStorage();
   }
 
   onLanguageChange() {
@@ -255,272 +219,78 @@ export class MainComponent implements OnInit {
     this.translocoService.setActiveLang(locale);
   }
 
-  get monthlySalaryRows(): FormArray {
-    return this.salaryForm.get('incomeByMonth') as FormArray;
-  }
-
-  copyMonthlySalaryRowToRest(index: number) {
-    const controls = this.monthlySalaryRows.controls.slice(index) as FormGroup[];
-    const firstControl = controls.splice(0, 1)[0] as FormGroup;
-
-    controls.forEach((followingFormGroup: FormGroup) => {
-      const followingFormGroupControls = followingFormGroup.controls;
-
-      for (let controlName in followingFormGroupControls) {
-        const value = firstControl.controls[controlName].value;
-
-        if (value) {
-          followingFormGroupControls[controlName]
-            .setValue(firstControl.controls[controlName].value);
-        }
-      }
-    });
-  }
-
-  onPeriodTabSelected() {
-    const mode = this.salaryForm.get('mode');
-
-    if (this.periodTabIndex === 0) {
-      mode?.setValue(Mode.SingleMonth);
-    } else {
-      mode?.setValue(Mode.FullYear);
+  private getCompanyCarInfo(): VehicleInfo | null {
+    if (!this.formValue.companyCar ||
+        !this.formValue.companyCarCatalogValue ||
+        !this.formValue.companyCarFirstPlateRegistrationMonth ||
+        !this.formValue.companyCarFuelType ||
+        !this.formValue.companyCarGramsCo2PerKm
+    ) {
+      return null;
     }
 
-    mode?.markAsDirty();
-  }
-
-  onModeChanged(mode: Mode) {
-    const grossSalary = this.salaryForm.get('grossSalary');
-    const monthlySalaryRowControls = this.monthlySalaryRows.controls as FormGroup[];
-
-    if (mode === Mode.SingleMonth) {
-      grossSalary?.setValidators([Validators.required, Validators.min(0.01)]);
-      grossSalary?.updateValueAndValidity();
-
-      monthlySalaryRowControls.forEach(formGroup => {
-        formGroup.controls['grossSalary'].clearValidators();
-        formGroup.controls['grossSalary'].updateValueAndValidity();
-      });
-
-      this.periodTabIndex = 0;
-    } else {
-      grossSalary?.clearValidators();
-      grossSalary?.updateValueAndValidity();
-
-      monthlySalaryRowControls.forEach(formGroup => {
-        formGroup.controls['grossSalary'].setValidators([Validators.required, Validators.min(0)]);
-        formGroup.controls['grossSalary'].updateValueAndValidity();
-      });
-
-      this.periodTabIndex = 1;
-    }
-  }
-
-  onRevenueYearChanged(revenueYear: RevenueYear) {
-    let taxationInfo;
-
-    switch (revenueYear.year) {
-      case 2024:
-        taxationInfo = taxationInfo2024;
-        break;
-      case 2025:
-        taxationInfo = taxationInfo2025;
-        break;
-      default:
-        throw Error(`Unexpected taxation year: ${revenueYear}.`);
-    }
-
-    this.lowPensionJanuaryThreshold = taxationInfo.lowPensionJanuaryThreshold;
-    this.lowOtherRevenueJanuaryThreshold = taxationInfo.lowOtherRevenueJanuaryThreshold;
-    this.noRevenueJanuaryThreshold = taxationInfo.noRevenueJanuaryThreshold;
-    this.maxYearlyEmploymentBonus = taxationInfo.employmentBonusInfo.maxYearlyAmount.toNumber();
-    this.dependentRetireeAgeThreshold = taxationInfo.dependentRetireeAgeThreshold;
-
-    this.updateChartData();
-  }
-
-  onWorkRegimeChanged(workRegime: WorkRegime) {
-    const workedTimePerWeek = this.salaryForm.get('workedTimePerWeek');
-    const fullTimeHoursPerWeek = this.salaryForm.get('fullTimeHoursPerWeek');
-
-    if (workRegime === WorkRegime.PART_TIME) {
-      workedTimePerWeek?.setValidators([Validators.min(1)]);
-      workedTimePerWeek?.updateValueAndValidity();
-      fullTimeHoursPerWeek?.setValidators([Validators.min(1)]);
-      fullTimeHoursPerWeek?.updateValueAndValidity();
-;
-    } else {
-      workedTimePerWeek?.clearValidators();
-      workedTimePerWeek?.updateValueAndValidity();
-      fullTimeHoursPerWeek?.clearValidators();
-      fullTimeHoursPerWeek?.updateValueAndValidity();
-    }
-
-    this.salaryForm.updateValueAndValidity();
-  }
-
-  onHasChildrenChanged(hasChildren: boolean) {
-    const numChildren = this.salaryForm.get('numDependentChildren');
-    const numDisabledChildren = this.salaryForm.get('numDisabledDependentChildren');
-    const numRetirees = this.salaryForm.get('numDependentRetirees');
-    const numOthers = this.salaryForm.get('numDependentOthers');
-    const numDisabledOthers = this.salaryForm.get('numDisabledDependentOthers');
-
-    if (hasChildren) {
-      numChildren?.setValidators([Validators.min(0)]);
-      numChildren?.updateValueAndValidity();
-      numDisabledChildren?.setValidators([Validators.min(0)]);
-      numDisabledChildren?.updateValueAndValidity();
-      numRetirees?.setValidators([Validators.min(0)]);
-      numRetirees?.updateValueAndValidity();
-      numOthers?.setValidators([Validators.min(0)]);
-      numOthers?.updateValueAndValidity();
-      numDisabledOthers?.setValidators([Validators.min(0)]);
-      numDisabledOthers?.updateValueAndValidity();
-    } else {
-      numChildren?.clearValidators();
-      numChildren?.updateValueAndValidity();
-      numDisabledChildren?.clearValidators();
-      numDisabledChildren?.updateValueAndValidity();
-      numRetirees?.clearValidators();
-      numRetirees?.updateValueAndValidity();
-      numOthers?.clearValidators();
-      numOthers?.updateValueAndValidity();
-      numDisabledOthers?.clearValidators();
-      numDisabledOthers?.updateValueAndValidity();
+    return {
+      catalogValue: this.formValue.companyCarCatalogValue,
+      firstPlateRegistrationMonth: getDateFromMonthString(this.formValue.companyCarFirstPlateRegistrationMonth),
+      fuelType: this.formValue.companyCarFuelType,
+      gramsCo2PerKm: this.formValue.companyCarGramsCo2PerKm,
+      personalContribution: this.formValue.companyCarPersonalContribution,
     }
   }
 
   private calculateMonthlyNetSalary(
     monthlyGrossSalary: number,
-    holidayPay: number | null = null,
-    bonus: number | null = null,
   ): TaxationResult {
     const salaryCalculatorInput: SalaryCalculationInput = {
       period: TaxationPeriod.Monthly,
-      revenueYear: this.salaryForm.value.revenueYear.year,
-      status: this.salaryForm.value.status,
+      revenueYear: this.formValue.revenueYear.year,
+      status: this.formValue.status,
       workRegime: {
-        type: this.salaryForm.value.workRegime,
-        workedTimePerWeek: this.salaryForm.value.workedTimePerWeek,
-        fullTimeHoursPerWeek: this.salaryForm.value.fullTimeHoursPerWeek
+        type: this.formValue.workRegime,
+        workedTimePerWeek: this.formValue.workedTimePerWeek,
+        fullTimeHoursPerWeek: this.formValue.fullTimeHoursPerWeek,
       },
-      familySituation: this.salaryForm.value.familySituation,
+      familySituation: this.formValue.familySituation,
       dependentPeople: {
-        numDependentChildren: this.salaryForm.value.numDependentChildren || 0,
-        numDisabledDependentChildren: this.salaryForm.value.numDisabledDependentChildren || 0,
-        numDependentRetirees: this.salaryForm.value.numDependentRetirees || 0,
-        numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
-        numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
+        numDependentChildren: this.formValue.numDependentChildren || 0,
+        numDisabledDependentChildren: this.formValue.numDisabledDependentChildren || 0,
+        numDependentRetirees: this.formValue.numDependentRetirees || 0,
+        numDependentOthers: this.formValue.numDependentOthers || 0,
+        numDisabledDependentOthers: this.formValue.numDisabledDependentOthers || 0,
       },
       mealVoucherAmounts: {
-        value: this.salaryForm.value.mealVouchersValue || 0,
-        personalContribution: this.salaryForm.value.mealVouchersPersonalContribution || 0,
+        value: this.formValue.mealVouchersValue || 0,
+        personalContribution: this.formValue.mealVouchersPersonalContribution || 0,
       },
-      disabled: this.salaryForm.value.disabled,
-      hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-      groupInsurancePersonalContribution: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalContribution || 0 : 0,
-      otherNetIncome: this.salaryForm.value.otherNetIncome || 0,
-      numMealVouchers: this.salaryForm.value.mealVouchers ? this.salaryForm.value.numMealVouchers || 0 : 0,
+      disabled: this.formValue.disabled,
+      hasDisabledPartner: this.formValue.hasDisabledPartner,
+      groupInsurancePersonalContribution: this.formValue.groupInsurance ? this.formValue.groupInsurancePersonalContribution || 0 : 0,
+      otherNetIncome: this.formValue.otherNetIncome || 0,
+      numMealVouchers: this.formValue.mealVouchers ? this.formValue.numMealVouchers || 0 : 0,
+      companyCarInfo: this.getCompanyCarInfo(),
       grossSalary: monthlyGrossSalary,
     };
 
-    if (holidayPay) {
-      salaryCalculatorInput.holidayPay = holidayPay;
-    }
-
-    if (bonus) {
-      salaryCalculatorInput.bonus = bonus;
-    }
-
     return this.taxCalculatorService.calculateTaxation(salaryCalculatorInput);
   }
 
-  private calculateAnnualNetSalary(): TaxationResult {
-    const salaryCalculatorInput: YearlySalaryCalculationInput = {
-      period: TaxationPeriod.Annual,
-      revenueYear: this.salaryForm.value.revenueYear.year,
-      status: this.salaryForm.value.status,
-      workRegime: {
-        type: this.salaryForm.value.workRegime,
-        workedTimePerWeek: this.salaryForm.value.workedTimePerWeek,
-        fullTimeHoursPerWeek: this.salaryForm.value.fullTimeHoursPerWeek
-      },
-      familySituation: this.salaryForm.value.familySituation,
-      dependentPeople: {
-        numDependentChildren: this.salaryForm.value.numDependentChildren || 0,
-        numDisabledDependentChildren: this.salaryForm.value.numDisabledDependentChildren || 0,
-        numDependentRetirees: this.salaryForm.value.numDependentRetirees || 0,
-        numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
-        numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
-      },
-      mealVoucherAmounts: {
-        value: this.salaryForm.value.mealVouchersValue || 0,
-        personalContribution: this.salaryForm.value.mealVouchersPersonalContribution || 0,
-      },
-      disabled: this.salaryForm.value.disabled,
-      hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-      groupInsurancePersonalContribution: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalContribution || 0 : 0,
-      monthlyIncomes: this.salaryForm.value.incomeByMonth.map((incomeForMonth: any) => ({
-        grossSalary: incomeForMonth.grossSalary,
-        bonus: incomeForMonth.bonus,
-        holidayPay: incomeForMonth.holidayPay,
-        otherNetIncome: incomeForMonth.otherNetIncome,
-        numMealVouchers: this.salaryForm.value.mealVouchers ? incomeForMonth.numMealVouchers || 0 : 0,
-      })),
-    };
-
-    return this.taxCalculatorService.calculateTaxation(salaryCalculatorInput);
+  onFormPristineChanged(isPristine: boolean) {
+    this.isFormPristine = isPristine;
   }
 
-  onSubmit() {
-    if (this.salaryForm.valid) {
-      const monthlyGrossSalary = this.salaryForm.value.grossSalary;
+  onFormValueUpdate(formValue: any) {
+    const yearChanged = formValue.revenueYear !== this.formValue?.revenueYear;
+    this.formValue = formValue;
 
-      if (this.salaryForm.value.mode === Mode.SingleMonth) {
-        this.result = this.calculateMonthlyNetSalary(
-          monthlyGrossSalary,
-          this.salaryForm.value.holidayPay,
-          this.salaryForm.value.bonus,
-        );
-      } else {
-        this.result = this.calculateAnnualNetSalary();
-      }
-
-      this.updateChartData(monthlyGrossSalary);
-
-      this.salaryForm.markAsPristine();
-
-      if (this.salaryForm.value.keepData) {
-        this.persistFormToLocalStorage();
-      }
+    if (this.chartData.length === 0 || yearChanged) {
+      this.updateChartData();
     }
   }
 
-  private persistFormToLocalStorage() {
-    localStorage.setItem(this.FORM_LOCAL_STORAGE_KEY, JSON.stringify(this.salaryForm.value));
-    this.hasSavedData = true;
-  }
-
-  loadFormFromLocalStorage() {
-    try {
-      const formDataString = localStorage.getItem(this.FORM_LOCAL_STORAGE_KEY)
-
-      if (formDataString != null) {
-        const formValue = JSON.parse(formDataString);
-        formValue.revenueYear = this.supportedRevenueYears.find(o => o.year === formValue.revenueYear.year);
-
-        this.salaryForm.setValue(formValue);
-        this.hasSavedData = true;
-      }
-    } catch (e) {
-      // Ignore
-    }
-  }
-
-  clearFormFromLocalStorage() {
-    localStorage.removeItem(this.FORM_LOCAL_STORAGE_KEY);
-    this.hasSavedData = false;
+  onNewInput(input: SalaryCalculationInput | YearlySalaryCalculationInput) {
+    this.lastInput = input;
+    this.result = this.taxCalculatorService.calculateTaxation(input);
+    this.updateChartData();
   }
 
   private updateSankeyData() {
@@ -531,8 +301,8 @@ export class MainComponent implements OnInit {
         this.sankeyData.push({ source: this.grossSalaryString, target: this.socialCotisationsString, value: this.result.socialCotisationsAfterReductions });
       }
 
-      if (this.result.taxesAfterReductions) {
-        this.sankeyData.push({ source: this.grossSalaryString, target: this.professionalWithholdingTaxString, value: this.result.taxesAfterReductions });
+      if (this.result.professionalWithholdingTaxesAfterReductions) {
+        this.sankeyData.push({ source: this.grossSalaryString, target: this.professionalWithholdingTaxString, value: this.result.professionalWithholdingTaxesAfterReductions });
       }
 
       if (this.result.specialSocialCotisations) {
@@ -560,7 +330,12 @@ export class MainComponent implements OnInit {
   }
 
   updateChartData(grossSalary: number | null = null) {
+    if (!this.lastInput && !this.formValue) {
+      return;
+    }
+
     this.updateSankeyData();
+    this.showChartsWarning = !!(this.chartData && (this.lastInput?.period === TaxationPeriod.Annual || this.lastInput?.bonus || this.lastInput?.holidayPay))
 
     if (grossSalary != null) {
       if (grossSalary > this.graphsEndingSalary) {
@@ -658,7 +433,7 @@ export class MainComponent implements OnInit {
         name: this.professionalWithholdingTaxString,
         series: salaries.map(salary => ({
           name: salary.gross,
-          value: salary.taxation.taxesAfterReductions,
+          value: salary.taxation.professionalWithholdingTaxesAfterReductions,
         }))
       },
       {
@@ -682,7 +457,7 @@ export class MainComponent implements OnInit {
         name: this.professionalWithholdingTaxString,
         series: salaries.map(salary => ({
           name: salary.gross,
-          value: salary.taxation.taxesAfterReductionsProportion,
+          value: salary.taxation.professionalWithholdingTaxesAfterReductionsProportion,
         }))
       },
       {
@@ -693,32 +468,5 @@ export class MainComponent implements OnInit {
         }))
       },
     ];
-  }
-
-  formatAmount(value: any) {
-    const options = {
-      minimumFractionDigits: 2,
-    };
-
-    switch (this.currentLocale) {
-      case 'fr-BE':
-        return `${value.toLocaleString(this.currentLocale, options)} €`.replace(' ', ' ');
-      case 'nl-BE':
-        return `€ ${value.toLocaleString(this.currentLocale, options)}`
-      default:
-        return `€${value.toLocaleString(this.currentLocale, options)}`
-    }
-  }
-
-  formatPct(value: any) {
-    return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
-  }
-
-  formatPctRelative(value: any) {
-    if (value > 0) {
-      return `+${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
-    } else {
-      return `${value.toFixed(1).toLocaleString(this.currentLocale)}%`.replace(' ', ' ');
-    }
   }
 }

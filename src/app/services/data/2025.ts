@@ -376,4 +376,57 @@ export const taxationInfo: TaxationInfo = {
       maxAnnualGross: D(39_550),
     },
   ],
+
+  vehicleAgeDepreciationTiers: [
+    {
+      ageRange: {
+        from: D(0),
+        to: D(12)
+      },
+      multiplier: D(1),
+    },
+    {
+      ageRange: {
+        from: D(13),
+        to: D(24)
+      },
+      multiplier: D(0.94),
+    },
+    {
+      ageRange: {
+        from: D(25),
+        to: D(36)
+      },
+      multiplier: D(0.88),
+    },
+    {
+      ageRange: {
+        from: D(37),
+        to: D(48)
+      },
+      multiplier: D(0.82),
+    },
+    {
+      ageRange: {
+        from: D(49),
+        to: D(60)
+      },
+      multiplier: D(0.76),
+    },
+    {
+      ageRange: {
+        from: D(61),
+        to: D(Infinity)
+      },
+      multiplier: D(0.70),
+    },
+  ],
+  baseCO2Percentage: D(5.5),
+  minCO2Percentage: D(4),
+  maxO2Percentage: D(18),
+  defaultCO2Diesel: D(195),
+  defaultCO2Other: D(205),
+  referenceCO2Diesel: D(59),
+  referenceCO2Other: D(71),
+  minimumVehicleTaxedAmount: D(1_650),
 };

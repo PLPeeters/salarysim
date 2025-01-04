@@ -1,29 +1,6 @@
-import { FamilySituation, MonthlyIncome, SalaryCalculationInput, Status, TaxationPeriod, WorkRegime, YearlySalaryCalculationInput } from "../tax-calculator.service";
+import { FamilySituation, FuelType, SalaryCalculationInput, Status, TaxationPeriod, WorkRegime, YearlySalaryCalculationInput } from "../tax-calculator.service";
 import { Situation } from "./interfaces";
-
-function getMonthlyIncomes(
-  grossSalary: number,
-  includeHolidayPay: boolean = true,
-  include13thMonth: boolean = true,
-): MonthlyIncome[] {
-  const monthlyIncomes: MonthlyIncome[] = [];
-
-  for (let i = 0; i < 12; i++) {
-    monthlyIncomes.push({
-      grossSalary: grossSalary,
-    })
-  }
-
-  if (includeHolidayPay) {
-    monthlyIncomes[5].holidayPay = grossSalary;
-  }
-
-  if (include13thMonth) {
-    monthlyIncomes[11].bonus = grossSalary;
-  }
-
-  return monthlyIncomes;
-}
+import { getMonthlyIncomes } from "./utils";
 
 export const simpleEmployee: SalaryCalculationInput = {
   period: TaxationPeriod.Monthly,
@@ -46,6 +23,12 @@ export const simpleEmployee: SalaryCalculationInput = {
   hasDisabledPartner: false,
   groupInsurancePersonalContribution: 0,
   otherNetIncome: 0,
+  mealVoucherAmounts: {
+    value: 8,
+    personalContribution: 1.09,
+  },
+  numMealVouchers: 0,
+  companyCarInfo: null,
   grossSalary: 0,
 };
 const partTimeEmployee: SalaryCalculationInput = {
@@ -238,6 +221,119 @@ const simpleEmployeeAnnual: YearlySalaryCalculationInput = {
   ...simpleEmployee,
   period: TaxationPeriod.Annual,
   monthlyIncomes: [],
+};
+const employeeWithDieselCar: SalaryCalculationInput = {
+  ...simpleEmployee,
+  companyCarInfo: {
+    catalogValue: 25000,
+    firstPlateRegistrationMonth: new Date(2023, 0, 21),
+    fuelType: FuelType.Diesel,
+    gramsCo2PerKm: 149,
+  },
+};
+const employeeWithDieselCarUnknownEmissions: SalaryCalculationInput = {
+  ...simpleEmployee,
+  companyCarInfo: {
+    catalogValue: 25000,
+    firstPlateRegistrationMonth: new Date(2023, 0, 21),
+    fuelType: FuelType.Diesel,
+    gramsCo2PerKm: null,
+  },
+};
+const employeeWithDieselCarAndPersonalContribution: SalaryCalculationInput = {
+  ...simpleEmployee,
+  companyCarInfo: {
+    catalogValue: 25000,
+    firstPlateRegistrationMonth: new Date(2023, 0, 21),
+    fuelType: FuelType.Diesel,
+    gramsCo2PerKm: 149,
+    personalContribution: 100,
+  },
+};
+const employeeWithGasolineCar: SalaryCalculationInput = {
+  ...simpleEmployee,
+  companyCarInfo: {
+    catalogValue: 32000,
+    firstPlateRegistrationMonth: new Date(2023, 0, 21),
+    fuelType: FuelType.Gasoline,
+    gramsCo2PerKm: 137,
+  },
+};
+const employeeWithElectricCar: SalaryCalculationInput = {
+  ...simpleEmployee,
+  companyCarInfo: {
+    catalogValue: 40000,
+    firstPlateRegistrationMonth: new Date(2023, 0, 21),
+    fuelType: FuelType.Electric,
+    gramsCo2PerKm: 0,
+  },
+};
+const employeeWithHybridCar: SalaryCalculationInput = {
+  ...simpleEmployee,
+  companyCarInfo: {
+    catalogValue: 32000,
+    firstPlateRegistrationMonth: new Date(2022, 0, 21),
+    fuelType: FuelType.Hybrid,
+    gramsCo2PerKm: 108,
+  },
+};
+const employeeWithNaturalGasCar: SalaryCalculationInput = {
+  ...simpleEmployee,
+  companyCarInfo: {
+    catalogValue: 50000,
+    firstPlateRegistrationMonth: new Date(2024, 5, 1),
+    fuelType: FuelType.NaturalGas,
+    gramsCo2PerKm: 144,
+  },
+};
+const employeeWithMoreRecentDieselCar: SalaryCalculationInput = {
+  ...employeeWithDieselCar,
+  companyCarInfo: {
+    ...employeeWithDieselCar.companyCarInfo!!,
+    firstPlateRegistrationMonth: new Date(2023, 5, 21),
+  },
+};
+const employeeWithMoreRecentDieselCarUnknownEmissions: SalaryCalculationInput = {
+  ...employeeWithDieselCarUnknownEmissions,
+  companyCarInfo: {
+    ...employeeWithDieselCarUnknownEmissions.companyCarInfo!!,
+    firstPlateRegistrationMonth: new Date(2023, 5, 21),
+  },
+};
+const employeeWithMoreRecentDieselCarAndPersonalContribution: SalaryCalculationInput = {
+  ...employeeWithDieselCarAndPersonalContribution,
+  companyCarInfo: {
+    ...employeeWithDieselCarAndPersonalContribution.companyCarInfo!!,
+    firstPlateRegistrationMonth: new Date(2023, 5, 21),
+  },
+};
+const employeeWithMoreRecentGasolineCar: SalaryCalculationInput = {
+  ...employeeWithGasolineCar,
+  companyCarInfo: {
+    ...employeeWithGasolineCar.companyCarInfo!!,
+    firstPlateRegistrationMonth: new Date(2023, 5, 21),
+  },
+};
+const employeeWithMoreRecentElectricCar: SalaryCalculationInput = {
+  ...employeeWithElectricCar,
+  companyCarInfo: {
+    ...employeeWithElectricCar.companyCarInfo!!,
+    firstPlateRegistrationMonth: new Date(2023, 5, 21),
+  },
+};
+const employeeWithMoreRecentHybridCar: SalaryCalculationInput = {
+  ...employeeWithHybridCar,
+  companyCarInfo: {
+    ...employeeWithHybridCar.companyCarInfo!!,
+    firstPlateRegistrationMonth: new Date(2022, 5, 21),
+  },
+};
+const employeeWithMoreRecentNaturalGasCar: SalaryCalculationInput = {
+  ...employeeWithNaturalGasCar,
+  companyCarInfo: {
+    ...employeeWithNaturalGasCar.companyCarInfo!!,
+    firstPlateRegistrationMonth: new Date(2025, 0, 1),
+  },
 };
 
 const simpleWorker: SalaryCalculationInput = {
@@ -754,6 +850,22 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...employeeWithOtherNetIncome, grossSalary: 3000 }, netSalary: 2290.87 },
   { input: { ...employeeWithOtherNetIncome, grossSalary: 4029.16 }, netSalary: 2706.26 },
   { input: { ...employeeWithOtherNetIncome, grossSalary: 5000 }, netSalary: 3131.57 },
+
+  { input: { ...employeeWithDieselCar, grossSalary: 3000 }, netSalary: 2093.35 },
+  { input: { ...employeeWithDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2067.24 },
+  { input: { ...employeeWithDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2036.15 },
+  { input: { ...employeeWithGasolineCar, grossSalary: 3000 }, netSalary: 2086.25 },
+  { input: { ...employeeWithElectricCar, grossSalary: 3000 }, netSalary: 2131.17 },
+  { input: { ...employeeWithHybridCar, grossSalary: 3000 }, netSalary: 2117.07 },
+  { input: { ...employeeWithNaturalGasCar, grossSalary: 3000 }, netSalary: 1991.06 },
+
+  { input: { ...employeeWithMoreRecentDieselCar, grossSalary: 3000 }, netSalary: 2090.6 },
+  { input: { ...employeeWithMoreRecentDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2063.40 },
+  { input: { ...employeeWithMoreRecentDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2033.40 },
+  { input: { ...employeeWithMoreRecentGasolineCar, grossSalary: 3000 }, netSalary: 2082.94 },
+  { input: { ...employeeWithMoreRecentElectricCar, grossSalary: 3000 }, netSalary: 2129.85 },
+  { input: { ...employeeWithMoreRecentHybridCar, grossSalary: 3000 }, netSalary: 2114.84 },
+  { input: { ...employeeWithMoreRecentNaturalGasCar, grossSalary: 3000 }, netSalary: 1983.32 },
 
   { input: { ...halfTimeWorker, grossSalary: 1319.16 }, netSalary: 1209.17 },
   { input: { ...halfTimeWorkerWithOneKid, grossSalary: 1319.16 }, netSalary: 1209.17 },

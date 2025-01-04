@@ -6,28 +6,6 @@
 
 mat-card {
   margin-bottom: 20px;
-
-  &[appearance="outlined"] {
-    &.warning {
-      background-color: #ffd400;
-      border-color: #8d7600;
-    }
-
-    &.info {
-      background-color: #aef4ff;
-      border-color: black;
-    }
-
-    &.message {
-      mat-icon, span {
-        vertical-align: middle;
-      }
-
-      span {
-        margin-left: 8px;
-      }
-    }
-  }
 }
 
 mat-card-header {
@@ -110,33 +88,14 @@ button {
   margin: 20px 0;
 }
 
-.charts-card {
-  overflow: hidden;
-}
-
-.language-picker {
-  float: right;
-
-  ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__graphic {
-    display: none !important;
-  }
-
-  ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__text-label:not(:only-child) {
-    padding-left: 12px;
-  }
-}
-
-h1 {
-  margin-top: 0;
-}
-
 mat-icon.inline {
   font-size: 20px;
   vertical-align: middle;
   margin-right: -5px;
 }
 
-mat-option, mat-select-trigger {
+mat-option,
+mat-select-trigger {
   sup {
     font-variant: small-caps;
   }
@@ -158,7 +117,7 @@ mat-list-item mat-list {
   margin-top: 16px;
 }
 
-.p-t {
+.mat-list-item-with-nested-mat-list {
   padding-top: 16px;
 }
 
@@ -168,15 +127,6 @@ mat-list-item mat-list {
 
 ::ng-deep .mat-mdc-tab-body-content {
   padding-top: 24px;
-}
-
-::ng-deep .mat-mdc-list-item .mat-mdc-list-item-line, ::ng-deep .mat-mdc-list-item .mat-mdc-list-item-title {
-  word-wrap: break-word !important;
-  white-space: pre-wrap !important;
-}
-
-::ng-deep .mat-mdc-list-item {
-  height: initial !important;
 }
 
 td mat-form-field {

@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainComponent, Mode } from './main.component';
+import { MainComponent } from './main.component';
 import { getTranslocoModule } from '../../transloco-testing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormGroup } from '@angular/forms';
-import { WorkRegime } from '../../services/tax-calculator.service';
+import { simpleEmployee } from '../../services/data/2024-inputs-to-net';
+import { FuelType, SalaryCalculationInput } from '../../services/tax-calculator.service';
 
 describe('MainComponent', () => {
   let component: MainComponent;
@@ -25,193 +25,171 @@ describe('MainComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should change form pristine status', () => {
+    component.onFormPristineChanged(false);
+
+    expect(component.isFormPristine).toBeFalse();
+  });
+
+  it('should be able to set the locale', () => {
+    component.setLocale('fr');
+
+    expect(component.currentLocale).toBe('fr-BE');
+  });
+
   it('should be able to fetch available languages', () => {
     expect(component.getAvailableLangs()).toContain('en');
   });
 
-  it('should format numbers differently when switching locales', () => {
-    component.setLocale('fr');
-    expect(component.formatAmount(2000)).toEqual('2 000,00 €');
-
-    component.setLocale('nl');
-    expect(component.formatAmount(2000)).toEqual('€ 2.000,00');
-
-    component.setLocale('en');
-    expect(component.formatAmount(2000)).toEqual('€2.000,00');
-  });
-
-  it('should set correct validation when switching to monthly mode', () => {
-    component.periodTabIndex = 0;
-    component.onPeriodTabSelected();
-
-    expect(component.salaryForm.get('mode')?.value).toBe(Mode.SingleMonth);
-    expect(component.salaryForm.get('grossSalary')?.validator).toBeTruthy();
-
-    component.monthlySalaryRows.controls.forEach(control => {
-      expect(control.get('grossSalary')?.validator).toBeFalsy();
-    });
-  });
-
-  it('should set correct validation when switching to yearly mode', () => {
-    component.periodTabIndex = 1;
-    component.onPeriodTabSelected();
-
-    expect(component.salaryForm.get('mode')?.value).toBe(Mode.FullYear);
-    expect(component.salaryForm.get('grossSalary')?.validator).toBeFalsy();
-
-    component.monthlySalaryRows.controls.forEach(control => {
-      expect(control.get('grossSalary')?.validator).toBeTruthy();
-    });
-  });
-
   it('should update charts when switching revenue years', () => {
-    component.supportedRevenueYears.forEach(revenueYear => {
-      component.chartData = [];
-      component.onRevenueYearChanged(revenueYear);
-      expect(component.chartData).toBeTruthy();
-    });
+    component.chartData = [];
+
+    const newFormValue = {
+      ...component.formValue,
+      revenueYear: { year: 2024, isFinal: true },
+    }
+
+    component.onFormValueUpdate(newFormValue);
+    expect(component.chartData).toBeTruthy();
   });
 
-  it('should crash when trying to change to an unsupported revenue year', () => {
-    expect(() => component.onRevenueYearChanged({year: 1999, isFinal: true})).toThrow();
+  it('should update charts when receiving new input', () => {
+    component.chartData = [];
+
+    const input: SalaryCalculationInput = {
+      ...simpleEmployee,
+      grossSalary: 3000,
+      otherNetIncome: 100,
+      holidayPay: 3000,
+      bonus: 1000,
+    };
+
+    component.onNewInput(input);
+    expect(component.chartData).not.toEqual([]);
+    expect(component.sankeyData).not.toEqual([]);
   });
 
-  it('should be able to copy monthly salary info to subsequent rows', () => {
-    const controls = component.monthlySalaryRows.controls.slice(0) as FormGroup[];
-    const firstControl = controls.splice(0, 1)[0] as FormGroup;
+  it('should update charts when receiving new input with meal vouchers', () => {
+    component.chartData = [];
 
-    firstControl.get('grossSalary')?.setValue(3000);
-    firstControl.get('holidayPay')?.setValue(4000);
-    firstControl.get('bonus')?.setValue(5000);
-    firstControl.get('otherNetIncome')?.setValue(6000);
+    const formValue = {
+      ...component.formValue,
+      mealVouchers: true,
+    };
+    const input: SalaryCalculationInput = {
+      ...simpleEmployee,
+      grossSalary: 3000,
+    };
 
-    component.copyMonthlySalaryRowToRest(0);
-
-    controls.forEach((followingFormGroup: FormGroup) => {
-      expect(followingFormGroup.get('grossSalary')?.value).toBe(3000);
-      expect(followingFormGroup.get('holidayPay')?.value).toBe(4000);
-      expect(followingFormGroup.get('bonus')?.value).toBe(5000);
-      expect(followingFormGroup.get('otherNetIncome')?.value).toBe(6000);
-    });
+    component.onFormValueUpdate(formValue);
+    component.onNewInput(input);
+    expect(component.chartData).not.toEqual([]);
+    expect(component.sankeyData).not.toEqual([]);
   });
 
-  it('should set correct validation when switching to full time', () => {
-    component.onWorkRegimeChanged(WorkRegime.FULL_TIME);
+  it('should update charts when receiving new input with meal vouchers checked but not defined', () => {
+    component.chartData = [];
 
-    expect(component.salaryForm.get('workedTimePerWeek')?.validator).toBeFalsy();
-    expect(component.salaryForm.get('fullTimeHoursPerWeek')?.validator).toBeFalsy();
+    const formValue = {
+      ...component.formValue,
+      mealVouchers: true,
+      mealVouchersValue: null,
+      mealVouchersPersonalContribution: null,
+    };
+    const input: SalaryCalculationInput = {
+      ...simpleEmployee,
+      grossSalary: 3000,
+    };
+
+    component.onFormValueUpdate(formValue);
+    component.onNewInput(input);
+    expect(component.chartData).not.toEqual([]);
+    expect(component.sankeyData).not.toEqual([]);
   });
 
-  it('should set correct validation when switching to part time', () => {
-    component.onWorkRegimeChanged(WorkRegime.PART_TIME);
+  it('should update charts when receiving new input with a company car', () => {
+    component.chartData = [];
 
-    expect(component.salaryForm.get('workedTimePerWeek')?.validator).toBeTruthy();
-    expect(component.salaryForm.get('fullTimeHoursPerWeek')?.validator).toBeTruthy();
+    const formValue = {
+      ...component.formValue,
+      companyCar: true,
+      companyCarCatalogValue: 25000,
+      companyCarFirstPlateRegistrationMonth: '01/2023',
+      companyCarFuelType: FuelType.Diesel,
+      companyCarGramsCo2PerKm: 149,
+    };
+    const input: SalaryCalculationInput = {
+      ...simpleEmployee,
+      grossSalary: 3000,
+    };
+
+    component.onFormValueUpdate(formValue);
+    component.onNewInput(input);
+    expect(component.chartData).not.toEqual([]);
+    expect(component.sankeyData).not.toEqual([]);
   });
 
-  it('should set correct validation when unchecking the dependents checkbox', () => {
-    component.onHasChildrenChanged(false);
+  it('should update charts when receiving new input with a company car checked but not defined', () => {
+    component.chartData = [];
 
-    expect(component.salaryForm.get('numDependentChildren')?.validator).toBeFalsy();
-    expect(component.salaryForm.get('numDisabledDependentChildren')?.validator).toBeFalsy();
-    expect(component.salaryForm.get('numDependentRetirees')?.validator).toBeFalsy();
-    expect(component.salaryForm.get('numDependentOthers')?.validator).toBeFalsy();
-    expect(component.salaryForm.get('numDisabledDependentOthers')?.validator).toBeFalsy();
+    const formValue = {
+      ...component.formValue,
+      companyCar: true,
+      companyCarCatalogValue: null,
+      companyCarFirstPlateRegistrationMonth: null,
+      companyCarFuelType: null,
+      companyCarGramsCo2PerKm: null,
+    };
+    const input: SalaryCalculationInput = {
+      ...simpleEmployee,
+      grossSalary: 3000,
+    };
+
+    component.onFormValueUpdate(formValue);
+    component.onNewInput(input);
+    expect(component.chartData).not.toEqual([]);
+    expect(component.sankeyData).not.toEqual([]);
   });
 
-  it('should set correct validation when checking the dependents checkbox', () => {
-    component.onHasChildrenChanged(true);
+  it('should update charts when receiving new input with group insurance checked', () => {
+    component.chartData = [];
 
-    expect(component.salaryForm.get('numDependentChildren')?.validator).toBeTruthy();
-    expect(component.salaryForm.get('numDisabledDependentChildren')?.validator).toBeTruthy();
-    expect(component.salaryForm.get('numDependentRetirees')?.validator).toBeTruthy();
-    expect(component.salaryForm.get('numDependentOthers')?.validator).toBeTruthy();
-    expect(component.salaryForm.get('numDisabledDependentOthers')?.validator).toBeTruthy();
+    const formValue = {
+      ...component.formValue,
+      groupInsurance: true,
+      groupInsurancePersonalContribution: 50,
+    };
+    const input: SalaryCalculationInput = {
+      ...simpleEmployee,
+    };
+
+    component.onFormValueUpdate(formValue);
+    component.onNewInput(input);
+    expect(component.chartData).not.toEqual([]);
+    expect(component.sankeyData).not.toEqual([]);
   });
 
-  it('should run the calculation with no errors with holiday pay', () => {
-    component.salaryForm.get('grossSalary')?.setValue(3000);
-    component.salaryForm.get('holidayPay')?.setValue(3000);
+  it('should update charts when receiving new input with group insurance checked but not defined', () => {
+    component.chartData = [];
 
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
-  });
+    const formValue = {
+      ...component.formValue,
+      groupInsurance: true,
+      groupInsurancePersonalContribution: null,
+    };
+    const input: SalaryCalculationInput = {
+      ...simpleEmployee,
+      // mealVoucherAmounts: {
+      //   value: 0,
+      //   personalContribution: 0,
+      // },
+      // numMealVouchers: 1,
+    };
 
-  it('should run the calculation with no errors with group insurance', () => {
-    component.salaryForm.get('grossSalary')?.setValue(3000);
-    component.salaryForm.get('groupInsurance')?.setValue(true);
-    component.salaryForm.get('groupInsurancePersonalCotisation')?.setValue(50);
-
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
-  });
-
-  it('should run the calculation with no errors with group insurance checked but unset', () => {
-    component.salaryForm.get('grossSalary')?.setValue(3000);
-    component.salaryForm.get('groupInsurance')?.setValue(true);
-
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
-  });
-
-  it('should run the calculation with no errors with a bonus', () => {
-    component.salaryForm.get('grossSalary')?.setValue(3000);
-    component.salaryForm.get('bonus')?.setValue(3000);
-
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
-  });
-
-  it('should run the calculation with no errors with other net income', () => {
-    component.salaryForm.get('grossSalary')?.setValue(3000);
-    component.salaryForm.get('otherNetIncome')?.setValue(1000);
-
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
-  });
-
-  function setupYearlyCalculation() {
-    component.periodTabIndex = 1;
-    component.onPeriodTabSelected();
-
-    component.monthlySalaryRows.controls.forEach(control => {
-      control.get('grossSalary')?.setValue(3000);
-    });
-
-    component.monthlySalaryRows.controls[5].get('holidayPay')?.setValue(3000);
-    component.monthlySalaryRows.controls[component.monthlySalaryRows.controls.length - 1].get('bonus')?.setValue(3000);
-  }
-
-  it('should run the yearly calculation with no errors', () => {
-    setupYearlyCalculation();
-    expect(component.salaryForm.errors).toBeNull();
-    expect(component.salaryForm.value.mode).toBe(Mode.FullYear);
-    expect(component.salaryForm.valid).toBeTrue();
-
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
-  });
-
-  it('should run the yearly calculation with no errors with group insurance', () => {
-    component.salaryForm.get('groupInsurance')?.setValue(true);
-    component.salaryForm.get('groupInsurancePersonalCotisation')?.setValue(50);
-
-    setupYearlyCalculation();
-    expect(component.salaryForm.value.mode).toBe(Mode.FullYear);
-    expect(component.salaryForm.errors).toBeNull();
-    expect(component.salaryForm.valid).toBeTrue();
-
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
-  });
-
-  it('should run the yearly calculation with no errors with group insurance checked but unset', () => {
-    component.salaryForm.get('groupInsurance')?.setValue(true);
-
-    setupYearlyCalculation();
-
-    component.onSubmit();
-    expect(component.result).toBeTruthy();
+    component.onFormValueUpdate(formValue);
+    component.onNewInput(input);
+    expect(component.chartData).not.toEqual([]);
+    expect(component.sankeyData).not.toEqual([]);
   });
 
   it('should not update chart data when the salary range is impossible', () => {

@@ -6,7 +6,7 @@ import { TaxationInfo } from './data/interfaces';
 
 
 interface MonthlyTaxReductionsForLowSalaries {
-  monthlyTaxReductionsForLowSalaries: Decimal;
+  monthlyProfessionalWithholdingTaxReductionsForLowSalaries: Decimal;
   employmentBonus: Decimal;
   employmentBonusWasCapped: boolean;
 }
@@ -21,7 +21,7 @@ enum ExceptionalAllocationType {
   Bonus = 'bonus',
 }
 
-export { taxationInfo2024, taxationInfo2025 }
+export { taxationInfo2024, taxationInfo2025 };
 
 export interface TaxationResultInternal {
   grossSalary: Decimal;
@@ -32,18 +32,21 @@ export interface TaxationResultInternal {
   employmentBonusWasCapped: boolean;
   socialCotisationsAfterReductions: Decimal;
   socialCotisationsAfterReductionsProportion: Decimal;
+  companyCarBenefitInKindValue: Decimal;
   taxableIncome: Decimal;
+  taxableIncomeIncludingBenefitsInKind: Decimal;
   flatRateProfessionalExpenses: Decimal;
   professionalWithholdingTaxes: Decimal;
   professionalWithholdingTaxesByTier: TaxesForTierInternal[];
-  otherMonthlyTaxReductions: Decimal;
-  monthlyTaxReductionsForLowSalaries: Decimal;
-  monthlyTaxReductionsForGroupInsurance: Decimal;
+  otherProfessionalWithholdingTaxReductions: Decimal;
+  monthlyProfessionalWithholdingTaxReductionsForLowSalaries: Decimal;
+  monthlyProfessionalWithholdingTaxReductionsForGroupInsurance: Decimal;
   otherNetIncome: Decimal;
   mealVouchersCost: Decimal;
   mealVouchersValue: Decimal;
-  taxesAfterReductions: Decimal;
-  taxesAfterReductionsProportion: Decimal;
+  companyCarPersonalContribution: Decimal;
+  professionalWithholdingTaxesAfterReductions: Decimal;
+  professionalWithholdingTaxesAfterReductionsProportion: Decimal;
   netToGrossRatio: Decimal;
   averageTaxRate: Decimal;
   netSalary: Decimal;
@@ -62,18 +65,21 @@ export interface TaxationResult {
   employmentBonusWasCapped: boolean;
   socialCotisationsAfterReductions: number;
   socialCotisationsAfterReductionsProportion: number;
+  companyCarBenefitInKindValue: number;
   taxableIncome: number;
+  taxableIncomeIncludingBenefitsInKind: number;
   flatRateProfessionalExpenses: number;
   professionalWithholdingTaxes: number;
   professionalWithholdingTaxesByTier: TaxesForTier[];
-  otherMonthlyTaxReductions: number;
-  monthlyTaxReductionsForLowSalaries: number;
-  monthlyTaxReductionsForGroupInsurance: number;
+  otherProfessionalWithholdingTaxReductions: number;
+  monthlyProfessionalWithholdingTaxReductionsForLowSalaries: number;
+  monthlyProfessionalWithholdingTaxReductionsForGroupInsurance: number;
   otherNetIncome: number;
   mealVouchersCost: number;
   mealVouchersValue: number;
-  taxesAfterReductions: number;
-  taxesAfterReductionsProportion: number;
+  companyCarPersonalContribution: number;
+  professionalWithholdingTaxesAfterReductions: number;
+  professionalWithholdingTaxesAfterReductionsProportion: number;
   netToGrossRatio: number;
   averageTaxRate: number;
   netSalary: number;
@@ -165,6 +171,7 @@ export interface SalaryCalculationInput extends MonthlyIncome {
   yearlyGrossIncome?: number;
   groupInsurancePersonalContribution: number;
   mealVoucherAmounts: MealVoucherAmounts;
+  companyCarInfo: VehicleInfo | null;
 }
 
 export interface YearlySalaryCalculationInput {
@@ -177,8 +184,9 @@ export interface YearlySalaryCalculationInput {
   disabled: boolean;
   hasDisabledPartner: boolean;
   groupInsurancePersonalContribution: number;
-  monthlyIncomes: MonthlyIncome[];
   mealVoucherAmounts: MealVoucherAmounts;
+  companyCarInfo: VehicleInfo | null;
+  monthlyIncomes: MonthlyIncome[];
 }
 
 interface ExceptionalAllocationTaxationInternal {
@@ -199,6 +207,22 @@ interface MealVoucherAmounts {
   value: number;
   personalContribution: number;
 }
+
+export enum FuelType {
+  Electric = 'electric',
+  Hybrid = 'hybrid',
+  Diesel = 'diesel',
+  Gasoline = 'gasoline',
+  NaturalGas = 'natural_gas',
+};
+
+export interface VehicleInfo {
+  catalogValue: number,
+  firstPlateRegistrationMonth: Date,
+  fuelType: FuelType,
+  gramsCo2PerKm: number | null,
+  personalContribution?: number,
+};
 
 const D = (value: number | string | null): Decimal => new Decimal(value || 0);
 
@@ -422,7 +446,7 @@ export class TaxCalculatorService {
     }
 
     let employmentBonus = D(0);
-    let monthlyTaxReductionsForLowSalaries = D(0);
+    let monthlyProfessionalWithholdingTaxReductionsForLowSalaries = D(0);
 
     let employmentBonusInfo;
 
@@ -484,7 +508,7 @@ export class TaxCalculatorService {
       employmentBonusWasCapped = true;
     }
 
-    monthlyTaxReductionsForLowSalaries = monthlyTaxReductionsForLowSalaries
+    monthlyProfessionalWithholdingTaxReductionsForLowSalaries = monthlyProfessionalWithholdingTaxReductionsForLowSalaries
       .plus(
         employmentBonusA
           .times(taxationInfo.employmentBonusInfo.partAProfessionalWithHoldingTaxReductionPercentage)
@@ -497,7 +521,7 @@ export class TaxCalculatorService {
 
     return {
       employmentBonus,
-      monthlyTaxReductionsForLowSalaries,
+      monthlyProfessionalWithholdingTaxReductionsForLowSalaries,
       employmentBonusWasCapped,
     };
   }
@@ -585,17 +609,20 @@ export class TaxCalculatorService {
     let specialSocialCotisations = D(0);
     let employmentBonus = D(0);
     let employmentBonusWasCapped = false;
+    let companyCarBenefitInKindValue = D(0);
     let taxableIncome = D(0);
+    let taxableIncomeIncludingBenefitsInKind = D(0);
     let flatRateProfessionalExpenses = D(0);
     let professionalWithholdingTaxes = D(0);
     let professionalWithholdingTaxesByTierInternal: TaxesForTierInternal[] = [];
-    let monthlyTaxReductionsForLowSalaries = D(0);
-    let monthlyTaxReductionsForGroupInsurance = D(0);
+    let monthlyProfessionalWithholdingTaxReductionsForLowSalaries = D(0);
+    let monthlyProfessionalWithholdingTaxReductionsForGroupInsurance = D(0);
     let otherNetIncome = D(0);
     let mealVouchersCost = D(0);
     let mealVouchersValue = D(0);
-    let otherMonthlyTaxReductions = D(0);
-    let taxesAfterReductions = D(0);
+    let companyCarPersonalContribution = D(0);
+    let otherProfessionalWithholdingTaxReductions = D(0);
+    let professionalWithholdingTaxesAfterReductions = D(0);
     let netSalary = D(0);
     let groupInsurancePersonalContributions = D(0);
     let totalHolidayPayTaxation: ExceptionalAllocationTaxationInternal = {
@@ -625,17 +652,20 @@ export class TaxCalculatorService {
         specialSocialCotisations = yearlyTaxation.specialSocialCotisations;
         employmentBonus = yearlyTaxation.employmentBonus;
         employmentBonusWasCapped = yearlyTaxation.employmentBonusWasCapped;
+        companyCarBenefitInKindValue = yearlyTaxation.companyCarBenefitInKindValue;
         taxableIncome = yearlyTaxation.taxableIncome;
+        taxableIncomeIncludingBenefitsInKind = yearlyTaxation.taxableIncomeIncludingBenefitsInKind;
         flatRateProfessionalExpenses = yearlyTaxation.flatRateProfessionalExpenses;
         professionalWithholdingTaxes = yearlyTaxation.professionalWithholdingTaxes;
         professionalWithholdingTaxesByTierInternal = yearlyTaxation.professionalWithholdingTaxesByTier;
-        monthlyTaxReductionsForLowSalaries = yearlyTaxation.monthlyTaxReductionsForLowSalaries;
-        monthlyTaxReductionsForGroupInsurance = yearlyTaxation.monthlyTaxReductionsForGroupInsurance;
+        monthlyProfessionalWithholdingTaxReductionsForLowSalaries = yearlyTaxation.monthlyProfessionalWithholdingTaxReductionsForLowSalaries;
+        monthlyProfessionalWithholdingTaxReductionsForGroupInsurance = yearlyTaxation.monthlyProfessionalWithholdingTaxReductionsForGroupInsurance;
         mealVouchersCost = yearlyTaxation.mealVouchersCost;
         mealVouchersValue = yearlyTaxation.mealVouchersValue;
+        companyCarPersonalContribution = yearlyTaxation.companyCarPersonalContribution;
         otherNetIncome = yearlyTaxation.otherNetIncome;
-        otherMonthlyTaxReductions = yearlyTaxation.otherMonthlyTaxReductions;
-        taxesAfterReductions = yearlyTaxation.taxesAfterReductions;
+        otherProfessionalWithholdingTaxReductions = yearlyTaxation.otherProfessionalWithholdingTaxReductions;
+        professionalWithholdingTaxesAfterReductions = yearlyTaxation.professionalWithholdingTaxesAfterReductions;
         netSalary = yearlyTaxation.netSalary;
         groupInsurancePersonalContributions = D(yearlyTaxation.groupInsurancePersonalContribution);
 
@@ -654,6 +684,7 @@ export class TaxCalculatorService {
         const monthlyTaxation = this.calculateMonthlyTaxation(input);
 
         totalGross = D(input.grossSalary)
+          .plus(companyCarBenefitInKindValue || 0)
           .plus(input.bonus || 0)
           .plus(input.holidayPay || 0)
           .plus(input.otherNetIncome || 0);
@@ -663,17 +694,20 @@ export class TaxCalculatorService {
         specialSocialCotisations = monthlyTaxation.specialSocialCotisations;
         employmentBonus = monthlyTaxation.employmentBonus;
         employmentBonusWasCapped = monthlyTaxation.employmentBonusWasCapped;
+        companyCarBenefitInKindValue = monthlyTaxation.companyCarBenefitInKindValue;
         taxableIncome = monthlyTaxation.taxableIncome;
+        taxableIncomeIncludingBenefitsInKind = monthlyTaxation.taxableIncomeIncludingBenefitsInKind;
         flatRateProfessionalExpenses = monthlyTaxation.flatRateProfessionalExpenses;
         professionalWithholdingTaxes = monthlyTaxation.professionalWithholdingTaxes;
         professionalWithholdingTaxesByTierInternal = monthlyTaxation.professionalWithholdingTaxesByTier;
-        monthlyTaxReductionsForLowSalaries = monthlyTaxation.monthlyTaxReductionsForLowSalaries;
-        monthlyTaxReductionsForGroupInsurance = monthlyTaxation.monthlyTaxReductionsForGroupInsurance;
+        monthlyProfessionalWithholdingTaxReductionsForLowSalaries = monthlyTaxation.monthlyProfessionalWithholdingTaxReductionsForLowSalaries;
+        monthlyProfessionalWithholdingTaxReductionsForGroupInsurance = monthlyTaxation.monthlyProfessionalWithholdingTaxReductionsForGroupInsurance;
         mealVouchersCost = monthlyTaxation.mealVouchersCost;
         mealVouchersValue = monthlyTaxation.mealVouchersValue;
+        companyCarPersonalContribution = monthlyTaxation.companyCarPersonalContribution;
         otherNetIncome = monthlyTaxation.otherNetIncome;
-        otherMonthlyTaxReductions = monthlyTaxation.otherMonthlyTaxReductions;
-        taxesAfterReductions = monthlyTaxation.taxesAfterReductions;
+        otherProfessionalWithholdingTaxReductions = monthlyTaxation.otherProfessionalWithholdingTaxReductions;
+        professionalWithholdingTaxesAfterReductions = monthlyTaxation.professionalWithholdingTaxesAfterReductions;
         netSalary = monthlyTaxation.netSalary;
         groupInsurancePersonalContributions = D(input.groupInsurancePersonalContribution);
 
@@ -709,17 +743,17 @@ export class TaxCalculatorService {
     }
 
     const taxationGrandTotal = socialCotisationsAfterReductions
-      .plus(taxesAfterReductions)
+      .plus(professionalWithholdingTaxesAfterReductions)
       .plus(specialSocialCotisations);
 
     let specialSocialCotisationsProportion = D(0);
     let socialCotisationsAfterReductionsProportion = D(0);
-    let taxesAfterReductionsProportion = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportion = D(0);
 
     if (!taxationGrandTotal.isZero()) {
       specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
       socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-      taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportion = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
     }
 
     return {
@@ -731,18 +765,21 @@ export class TaxCalculatorService {
       employmentBonusWasCapped: employmentBonusWasCapped,
       socialCotisationsAfterReductions: socialCotisationsAfterReductions.toNumber(),
       socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion.toNumber(),
+      companyCarBenefitInKindValue: companyCarBenefitInKindValue.toNumber(),
       taxableIncome: taxableIncome.toNumber(),
+      taxableIncomeIncludingBenefitsInKind: taxableIncomeIncludingBenefitsInKind.toNumber(),
       flatRateProfessionalExpenses: flatRateProfessionalExpenses.toNumber(),
       professionalWithholdingTaxes: professionalWithholdingTaxes.toNumber(),
       professionalWithholdingTaxesByTier,
-      otherMonthlyTaxReductions: otherMonthlyTaxReductions.toNumber(),
-      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries.toNumber(),
-      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance.toNumber(),
+      otherProfessionalWithholdingTaxReductions: otherProfessionalWithholdingTaxReductions.toNumber(),
+      monthlyProfessionalWithholdingTaxReductionsForLowSalaries: monthlyProfessionalWithholdingTaxReductionsForLowSalaries.toNumber(),
+      monthlyProfessionalWithholdingTaxReductionsForGroupInsurance: monthlyProfessionalWithholdingTaxReductionsForGroupInsurance.toNumber(),
       otherNetIncome: otherNetIncome.toNumber(),
       mealVouchersCost: mealVouchersCost.toNumber(),
       mealVouchersValue: mealVouchersValue.toNumber(),
-      taxesAfterReductions: taxesAfterReductions.toNumber(),
-      taxesAfterReductionsProportion: taxesAfterReductionsProportion.toNumber(),
+      companyCarPersonalContribution: companyCarPersonalContribution.toNumber(),
+      professionalWithholdingTaxesAfterReductions: professionalWithholdingTaxesAfterReductions.toNumber(),
+      professionalWithholdingTaxesAfterReductionsProportion: professionalWithholdingTaxesAfterReductionsProportion.toNumber(),
       netToGrossRatio: netToGrossRatio.toNumber(),
       averageTaxRate: averageTaxRate.toNumber(),
       netSalary: netSalary.toNumber(),
@@ -766,7 +803,7 @@ export class TaxCalculatorService {
   private calculateYearlyTaxation(input: YearlySalaryCalculationInput): TaxationResultInternal {
     const taxationInfo = this.getTaxationInfo(input.revenueYear);
     const employmentBonusAndTaxReductions: MonthlyTaxReductionsForLowSalaries = {
-      monthlyTaxReductionsForLowSalaries: D(0),
+      monthlyProfessionalWithholdingTaxReductionsForLowSalaries: D(0),
       employmentBonus: D(0),
       employmentBonusWasCapped: false,
     }
@@ -812,8 +849,8 @@ export class TaxCalculatorService {
 
       employmentBonusAndTaxReductions.employmentBonus = employmentBonusAndTaxReductions.employmentBonus
         .plus(monthEmploymentBonusAndTaxReductions.employmentBonus);
-      employmentBonusAndTaxReductions.monthlyTaxReductionsForLowSalaries = employmentBonusAndTaxReductions.monthlyTaxReductionsForLowSalaries
-        .plus(monthEmploymentBonusAndTaxReductions.monthlyTaxReductionsForLowSalaries);
+      employmentBonusAndTaxReductions.monthlyProfessionalWithholdingTaxReductionsForLowSalaries = employmentBonusAndTaxReductions.monthlyProfessionalWithholdingTaxReductionsForLowSalaries
+        .plus(monthEmploymentBonusAndTaxReductions.monthlyProfessionalWithholdingTaxReductionsForLowSalaries);
       employmentBonusAndTaxReductions.employmentBonusWasCapped = employmentBonusAndTaxReductions.employmentBonusWasCapped || monthEmploymentBonusAndTaxReductions.employmentBonusWasCapped;
 
       numMealVouchers += monthlyIncome.numMealVouchers;
@@ -844,25 +881,42 @@ export class TaxCalculatorService {
 
     const employmentBonus = employmentBonusAndTaxReductions.employmentBonus;
     const employmentBonusWasCapped = employmentBonusAndTaxReductions.employmentBonusWasCapped;
-    const monthlyTaxReductionsForLowSalaries = employmentBonusAndTaxReductions.monthlyTaxReductionsForLowSalaries;
+    const monthlyProfessionalWithholdingTaxReductionsForLowSalaries = employmentBonusAndTaxReductions.monthlyProfessionalWithholdingTaxReductionsForLowSalaries;
+    let companyCarBenefitInKindValue = D(0);
+    let companyCarPersonalContribution = D(0);
 
-    const taxableIncome = yearlyGrossSalary.minus(socialCotisations).plus(employmentBonus);
+    if (input.companyCarInfo) {
+      for (let month = 1; month < 13; month++) {
+        const monthlyBenefitInKindValue = this.calculateCompanyCarBenefitInKindValue(
+          taxationInfo,
+          input.companyCarInfo,
+          month,
+        );
+
+        companyCarBenefitInKindValue = companyCarBenefitInKindValue.plus(monthlyBenefitInKindValue);
+        companyCarPersonalContribution = companyCarPersonalContribution.plus(input.companyCarInfo.personalContribution || 0);
+      }
+    }
+
+    const socialCotisationsAfterReductions = socialCotisations.minus(employmentBonus).clampedTo(0, Infinity);
+    const taxableIncome = yearlyGrossSalary.minus(socialCotisationsAfterReductions);
+    const taxableIncomeIncludingBenefitsInKind = taxableIncome.plus(companyCarBenefitInKindValue);
 
     // Calculate flat rate professional expenses
     let flatRateProfessionalExpenses = D(0);
 
     for (const tier of taxationInfo.flatRateProfessionalExpenseTiers) {
-      if (taxableIncome.lte(tier.to)) {
+      if (taxableIncomeIncludingBenefitsInKind.lte(tier.to)) {
         flatRateProfessionalExpenses = tier.flat_rate
           .plus(
-            taxableIncome
+            taxableIncomeIncludingBenefitsInKind
               .times(tier.percentage.div(100))
           ).toDP(2);
         break;
       }
     }
 
-    const annualTaxableIncome = taxableIncome.minus(flatRateProfessionalExpenses);
+    const annualTaxableIncome = taxableIncomeIncludingBenefitsInKind.minus(flatRateProfessionalExpenses);
 
     // Calculate annual base tax
     const annualTaxes = this.calculateAnnualBaseTax(
@@ -953,7 +1007,7 @@ export class TaxCalculatorService {
 
     const monthlyTaxes = annualBaseTax.toDP(2);
     const monthlyTaxReductions = annualTaxReductions.toDP(2);
-    const monthlyTaxReductionsForGroupInsurance = yearlyGroupInsurancePersonalContribution.times(30).div(100).toDP(2);
+    const monthlyProfessionalWithholdingTaxReductionsForGroupInsurance = yearlyGroupInsurancePersonalContribution.times(30).div(100).toDP(2);
 
     const mealVouchersCost = D(numMealVouchers).times(input.mealVoucherAmounts.personalContribution);
     const mealVouchersValue = D(numMealVouchers).times(input.mealVoucherAmounts.value);
@@ -962,34 +1016,34 @@ export class TaxCalculatorService {
       Decimal.max(
         monthlyTaxes
           .minus(monthlyTaxReductions)
-          .minus(monthlyTaxReductionsForGroupInsurance)
-          .minus(monthlyTaxReductionsForLowSalaries),
+          .minus(monthlyProfessionalWithholdingTaxReductionsForGroupInsurance)
+          .minus(monthlyProfessionalWithholdingTaxReductionsForLowSalaries),
         0,
       )
     ).minus(specialSocialCotisations)
       .minus(yearlyGroupInsurancePersonalContribution)
       .minus(mealVouchersCost)
+      .minus(companyCarPersonalContribution)
       .plus(yearlyOtherNetIncome);
 
-    const socialCotisationsAfterReductions = socialCotisations.minus(employmentBonus).clampedTo(0, Infinity);
-    const taxesAfterReductions = monthlyTaxes
+    const professionalWithholdingTaxesAfterReductions = monthlyTaxes
       .minus(monthlyTaxReductions)
-      .minus(monthlyTaxReductionsForGroupInsurance)
-      .minus(monthlyTaxReductionsForLowSalaries)
+      .minus(monthlyProfessionalWithholdingTaxReductionsForGroupInsurance)
+      .minus(monthlyProfessionalWithholdingTaxReductionsForLowSalaries)
       .clampedTo(0, Infinity);
 
     const taxationGrandTotal = socialCotisationsAfterReductions
-      .plus(taxesAfterReductions)
+      .plus(professionalWithholdingTaxesAfterReductions)
       .plus(specialSocialCotisations);
 
     let specialSocialCotisationsProportion = D(0);
     let socialCotisationsAfterReductionsProportion = D(0);
-    let taxesAfterReductionsProportion = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportion = D(0);
 
     if (!taxationGrandTotal.isZero()) {
       specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
       socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-      taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportion = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
     }
 
     const holidayPayTaxationResult = this.calculateExceptionalAllocationTaxation(
@@ -1013,6 +1067,7 @@ export class TaxCalculatorService {
       .plus(bonusTaxationResult.netExceptionalAllocation);
 
     const totalGross = yearlyGrossSalary
+      .plus(companyCarBenefitInKindValue)
       .plus(yearlyHolidayPay)
       .plus(yearlyBonus)
       .plus(yearlyOtherNetIncome);
@@ -1034,18 +1089,21 @@ export class TaxCalculatorService {
       employmentBonusWasCapped: employmentBonusWasCapped,
       socialCotisationsAfterReductions: socialCotisationsAfterReductions,
       socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion,
+      companyCarBenefitInKindValue: companyCarBenefitInKindValue,
       taxableIncome: taxableIncome,
+      taxableIncomeIncludingBenefitsInKind: taxableIncomeIncludingBenefitsInKind,
       flatRateProfessionalExpenses: flatRateProfessionalExpenses,
       professionalWithholdingTaxes: monthlyTaxes,
       professionalWithholdingTaxesByTier: annualTaxes.taxesByTier,
-      otherMonthlyTaxReductions: monthlyTaxReductions,
-      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries,
-      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance,
+      otherProfessionalWithholdingTaxReductions: monthlyTaxReductions,
+      monthlyProfessionalWithholdingTaxReductionsForLowSalaries: monthlyProfessionalWithholdingTaxReductionsForLowSalaries,
+      monthlyProfessionalWithholdingTaxReductionsForGroupInsurance: monthlyProfessionalWithholdingTaxReductionsForGroupInsurance,
       otherNetIncome: yearlyOtherNetIncome,
       mealVouchersCost: mealVouchersCost,
       mealVouchersValue: mealVouchersValue,
-      taxesAfterReductions: taxesAfterReductions,
-      taxesAfterReductionsProportion: taxesAfterReductionsProportion,
+      companyCarPersonalContribution: companyCarPersonalContribution,
+      professionalWithholdingTaxesAfterReductions: professionalWithholdingTaxesAfterReductions,
+      professionalWithholdingTaxesAfterReductionsProportion: professionalWithholdingTaxesAfterReductionsProportion,
       netToGrossRatio: netToGrossRatio,
       averageTaxRate: averageTaxRate,
       netSalary: netSalary,
@@ -1085,11 +1143,12 @@ export class TaxCalculatorService {
     let socialCotisations = yearlyTaxationResult.socialCotisations.div(12).toDP(2);
     let specialSocialCotisations = yearlyTaxationResult.specialSocialCotisations.div(12).toDP(2);
     let employmentBonus = yearlyTaxationResult.employmentBonus.div(12).toDP(2);
+    let companyCarBenefitInKindValue = yearlyTaxationResult.companyCarBenefitInKindValue.div(12).toDP(2);
     let professionalWithholdingTaxes = yearlyTaxationResult.professionalWithholdingTaxes.div(12).toDP(2);
     let flatRateProfessionalExpenses = yearlyTaxationResult.flatRateProfessionalExpenses.div(12).toDP(2);
-    let otherMonthlyTaxReductions = yearlyTaxationResult.otherMonthlyTaxReductions.div(12).toDP(2);
-    let monthlyTaxReductionsForLowSalaries = yearlyTaxationResult.monthlyTaxReductionsForLowSalaries.div(12).toDP(2);
-    let monthlyTaxReductionsForGroupInsurance = yearlyTaxationResult.monthlyTaxReductionsForGroupInsurance.div(12).toDP(2);
+    let otherProfessionalWithholdingTaxReductions = yearlyTaxationResult.otherProfessionalWithholdingTaxReductions.div(12).toDP(2);
+    let monthlyProfessionalWithholdingTaxReductionsForLowSalaries = yearlyTaxationResult.monthlyProfessionalWithholdingTaxReductionsForLowSalaries.div(12).toDP(2);
+    let monthlyProfessionalWithholdingTaxReductionsForGroupInsurance = yearlyTaxationResult.monthlyProfessionalWithholdingTaxReductionsForGroupInsurance.div(12).toDP(2);
     let otherNetIncome = yearlyTaxationResult.otherNetIncome.div(12).toDP(2);
     let holidayPayTaxation = yearlyTaxationResult.holidayPayTaxation;
     let bonusTaxation = yearlyTaxationResult.bonusTaxation;
@@ -1097,41 +1156,44 @@ export class TaxCalculatorService {
     // Recalculate to ensure amounts match with the rounding
     const socialCotisationsAfterReductions = socialCotisations.minus(employmentBonus).clampedTo(0, Infinity);
     const taxableIncome = grossSalary.minus(socialCotisationsAfterReductions);
+    const taxableIncomeIncludingBenefitsInKind = taxableIncome.plus(companyCarBenefitInKindValue);
 
     const mealVouchersCost = D(input.numMealVouchers).times(input.mealVoucherAmounts.personalContribution);
     const mealVouchersValue = D(input.numMealVouchers).times(input.mealVoucherAmounts.value);
+    const companyCarPersonalContribution = D(input.companyCarInfo?.personalContribution || 0);
 
     const netSalary = taxableIncome.minus(
       Decimal.max(
         professionalWithholdingTaxes
-          .minus(otherMonthlyTaxReductions)
-          .minus(monthlyTaxReductionsForGroupInsurance)
-          .minus(monthlyTaxReductionsForLowSalaries),
+          .minus(otherProfessionalWithholdingTaxReductions)
+          .minus(monthlyProfessionalWithholdingTaxReductionsForGroupInsurance)
+          .minus(monthlyProfessionalWithholdingTaxReductionsForLowSalaries),
         0,
       )
     ).minus(specialSocialCotisations)
       .minus(input.groupInsurancePersonalContribution)
       .minus(mealVouchersCost)
+      .minus(companyCarPersonalContribution)
       .plus(otherNetIncome);
 
-    const taxesAfterReductions = professionalWithholdingTaxes
-      .minus(otherMonthlyTaxReductions)
-      .minus(monthlyTaxReductionsForGroupInsurance)
-      .minus(monthlyTaxReductionsForLowSalaries)
+    const professionalWithholdingTaxesAfterReductions = professionalWithholdingTaxes
+      .minus(otherProfessionalWithholdingTaxReductions)
+      .minus(monthlyProfessionalWithholdingTaxReductionsForGroupInsurance)
+      .minus(monthlyProfessionalWithholdingTaxReductionsForLowSalaries)
       .clampedTo(0, Infinity);
 
     const taxationGrandTotal = socialCotisationsAfterReductions
-      .plus(taxesAfterReductions)
+      .plus(professionalWithholdingTaxesAfterReductions)
       .plus(specialSocialCotisations);
 
     let specialSocialCotisationsProportion = D(0);
     let socialCotisationsAfterReductionsProportion = D(0);
-    let taxesAfterReductionsProportion = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportion = D(0);
 
     if (!taxationGrandTotal.isZero()) {
       specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
       socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-      taxesAfterReductionsProportion = taxesAfterReductions.div(taxationGrandTotal).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportion = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
     }
 
     const netIncome = netSalary
@@ -1167,18 +1229,21 @@ export class TaxCalculatorService {
       employmentBonusWasCapped: yearlyTaxationResult.employmentBonusWasCapped,
       socialCotisationsAfterReductions: socialCotisationsAfterReductions,
       socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion,
+      companyCarBenefitInKindValue: companyCarBenefitInKindValue,
       taxableIncome: taxableIncome,
+      taxableIncomeIncludingBenefitsInKind: taxableIncomeIncludingBenefitsInKind,
       flatRateProfessionalExpenses: flatRateProfessionalExpenses,
       professionalWithholdingTaxes: professionalWithholdingTaxes,
       professionalWithholdingTaxesByTier: monthlyProfessionalWithholdingTaxesByTier,
-      otherMonthlyTaxReductions: otherMonthlyTaxReductions,
-      monthlyTaxReductionsForLowSalaries: monthlyTaxReductionsForLowSalaries,
-      monthlyTaxReductionsForGroupInsurance: monthlyTaxReductionsForGroupInsurance,
+      otherProfessionalWithholdingTaxReductions: otherProfessionalWithholdingTaxReductions,
+      monthlyProfessionalWithholdingTaxReductionsForLowSalaries: monthlyProfessionalWithholdingTaxReductionsForLowSalaries,
+      monthlyProfessionalWithholdingTaxReductionsForGroupInsurance: monthlyProfessionalWithholdingTaxReductionsForGroupInsurance,
       otherNetIncome: otherNetIncome,
       mealVouchersCost: mealVouchersCost,
       mealVouchersValue: mealVouchersValue,
-      taxesAfterReductions: taxesAfterReductions,
-      taxesAfterReductionsProportion: taxesAfterReductionsProportion,
+      companyCarPersonalContribution: companyCarPersonalContribution,
+      professionalWithholdingTaxesAfterReductions: professionalWithholdingTaxesAfterReductions,
+      professionalWithholdingTaxesAfterReductionsProportion: professionalWithholdingTaxesAfterReductionsProportion,
       netToGrossRatio: netToGrossRatio,
       averageTaxRate: averageTaxRate,
       netSalary: netSalary,
@@ -1189,5 +1254,90 @@ export class TaxCalculatorService {
     }
 
     return monthlyTaxationResult;
+  }
+
+  private isLeapYear(year: number): boolean {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  }
+
+  private monthsForDeprecation(startDate: Date, endDate: Date): number {
+    // Ensure the current date is after the start date
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth() + 1;
+
+    const currentYear = endDate.getFullYear();
+    const currentMonth = endDate.getMonth() + 1;
+
+    // Calculate the difference in years and months
+    let monthDiff = (currentYear - startYear) * 12 + (currentMonth - startMonth);
+
+    // Round up the result to ensure we count any started month as a full month
+    return Math.ceil(monthDiff + 1);  // Add 1 to count the current month as "started"
+  }
+
+  private calculateCompanyCarBenefitInKindValue(
+    taxationInfo: TaxationInfo,
+    vehicleInfo: VehicleInfo,
+    month: number,
+  ) {
+    const currentYear = taxationInfo.year;
+
+    const ageMonths = this.monthsForDeprecation(vehicleInfo.firstPlateRegistrationMonth, new Date(currentYear, month - 1));
+
+    const isLeapYear = this.isLeapYear(taxationInfo.year);
+    const numDaysInYear = D(isLeapYear ? 366 : 365);
+    const numDaysInCurrentMonth = D(new Date(currentYear, month, 0).getDate());
+
+    const catalogValueWeighted = D(vehicleInfo.catalogValue).times(6).div(7);
+    let deprecationMultiplier = D(1);
+
+    for (let tier of taxationInfo.vehicleAgeDepreciationTiers) {
+      if (D(ageMonths).lte(tier.ageRange.to)) {
+        deprecationMultiplier = tier.multiplier;
+        break;
+      }
+    }
+
+    let referenceCO2Emissions;
+    let defaultGramsCo2PerKm: Decimal;
+
+    switch (vehicleInfo.fuelType) {
+      case FuelType.Diesel:
+        referenceCO2Emissions = taxationInfo.referenceCO2Diesel;
+        defaultGramsCo2PerKm = taxationInfo.defaultCO2Diesel;
+        break;
+      case FuelType.Electric:
+        referenceCO2Emissions = 0;
+        defaultGramsCo2PerKm = D(0);
+        break;
+      default:
+        referenceCO2Emissions = taxationInfo.referenceCO2Other;
+        defaultGramsCo2PerKm = taxationInfo.defaultCO2Other;
+        break;
+    }
+
+    let gramsCo2PerKm: Decimal;
+
+    if (vehicleInfo.gramsCo2PerKm != null) {
+      gramsCo2PerKm = D(vehicleInfo.gramsCo2PerKm);
+    } else {
+      gramsCo2PerKm = defaultGramsCo2PerKm;
+    }
+
+    const co2Multiplier = taxationInfo.baseCO2Percentage
+      .plus(
+        gramsCo2PerKm
+        .minus(referenceCO2Emissions)
+        .div(10)
+    ).clampedTo(taxationInfo.minCO2Percentage, taxationInfo.maxO2Percentage).div(100);
+
+    return catalogValueWeighted
+      .times(deprecationMultiplier)
+      .times(numDaysInCurrentMonth.div(numDaysInYear))
+      .times(co2Multiplier)
+      .clampedTo(taxationInfo.minimumVehicleTaxedAmount.div(12), Infinity)
+      .minus(vehicleInfo.personalContribution || 0)
+      .clampedTo(0, Infinity)
+      .toDP(2);
   }
 }

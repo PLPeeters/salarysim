@@ -1,0 +1,15 @@
+mat-list-item {
+  height: auto !important;
+
+  mat-list {
+    margin-top: -32px;
+
+    mat-list-item {
+      padding-left: 0;
+
+      mat-icon {
+        margin-left: 0;
+      }
+    }
+  }
+}

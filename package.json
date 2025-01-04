@@ -7,8 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "deploy": "ng deploy",
-    "test": "ng test --code-coverage --code-coverage-exclude 'src/app/directives/**'",
-    "test-headless": "ng test --browsers ChromeHeadless --code-coverage --code-coverage-exclude 'src/app/directives/**' --watch false"
+    "test": "ng test --code-coverage",
+    "test-headless": "ng test --browsers ChromeHeadless --code-coverage --watch false"
   },
   "private": true,
   "dependencies": {

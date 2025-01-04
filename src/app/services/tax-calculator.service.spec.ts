@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 
-import { FamilySituation, TaxationPeriod, TaxCalculatorService } from './tax-calculator.service';
 import { INPUTS_TO_NET as INPUTS_TO_NET_2024, simpleEmployee } from './data/2024-inputs-to-net';
 import { INPUTS_TO_NET as INPUTS_TO_NET_2025 } from './data/2025-inputs-to-net';
+import { FamilySituation, TaxationPeriod, TaxCalculatorService } from './tax-calculator.service';
+
 
 describe('TaxCalculatorService', () => {
   let service: TaxCalculatorService;
