@@ -120,6 +120,8 @@ export class MainComponent implements OnInit {
   private averageTaxRateString: String = '';
   private socialCotisationsString: String = '';
   private specialSocialCotisationString: String = '';
+  private groupInsurancePersonalContributionString: String = '';
+  private companyCarPersonalContributionString: String = '';
   private professionalWithholdingTaxString: String = '';
 
   formatAmount = this.formattingService.formatAmount;
@@ -190,9 +192,11 @@ export class MainComponent implements OnInit {
       netIncome: this.translocoService.selectTranslate('net_income').pipe(take(1)),
       relativeNetIncrease: this.translocoService.selectTranslate('relative_net_increase').pipe(take(1)),
       averageTaxRate: this.translocoService.selectTranslate('average_tax_rate').pipe(take(1)),
-      socialCotisationsString: this.translocoService.selectTranslate('personal_social_contributions').pipe(take(1)),
-      specialSocialCotisationString: this.translocoService.selectTranslate('special_social_cotisations').pipe(take(1)),
-      professionalWithholdingTaxString: this.translocoService.selectTranslate('professional_withholding_tax').pipe(take(1)),
+      socialCotisations: this.translocoService.selectTranslate('personal_social_contributions').pipe(take(1)),
+      specialSocialCotisation: this.translocoService.selectTranslate('special_social_cotisations').pipe(take(1)),
+      professionalWithholdingTax: this.translocoService.selectTranslate('professional_withholding_tax').pipe(take(1)),
+      groupInsurancePersonalContribution: this.translocoService.selectTranslate('group_insurance_personal_contribution').pipe(take(1)),
+      companyCarPersonalContribution: this.translocoService.selectTranslate('other_net_income').pipe(take(1)),
     }).subscribe(translations => {
       this.grossSalaryString = translations.grossSalary;
       this.doubleHolidayPayString = translations.doubleHolidayPay;
@@ -202,9 +206,11 @@ export class MainComponent implements OnInit {
       this.netIncomeString = translations.netIncome;
       this.relativeNetIncreaseString = translations.relativeNetIncrease;
       this.averageTaxRateString = translations.averageTaxRate;
-      this.socialCotisationsString = translations.socialCotisationsString;
-      this.specialSocialCotisationString = translations.specialSocialCotisationString;
-      this.professionalWithholdingTaxString = translations.professionalWithholdingTaxString;
+      this.socialCotisationsString = translations.socialCotisations;
+      this.specialSocialCotisationString = translations.specialSocialCotisation;
+      this.professionalWithholdingTaxString = translations.professionalWithholdingTax;
+      this.groupInsurancePersonalContributionString = translations.groupInsurancePersonalContribution;
+      this.companyCarPersonalContributionString = translations.companyCarPersonalContribution;
 
       this.updateChartData();
       this.loading = false;;
@@ -307,6 +313,14 @@ export class MainComponent implements OnInit {
 
       if (this.result.specialSocialCotisations) {
         this.sankeyData.push({ source: this.grossSalaryString, target: this.specialSocialCotisationString, value: this.result.specialSocialCotisations });
+      }
+
+      if (this.result.groupInsurancePersonalContribution) {
+        this.sankeyData.push({ source: this.grossSalaryString, target: this.groupInsurancePersonalContributionString, value: this.result.groupInsurancePersonalContribution });
+      }
+
+      if (this.result.companyCarPersonalContribution) {
+        this.sankeyData.push({ source: this.grossSalaryString, target: this.companyCarPersonalContributionString, value: this.result.groupInsurancePersonalContribution });
       }
 
       if (this.result.otherNetIncome) {
