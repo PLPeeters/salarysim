@@ -120,9 +120,13 @@ export class MainComponent implements OnInit {
   private averageTaxRateString: String = '';
   private socialCotisationsString: String = '';
   private specialSocialCotisationString: String = '';
+  private taxableGrossIncomeString: String = '';
   private groupInsurancePersonalContributionString: String = '';
-  private companyCarPersonalContributionString: String = '';
   private professionalWithholdingTaxString: String = '';
+  private companyCarBenefitInKindValueString: String = '';
+  private companyCarContributionString: String = '';
+  private mealVouchersString: String = '';
+  private mealVouchersEmployerContributionString: String = '';
 
   formatAmount = this.formattingService.formatAmount;
   formatPct = this.formattingService.formatPct;
@@ -194,9 +198,13 @@ export class MainComponent implements OnInit {
       averageTaxRate: this.translocoService.selectTranslate('average_tax_rate').pipe(take(1)),
       socialCotisations: this.translocoService.selectTranslate('personal_social_contributions').pipe(take(1)),
       specialSocialCotisation: this.translocoService.selectTranslate('special_social_cotisations').pipe(take(1)),
+      taxableGrossIncome: this.translocoService.selectTranslate('taxable_gross_income').pipe(take(1)),
       professionalWithholdingTax: this.translocoService.selectTranslate('professional_withholding_tax').pipe(take(1)),
       groupInsurancePersonalContribution: this.translocoService.selectTranslate('group_insurance_personal_contribution').pipe(take(1)),
-      companyCarPersonalContribution: this.translocoService.selectTranslate('other_net_income').pipe(take(1)),
+      companyCarBenefitInKindValue: this.translocoService.selectTranslate('company_car_benefit_in_kind_value').pipe(take(1)),
+      companyCarContribution: this.translocoService.selectTranslate('company_car_contribution').pipe(take(1)),
+      mealVouchers: this.translocoService.selectTranslate('meal_vouchers').pipe(take(1)),
+      mealVouchersEmployerContribution: this.translocoService.selectTranslate('meal_vouchers_employer_contribution').pipe(take(1)),
     }).subscribe(translations => {
       this.grossSalaryString = translations.grossSalary;
       this.doubleHolidayPayString = translations.doubleHolidayPay;
@@ -208,9 +216,13 @@ export class MainComponent implements OnInit {
       this.averageTaxRateString = translations.averageTaxRate;
       this.socialCotisationsString = translations.socialCotisations;
       this.specialSocialCotisationString = translations.specialSocialCotisation;
+      this.taxableGrossIncomeString = translations.taxableGrossIncome;
       this.professionalWithholdingTaxString = translations.professionalWithholdingTax;
       this.groupInsurancePersonalContributionString = translations.groupInsurancePersonalContribution;
-      this.companyCarPersonalContributionString = translations.companyCarPersonalContribution;
+      this.companyCarBenefitInKindValueString = translations.companyCarBenefitInKindValue;
+      this.companyCarContributionString = translations.companyCarContribution;
+      this.mealVouchersString = translations.mealVouchers;
+      this.mealVouchersEmployerContributionString = translations.mealVouchersEmployerContribution;
 
       this.updateChartData();
       this.loading = false;;
@@ -307,20 +319,32 @@ export class MainComponent implements OnInit {
         this.sankeyData.push({ source: this.grossSalaryString, target: this.socialCotisationsString, value: this.result.socialCotisationsAfterReductions });
       }
 
+      if (this.result.companyCarBenefitInKindValue) {
+        this.sankeyData.push({ source: this.companyCarBenefitInKindValueString, target: this.taxableGrossIncomeString, value: this.result.companyCarBenefitInKindValue });
+      }
+
+      this.sankeyData.push({ source: this.grossSalaryString, target: this.taxableGrossIncomeString, value: this.result.taxableIncome });
+
       if (this.result.professionalWithholdingTaxesAfterReductions) {
-        this.sankeyData.push({ source: this.grossSalaryString, target: this.professionalWithholdingTaxString, value: this.result.professionalWithholdingTaxesAfterReductions });
+        this.sankeyData.push({ source: this.taxableGrossIncomeString, target: this.professionalWithholdingTaxString, value: this.result.professionalWithholdingTaxesAfterReductions });
       }
 
       if (this.result.specialSocialCotisations) {
-        this.sankeyData.push({ source: this.grossSalaryString, target: this.specialSocialCotisationString, value: this.result.specialSocialCotisations });
+        this.sankeyData.push({ source: this.taxableGrossIncomeString, target: this.specialSocialCotisationString, value: this.result.specialSocialCotisations });
       }
 
       if (this.result.groupInsurancePersonalContribution) {
-        this.sankeyData.push({ source: this.grossSalaryString, target: this.groupInsurancePersonalContributionString, value: this.result.groupInsurancePersonalContribution });
+        this.sankeyData.push({ source: this.netSalaryString, target: this.groupInsurancePersonalContributionString, value: this.result.groupInsurancePersonalContribution });
       }
 
       if (this.result.companyCarPersonalContribution) {
-        this.sankeyData.push({ source: this.grossSalaryString, target: this.companyCarPersonalContributionString, value: this.result.groupInsurancePersonalContribution });
+        this.sankeyData.push({ source: this.netSalaryString, target: this.companyCarContributionString, value: this.result.companyCarPersonalContribution });
+      }
+
+      if (this.result.mealVouchersCost) {
+        this.sankeyData.push({ source: this.netSalaryString, target: this.mealVouchersString, value: this.result.mealVouchersCost });
+        this.sankeyData.push({ source: this.mealVouchersEmployerContributionString, target: this.mealVouchersString, value: this.result.mealVouchersEmployerContribution });
+        this.sankeyData.push({ source: this.mealVouchersString, target: this.netIncomeString, value: this.result.mealVouchersValue });
       }
 
       if (this.result.otherNetIncome) {
@@ -339,7 +363,8 @@ export class MainComponent implements OnInit {
         this.sankeyData.push({ source: this.bonusString, target: this.netIncomeString, value: this.result.bonusTaxation.netExceptionalAllocation });
       }
 
-      this.sankeyData.push({ source: this.grossSalaryString, target: this.netIncomeString, value: this.result.netSalary - this.result.otherNetIncome });
+      this.sankeyData.push({ source: this.taxableGrossIncomeString, target: this.netSalaryString, value: this.result.netSalary });
+      this.sankeyData.push({ source: this.netSalaryString, target: this.netIncomeString, value: this.result.netSalary - this.result.groupInsurancePersonalContribution - this.result.companyCarPersonalContribution - this.result.mealVouchersCost });
     }
   }
 

@@ -838,23 +838,23 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...disabledEmployee, grossSalary: 4029.16 }, netSalary: 2630.70 }, // Withholding tier 3
   { input: { ...disabledEmployee, grossSalary: 5000 }, netSalary: 3056.01 },    // Withholding tier 4
 
-  { input: { ...employeeWithGroupInsurance, grossSalary: 2100 }, netSalary: 1938.85 },    // Work bonus
-  { input: { ...employeeWithGroupInsurance, grossSalary: 2328.33 }, netSalary: 1992.58 }, // Withholding tier 2
-  { input: { ...employeeWithGroupInsurance, grossSalary: 2500 }, netSalary: 2025.20 },    // Work bonus
-  { input: { ...employeeWithGroupInsurance, grossSalary: 3000 }, netSalary: 2141.15 },    // Work bonus
-  { input: { ...employeeWithGroupInsurance, grossSalary: 4029.16 }, netSalary: 2551.95 }, // Withholding tier 3
-  { input: { ...employeeWithGroupInsurance, grossSalary: 5000 }, netSalary: 2977.26 },    // Withholding tier 4
+  { input: { ...employeeWithGroupInsurance, grossSalary: 2100 }, netSalary: 1981.35, netIncome: 1938.85 },    // Work bonus
+  { input: { ...employeeWithGroupInsurance, grossSalary: 2328.33 }, netSalary: 2035.08, netIncome: 1992.58 }, // Withholding tier 2
+  { input: { ...employeeWithGroupInsurance, grossSalary: 2500 }, netSalary: 2067.70, netIncome: 2025.20 },    // Work bonus
+  { input: { ...employeeWithGroupInsurance, grossSalary: 3000 }, netSalary: 2183.65, netIncome: 2141.15 },    // Work bonus
+  { input: { ...employeeWithGroupInsurance, grossSalary: 4029.16 }, netSalary: 2594.45, netIncome: 2551.95 }, // Withholding tier 3
+  { input: { ...employeeWithGroupInsurance, grossSalary: 5000 }, netSalary: 3019.76, netIncome: 2977.26 },    // Withholding tier 4
 
-  { input: { ...employeeWithOtherNetIncome, grossSalary: 2100 }, netSalary: 2068.60 },    // Work bonus
-  { input: { ...employeeWithOtherNetIncome, grossSalary: 2328.33 }, netSalary: 2122.33 }, // Withholding tier 2
-  { input: { ...employeeWithOtherNetIncome, grossSalary: 2500 }, netSalary: 2154.95 },    // Work bonus
-  { input: { ...employeeWithOtherNetIncome, grossSalary: 3000 }, netSalary: 2270.90 },    // Work bonus
-  { input: { ...employeeWithOtherNetIncome, grossSalary: 4029.16 }, netSalary: 2681.70 }, // Withholding tier 3
-  { input: { ...employeeWithOtherNetIncome, grossSalary: 5000 }, netSalary: 3107.01 },    // Withholding tier 4
+  { input: { ...employeeWithOtherNetIncome, grossSalary: 2100 }, netSalary: 1968.60, netIncome: 2068.60 },    // Work bonus
+  { input: { ...employeeWithOtherNetIncome, grossSalary: 2328.33 }, netSalary: 2022.33, netIncome: 2122.33 }, // Withholding tier 2
+  { input: { ...employeeWithOtherNetIncome, grossSalary: 2500 }, netSalary: 2054.95, netIncome: 2154.95 },    // Work bonus
+  { input: { ...employeeWithOtherNetIncome, grossSalary: 3000 }, netSalary: 2170.90, netIncome: 2270.90 },    // Work bonus
+  { input: { ...employeeWithOtherNetIncome, grossSalary: 4029.16 }, netSalary: 2581.70, netIncome: 2681.70 }, // Withholding tier 3
+  { input: { ...employeeWithOtherNetIncome, grossSalary: 5000 }, netSalary: 3007.01, netIncome: 3107.01 },    // Withholding tier 4
 
   { input: { ...employeeWithDieselCar, grossSalary: 3000 }, netSalary: 2073.70 },
   { input: { ...employeeWithDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2042.67 },
-  { input: { ...employeeWithDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2020.21 },
+  { input: { ...employeeWithDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2120.21, netIncome: 2020.21 },
   { input: { ...employeeWithGasolineCar, grossSalary: 3000 }, netSalary: 2068.46 },
   { input: { ...employeeWithElectricCar, grossSalary: 3000 }, netSalary: 2111.65 },
   { input: { ...employeeWithHybridCar, grossSalary: 3000 }, netSalary: 2102.16 },
@@ -862,7 +862,7 @@ export const INPUTS_TO_NET: Situation[] = [
 
   { input: { ...employeeWithMoreRecentDieselCar, grossSalary: 3000 }, netSalary: 2070.72 },
   { input: { ...employeeWithMoreRecentDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2038.82 },
-  { input: { ...employeeWithMoreRecentDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2017.57 },
+  { input: { ...employeeWithMoreRecentDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2117.57, netIncome: 2017.57 },
   { input: { ...employeeWithMoreRecentGasolineCar, grossSalary: 3000 }, netSalary: 2065.33 },
   { input: { ...employeeWithMoreRecentElectricCar, grossSalary: 3000 }, netSalary: 2110.04 },
   { input: { ...employeeWithMoreRecentHybridCar, grossSalary: 3000 }, netSalary: 2099.83 },
@@ -905,19 +905,19 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...disabledWorker, grossSalary: 4029.16 }, netSalary: 2603.70 }, // Withholding tier 3
   { input: { ...disabledWorker, grossSalary: 5000 }, netSalary: 3024.50 },    // Withholding tier 4
 
-  { input: { ...workerWithGroupInsurance, grossSalary: 2100 }, netSalary: 1923.28 },    // Work bonus
-  { input: { ...workerWithGroupInsurance, grossSalary: 2328.33 }, netSalary: 1994.50 }, // Withholding tier 2
-  { input: { ...workerWithGroupInsurance, grossSalary: 2500 }, netSalary: 2021.88 },    // Work bonus
-  { input: { ...workerWithGroupInsurance, grossSalary: 3000 }, netSalary: 2124.22 },    // Work bonus
-  { input: { ...workerWithGroupInsurance, grossSalary: 4029.16 }, netSalary: 2524.95 }, // Withholding tier 3
-  { input: { ...workerWithGroupInsurance, grossSalary: 5000 }, netSalary: 2945.75 },    // Withholding tier 4
+  { input: { ...workerWithGroupInsurance, grossSalary: 2100 }, netSalary: 1965.78, netIncome: 1923.28 },    // Work bonus
+  { input: { ...workerWithGroupInsurance, grossSalary: 2328.33 }, netSalary: 2037.00, netIncome: 1994.50 }, // Withholding tier 2
+  { input: { ...workerWithGroupInsurance, grossSalary: 2500 }, netSalary: 2064.38, netIncome: 2021.88 },    // Work bonus
+  { input: { ...workerWithGroupInsurance, grossSalary: 3000 }, netSalary: 2166.72, netIncome: 2124.22 },    // Work bonus
+  { input: { ...workerWithGroupInsurance, grossSalary: 4029.16 }, netSalary: 2567.45, netIncome: 2524.95 }, // Withholding tier 3
+  { input: { ...workerWithGroupInsurance, grossSalary: 5000 }, netSalary: 2988.25, netIncome: 2945.75 },    // Withholding tier 4
 
-  { input: { ...workerWithOtherNetIncome, grossSalary: 2100 }, netSalary: 2053.03 },    // Work bonus
-  { input: { ...workerWithOtherNetIncome, grossSalary: 2328.33 }, netSalary: 2124.25 }, // Withholding tier 2
-  { input: { ...workerWithOtherNetIncome, grossSalary: 2500 }, netSalary: 2151.63 },    // Work bonus
-  { input: { ...workerWithOtherNetIncome, grossSalary: 3000 }, netSalary: 2253.97 },    // Work bonus
-  { input: { ...workerWithOtherNetIncome, grossSalary: 4029.16 }, netSalary: 2654.70 }, // Withholding tier 3
-  { input: { ...workerWithOtherNetIncome, grossSalary: 5000 }, netSalary: 3075.50 },    // Withholding tier 4
+  { input: { ...workerWithOtherNetIncome, grossSalary: 2100 }, netSalary: 1953.03, netIncome: 2053.03 },    // Work bonus
+  { input: { ...workerWithOtherNetIncome, grossSalary: 2328.33 }, netSalary: 2024.25, netIncome: 2124.25 }, // Withholding tier 2
+  { input: { ...workerWithOtherNetIncome, grossSalary: 2500 }, netSalary: 2051.63, netIncome: 2151.63 },    // Work bonus
+  { input: { ...workerWithOtherNetIncome, grossSalary: 3000 }, netSalary: 2153.97, netIncome: 2253.97 },    // Work bonus
+  { input: { ...workerWithOtherNetIncome, grossSalary: 4029.16 }, netSalary: 2554.70, netIncome: 2654.70 }, // Withholding tier 3
+  { input: { ...workerWithOtherNetIncome, grossSalary: 5000 }, netSalary: 2975.50, netIncome: 3075.50 },    // Withholding tier 4
 
   { input: { ...marriedWorkerOneIncome, grossSalary: 2100 }, netSalary: 2065.92 },    // Capped work bonus
   { input: { ...marriedWorkerOneIncome, grossSalary: 2328.33 }, netSalary: 2224.46 },

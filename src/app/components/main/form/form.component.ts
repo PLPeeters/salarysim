@@ -186,6 +186,10 @@ export class FormComponent implements OnInit {
       });
 
     this.loadFormFromLocalStorage();
+
+    if (this.salaryForm.valid) {
+      this.onSubmit();
+    }
   }
 
   get monthlySalaryRows(): FormArray {

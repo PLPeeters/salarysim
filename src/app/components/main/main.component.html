@@ -186,6 +186,12 @@
           <span matListItemLine>{{ formatAmount(result.specialSocialCotisations) }}</span>
         </mat-list-item>
 
+        <mat-list-item>
+          <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
+          <span matListItemTitle>{{ t('net_salary') }}</span>
+          <span matListItemLine>{{ formatAmount(result.netSalary) }}</span>
+        </mat-list-item>
+
         @if (result.groupInsurancePersonalContribution) {
           <mat-list-item>
             <mat-icon matListItemIcon>remove</mat-icon>
@@ -217,12 +223,6 @@
             <span matListItemLine>{{ formatAmount(result.otherNetIncome) }}</span>
           </mat-list-item>
         }
-
-        <mat-list-item>
-          <mat-icon matListItemIcon class="material-symbols-outlined">equal</mat-icon>
-          <span matListItemTitle>{{ t('net_salary') }}</span>
-          <span matListItemLine>{{ formatAmount(result.netSalary) }}</span>
-        </mat-list-item>
 
         @if (result.mealVouchersValue) {
           <mat-list-item>
@@ -306,6 +306,12 @@
           <mat-icon matListItemIcon class="material-symbols-outlined">percent</mat-icon>
           <span matListItemTitle>{{ t('average_tax_rate') }}</span>
           <span matListItemLine>{{ formatPct(result.averageTaxRate) }}</span>
+        </mat-list-item>
+
+        <mat-list-item>
+          <mat-icon matListItemIcon class="material-symbols-outlined">percent</mat-icon>
+          <span matListItemTitle>{{ t('net_to_gross_ratio') }}</span>
+          <span matListItemLine>{{ formatPct(result.netToGrossRatio) }}</span>
         </mat-list-item>
       </mat-list>
 
