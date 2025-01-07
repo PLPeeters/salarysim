@@ -111,6 +111,7 @@ export class MainComponent implements OnInit {
   loading: boolean = true;
   currentLocale: String = '';
   private grossSalaryString: String = '';
+  private grossSalaryTitleString: String = '';
   private doubleHolidayPayString: String = '';
   private bonusString: String = '';
   private otherNetIncomeString: String = '';
@@ -189,6 +190,7 @@ export class MainComponent implements OnInit {
   onLanguageChange() {
     forkJoin({
       grossSalary: this.translocoService.selectTranslate('gross_salary').pipe(take(1)),
+      grossSalaryTitle: this.translocoService.selectTranslate('gross_salary_title').pipe(take(1)),
       doubleHolidayPay: this.translocoService.selectTranslate('double_holiday_pay').pipe(take(1)),
       bonus: this.translocoService.selectTranslate('bonus').pipe(take(1)),
       otherNetIncome: this.translocoService.selectTranslate('other_net_income').pipe(take(1)),
@@ -207,6 +209,7 @@ export class MainComponent implements OnInit {
       mealVouchersEmployerContribution: this.translocoService.selectTranslate('meal_vouchers_employer_contribution').pipe(take(1)),
     }).subscribe(translations => {
       this.grossSalaryString = translations.grossSalary;
+      this.grossSalaryTitleString = translations.grossSalaryTitle;
       this.doubleHolidayPayString = translations.doubleHolidayPay;
       this.bonusString = translations.bonus;
       this.otherNetIncomeString = translations.otherNetIncome;
@@ -316,14 +319,14 @@ export class MainComponent implements OnInit {
 
     if (this.result != null) {
       if (this.result.socialCotisationsAfterReductions) {
-        this.sankeyData.push({ source: this.grossSalaryString, target: this.socialCotisationsString, value: this.result.socialCotisationsAfterReductions });
+        this.sankeyData.push({ source: this.grossSalaryTitleString, target: this.socialCotisationsString, value: this.result.socialCotisationsAfterReductions });
       }
 
       if (this.result.companyCarBenefitInKindValue) {
         this.sankeyData.push({ source: this.companyCarBenefitInKindValueString, target: this.taxableGrossIncomeString, value: this.result.companyCarBenefitInKindValue });
       }
 
-      this.sankeyData.push({ source: this.grossSalaryString, target: this.taxableGrossIncomeString, value: this.result.taxableIncome });
+      this.sankeyData.push({ source: this.grossSalaryTitleString, target: this.taxableGrossIncomeString, value: this.result.taxableIncome });
 
       if (this.result.professionalWithholdingTaxesAfterReductions) {
         this.sankeyData.push({ source: this.taxableGrossIncomeString, target: this.professionalWithholdingTaxString, value: this.result.professionalWithholdingTaxesAfterReductions });

@@ -2,7 +2,7 @@
   "title": "Bruto-netto calculator",
   "description_1": "De Belgische netto loon calculator die je niet wist dat je nodig had.",
   "description_2": "Een opvallende functie van deze calculator is de mogelijkheid om een grafiek weer te geven die laat zien hoe je netto loon evolueert naarmate je bruto loon stijgt.",
-  "description_3": "Daarnaast toont het de relatieve nettoverhoging, waarbij je ziet welk aandeel van een specifieke bruto loonsverhoging resulteert in een netto loonsverhoging. Zo kun je bijvoorbeeld ontdekken hoe een bruto loonsverhoging van € 50 je netto loon beïnvloedt bij verschillende salarisniveaus, wat waardevolle inzichten biedt in je inkomensontwikkeling.",
+  "description_3": "Daarnaast toont het de relatieve nettoverhoging op basis van het beginloon, waarbij je ziet welk aandeel van een specifieke bruto loonsverhoging resulteert in een netto loonsverhoging. Zo kun je bijvoorbeeld ontdekken hoe een bruto loonsverhoging van € 50 je netto loon beïnvloedt bij verschillende salarisniveaus, wat waardevolle inzichten biedt in je inkomensontwikkeling.",
   "everything_local_open_source": "Alles wordt lokaal in je browser berekend. Voel je vrij om dit na te kijken, deze calculator is volledig <a href=\"https://github.com/PLPeeters/salarysim/\" target=\"_blank\">open-source</a>.",
   "revenue_year": "Inkomstenjaar",
   "preview": "voorlopig",
