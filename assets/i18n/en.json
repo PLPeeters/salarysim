@@ -2,7 +2,7 @@
   "title": "Net Salary Calculator",
   "description_1": "The Belgian net salary calculator you didn't know you needed.",
   "description_2": "A standout feature of this calculator is its ability to display a graph illustrating how your net salary evolves as your gross salary increases.",
-  "description_3": "It also highlights the relative net raise, showing the proportion of a specific gross raise that translates into a net salary gain. For example, you can see how a €50 gross raise impacts your take-home pay across different salary levels, providing valuable insights into your earnings progression.",
+  "description_3": "It also highlights the relative net raise by initial salary, showing the proportion of a specific gross raise that translates into a net salary gain. For example, you can see how a €50 gross raise impacts your take-home pay across different salary levels, providing valuable insights into your earnings progression.",
   "everything_local_open_source": "Everything is calculated locally in your browser. Feel free to verify, this tool is completely <a href=\"https://github.com/PLPeeters/salarysim/\" target=\"_blank\">open-source</a>.",
   "revenue_year": "Revenue Year",
   "preview": "preview",
