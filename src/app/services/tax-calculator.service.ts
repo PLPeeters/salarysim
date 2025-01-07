@@ -27,11 +27,13 @@ export interface TaxationResultInternal {
   grossSalary: Decimal;
   socialCotisations: Decimal;
   specialSocialCotisations: Decimal;
-  specialSocialCotisationsProportion: Decimal;
+  specialSocialCotisationsProportionOfTaxes: Decimal;
+  specialSocialCotisationsProportionOfGross: Decimal;
   employmentBonus: Decimal;
   employmentBonusWasCapped: boolean;
   socialCotisationsAfterReductions: Decimal;
-  socialCotisationsAfterReductionsProportion: Decimal;
+  socialCotisationsAfterReductionsProportionOfTaxes: Decimal;
+  socialCotisationsAfterReductionsProportionOfGross: Decimal;
   companyCarBenefitInKindValue: Decimal;
   taxableIncome: Decimal;
   taxableIncomeIncludingBenefitsInKind: Decimal;
@@ -47,7 +49,8 @@ export interface TaxationResultInternal {
   mealVouchersEmployerContribution: Decimal;
   companyCarPersonalContribution: Decimal;
   professionalWithholdingTaxesAfterReductions: Decimal;
-  professionalWithholdingTaxesAfterReductionsProportion: Decimal;
+  professionalWithholdingTaxesAfterReductionsProportionOfTaxes: Decimal;
+  professionalWithholdingTaxesAfterReductionsProportionOfGross: Decimal;
   netToGrossRatio: Decimal;
   averageTaxRate: Decimal;
   netSalary: Decimal;
@@ -61,11 +64,13 @@ export interface TaxationResult {
   grossSalary: number;
   socialCotisations: number;
   specialSocialCotisations: number;
-  specialSocialCotisationsProportion: number;
+  specialSocialCotisationsProportionOfTaxes: number;
+  specialSocialCotisationsProportionOfGross: number;
   employmentBonus: number;
   employmentBonusWasCapped: boolean;
   socialCotisationsAfterReductions: number;
-  socialCotisationsAfterReductionsProportion: number;
+  socialCotisationsAfterReductionsProportionOfTaxes: number;
+  socialCotisationsAfterReductionsProportionOfGross: number;
   companyCarBenefitInKindValue: number;
   taxableIncome: number;
   taxableIncomeIncludingBenefitsInKind: number;
@@ -81,7 +86,8 @@ export interface TaxationResult {
   mealVouchersEmployerContribution: number;
   companyCarPersonalContribution: number;
   professionalWithholdingTaxesAfterReductions: number;
-  professionalWithholdingTaxesAfterReductionsProportion: number;
+  professionalWithholdingTaxesAfterReductionsProportionOfTaxes: number;
+  professionalWithholdingTaxesAfterReductionsProportionOfGross: number;
   netToGrossRatio: number;
   averageTaxRate: number;
   netSalary: number;
@@ -746,31 +752,37 @@ export class TaxCalculatorService {
       taxes: tier.taxes.toNumber(),
     }));
 
-
-
     const taxationGrandTotal = socialCotisationsAfterReductions
       .plus(professionalWithholdingTaxesAfterReductions)
       .plus(specialSocialCotisations);
 
-    let specialSocialCotisationsProportion = D(0);
-    let socialCotisationsAfterReductionsProportion = D(0);
-    let professionalWithholdingTaxesAfterReductionsProportion = D(0);
+    let specialSocialCotisationsProportionOfTaxes = D(0);
+    let specialSocialCotisationsProportionOfGross = D(0);
+    let socialCotisationsAfterReductionsProportionOfTaxes = D(0);
+    let socialCotisationsAfterReductionsProportionOfGross = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportionOfTaxes = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportionOfGross = D(0);
 
     if (!taxationGrandTotal.isZero()) {
-      specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
-      socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-      professionalWithholdingTaxesAfterReductionsProportion = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
+      specialSocialCotisationsProportionOfTaxes = specialSocialCotisations.div(taxationGrandTotal).mul(100);
+      specialSocialCotisationsProportionOfGross = specialSocialCotisations.div(grossSalary).mul(100);
+      socialCotisationsAfterReductionsProportionOfTaxes = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
+      socialCotisationsAfterReductionsProportionOfGross = socialCotisationsAfterReductions.div(grossSalary).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportionOfTaxes = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportionOfGross = professionalWithholdingTaxesAfterReductions.div(grossSalary).mul(100);
     }
 
     return {
       grossSalary: grossSalary.toNumber(),
       socialCotisations: socialCotisations.toNumber(),
       specialSocialCotisations: specialSocialCotisations.toNumber(),
-      specialSocialCotisationsProportion: specialSocialCotisationsProportion.toNumber(),
+      specialSocialCotisationsProportionOfTaxes: specialSocialCotisationsProportionOfTaxes.toNumber(),
+      specialSocialCotisationsProportionOfGross: specialSocialCotisationsProportionOfGross.toNumber(),
       employmentBonus: employmentBonus.toNumber(),
       employmentBonusWasCapped: employmentBonusWasCapped,
       socialCotisationsAfterReductions: socialCotisationsAfterReductions.toNumber(),
-      socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion.toNumber(),
+      socialCotisationsAfterReductionsProportionOfTaxes: socialCotisationsAfterReductionsProportionOfTaxes.toNumber(),
+      socialCotisationsAfterReductionsProportionOfGross: socialCotisationsAfterReductionsProportionOfGross.toNumber(),
       companyCarBenefitInKindValue: companyCarBenefitInKindValue.toNumber(),
       taxableIncome: taxableIncome.toNumber(),
       taxableIncomeIncludingBenefitsInKind: taxableIncomeIncludingBenefitsInKind.toNumber(),
@@ -786,7 +798,8 @@ export class TaxCalculatorService {
       mealVouchersEmployerContribution: mealVouchersEmployerContribution.toNumber(),
       companyCarPersonalContribution: companyCarPersonalContribution.toNumber(),
       professionalWithholdingTaxesAfterReductions: professionalWithholdingTaxesAfterReductions.toNumber(),
-      professionalWithholdingTaxesAfterReductionsProportion: professionalWithholdingTaxesAfterReductionsProportion.toNumber(),
+      professionalWithholdingTaxesAfterReductionsProportionOfTaxes: professionalWithholdingTaxesAfterReductionsProportionOfTaxes.toNumber(),
+      professionalWithholdingTaxesAfterReductionsProportionOfGross: professionalWithholdingTaxesAfterReductionsProportionOfGross.toNumber(),
       netToGrossRatio: netToGrossRatio.toNumber(),
       averageTaxRate: averageTaxRate.toNumber(),
       netSalary: netSalary.toNumber(),
@@ -1034,14 +1047,20 @@ export class TaxCalculatorService {
       .plus(professionalWithholdingTaxesAfterReductions)
       .plus(specialSocialCotisations);
 
-    let specialSocialCotisationsProportion = D(0);
-    let socialCotisationsAfterReductionsProportion = D(0);
-    let professionalWithholdingTaxesAfterReductionsProportion = D(0);
+    let specialSocialCotisationsProportionOfTaxes = D(0);
+    let specialSocialCotisationsProportionOfGross = D(0);
+    let socialCotisationsAfterReductionsProportionOfTaxes = D(0);
+    let socialCotisationsAfterReductionsProportionOfGross = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportionOfTaxes = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportionOfGross = D(0);
 
     if (!taxationGrandTotal.isZero()) {
-      specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
-      socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-      professionalWithholdingTaxesAfterReductionsProportion = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
+      specialSocialCotisationsProportionOfTaxes = specialSocialCotisations.div(taxationGrandTotal).mul(100);
+      specialSocialCotisationsProportionOfGross = specialSocialCotisations.div(yearlyGrossSalary).mul(100);
+      socialCotisationsAfterReductionsProportionOfTaxes = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
+      socialCotisationsAfterReductionsProportionOfGross = socialCotisationsAfterReductions.div(yearlyGrossSalary).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportionOfTaxes = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportionOfGross = professionalWithholdingTaxesAfterReductions.div(yearlyGrossSalary).mul(100);
     }
 
     const holidayPayTaxationResult = this.calculateExceptionalAllocationTaxation(
@@ -1095,11 +1114,13 @@ export class TaxCalculatorService {
       grossSalary: yearlyGrossSalary,
       socialCotisations: socialCotisations,
       specialSocialCotisations: specialSocialCotisations,
-      specialSocialCotisationsProportion: specialSocialCotisationsProportion,
+      specialSocialCotisationsProportionOfTaxes: specialSocialCotisationsProportionOfTaxes,
+      specialSocialCotisationsProportionOfGross: specialSocialCotisationsProportionOfGross,
       employmentBonus: employmentBonus,
       employmentBonusWasCapped: employmentBonusWasCapped,
       socialCotisationsAfterReductions: socialCotisationsAfterReductions,
-      socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion,
+      socialCotisationsAfterReductionsProportionOfTaxes: socialCotisationsAfterReductionsProportionOfTaxes,
+      socialCotisationsAfterReductionsProportionOfGross: socialCotisationsAfterReductionsProportionOfGross,
       companyCarBenefitInKindValue: companyCarBenefitInKindValue,
       taxableIncome: taxableIncome,
       taxableIncomeIncludingBenefitsInKind: taxableIncomeIncludingBenefitsInKind,
@@ -1115,7 +1136,8 @@ export class TaxCalculatorService {
       mealVouchersEmployerContribution: mealVouchersEmployerContribution,
       companyCarPersonalContribution: companyCarPersonalContribution,
       professionalWithholdingTaxesAfterReductions: professionalWithholdingTaxesAfterReductions,
-      professionalWithholdingTaxesAfterReductionsProportion: professionalWithholdingTaxesAfterReductionsProportion,
+      professionalWithholdingTaxesAfterReductionsProportionOfTaxes: professionalWithholdingTaxesAfterReductionsProportionOfTaxes,
+      professionalWithholdingTaxesAfterReductionsProportionOfGross: professionalWithholdingTaxesAfterReductionsProportionOfGross,
       netToGrossRatio: netToGrossRatio,
       averageTaxRate: averageTaxRate,
       netSalary: netSalary,
@@ -1189,14 +1211,20 @@ export class TaxCalculatorService {
       .plus(professionalWithholdingTaxesAfterReductions)
       .plus(specialSocialCotisations);
 
-    let specialSocialCotisationsProportion = D(0);
-    let socialCotisationsAfterReductionsProportion = D(0);
-    let professionalWithholdingTaxesAfterReductionsProportion = D(0);
+    let specialSocialCotisationsProportionOfTaxes = D(0);
+    let specialSocialCotisationsProportionOfGross = D(0);
+    let socialCotisationsAfterReductionsProportionOfTaxes = D(0);
+    let socialCotisationsAfterReductionsProportionOfGross = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportionOfTaxes = D(0);
+    let professionalWithholdingTaxesAfterReductionsProportionOfGross = D(0);
 
     if (!taxationGrandTotal.isZero()) {
-      specialSocialCotisationsProportion = specialSocialCotisations.div(taxationGrandTotal).mul(100);
-      socialCotisationsAfterReductionsProportion = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
-      professionalWithholdingTaxesAfterReductionsProportion = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
+      specialSocialCotisationsProportionOfTaxes = specialSocialCotisations.div(taxationGrandTotal).mul(100);
+      specialSocialCotisationsProportionOfGross = specialSocialCotisations.div(grossSalary).mul(100);
+      socialCotisationsAfterReductionsProportionOfTaxes = socialCotisationsAfterReductions.div(taxationGrandTotal).mul(100);
+      socialCotisationsAfterReductionsProportionOfGross = socialCotisationsAfterReductions.div(grossSalary).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportionOfTaxes = professionalWithholdingTaxesAfterReductions.div(taxationGrandTotal).mul(100);
+      professionalWithholdingTaxesAfterReductionsProportionOfGross = professionalWithholdingTaxesAfterReductions.div(grossSalary).mul(100);
     }
 
     const netIncome = netSalary
@@ -1241,11 +1269,13 @@ export class TaxCalculatorService {
       grossSalary: grossSalary,
       socialCotisations: socialCotisations,
       specialSocialCotisations: specialSocialCotisations,
-      specialSocialCotisationsProportion: specialSocialCotisationsProportion,
+      specialSocialCotisationsProportionOfTaxes: specialSocialCotisationsProportionOfTaxes,
+      specialSocialCotisationsProportionOfGross: specialSocialCotisationsProportionOfGross,
       employmentBonus: employmentBonus,
       employmentBonusWasCapped: yearlyTaxationResult.employmentBonusWasCapped,
       socialCotisationsAfterReductions: socialCotisationsAfterReductions,
-      socialCotisationsAfterReductionsProportion: socialCotisationsAfterReductionsProportion,
+      socialCotisationsAfterReductionsProportionOfTaxes: socialCotisationsAfterReductionsProportionOfTaxes,
+      socialCotisationsAfterReductionsProportionOfGross: socialCotisationsAfterReductionsProportionOfGross,
       companyCarBenefitInKindValue: companyCarBenefitInKindValue,
       taxableIncome: taxableIncome,
       taxableIncomeIncludingBenefitsInKind: taxableIncomeIncludingBenefitsInKind,
@@ -1261,7 +1291,8 @@ export class TaxCalculatorService {
       mealVouchersEmployerContribution,
       companyCarPersonalContribution: companyCarPersonalContribution,
       professionalWithholdingTaxesAfterReductions: professionalWithholdingTaxesAfterReductions,
-      professionalWithholdingTaxesAfterReductionsProportion: professionalWithholdingTaxesAfterReductionsProportion,
+      professionalWithholdingTaxesAfterReductionsProportionOfTaxes: professionalWithholdingTaxesAfterReductionsProportionOfTaxes,
+      professionalWithholdingTaxesAfterReductionsProportionOfGross: professionalWithholdingTaxesAfterReductionsProportionOfGross,
       netToGrossRatio: netToGrossRatio,
       averageTaxRate: averageTaxRate,
       netSalary: netSalary,

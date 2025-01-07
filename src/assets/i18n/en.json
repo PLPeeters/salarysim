@@ -108,6 +108,7 @@
   "average_tax_rate": "Average tax rate",
   "average_tax_pct": "Average tax (%)",
   "taxation_evolution": "Evolution of Taxes",
+  "proportional_to_gross": "Proportional to gross",
   "taxation_evolution_proportional": "Evolution of Proportional Tax Breakdown",
   "relative_net_increase_title": "Relative Net Increase for a {{amount}} Gross Raise by Initial Salary",
   "relative_net_increase": "Relative net increase",

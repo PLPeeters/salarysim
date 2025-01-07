@@ -431,14 +431,13 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card *ngIf="chartData" class="charts-card">
+  <mat-card *ngIf="averageTaxRateChartData" class="charts-card">
     <mat-card-header>
       <mat-card-title>{{ t('average_tax_rate_evolution') }}</mat-card-title>
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
       <ngx-charts-line-chart
-        *ngIf="averageTaxRateChartData"
         [view]="[ContainerRef.offsetWidth - 32, max(min(400, window.innerHeight - 16), 300)]"
         [scheme]="'vivid'"
         [results]="averageTaxRateChartData"
@@ -479,7 +478,7 @@
     </mat-card-content>
   </mat-card>
 
-  <mat-card *ngIf="chartData" class="charts-card">
+  <mat-card *ngIf="relativeChartData" class="charts-card">
     <mat-card-header>
       <mat-card-title>{{ t('relative_net_increase_title', {amount: formatAmount(graphsStep) }) }}</mat-card-title>
       <mat-card-subtitle>
@@ -490,7 +489,6 @@
 
     <mat-card-content #ContainerRef>
       <ngx-charts-line-chart
-        *ngIf="relativeChartData"
         [view]="[ContainerRef.offsetWidth - 32, max(min(400, window.innerHeight - 16), 300)]"
         [scheme]="'vivid'"
         [results]="relativeChartData"
@@ -539,11 +537,18 @@
     </mat-card-header>
 
     <mat-card-content #ContainerRef>
+      <mat-slide-toggle
+        class="m-b"
+        [checked]="showTaxDataAsProportionalToGross"
+        (change)="showTaxDataAsProportionalToGross = $event.checked">
+          {{ t('proportional_to_gross' ) }}
+      </mat-slide-toggle>
+
       <ngx-charts-area-chart-stacked
         *ngIf="taxData"
         [view]="[ContainerRef.offsetWidth - 32, max(min(400, window.innerHeight - 16), 300)]"
         [scheme]="'vivid'"
-        [results]="taxData"
+        [results]="showTaxDataAsProportionalToGross ? taxDataProportionalToGross : taxData"
         [xAxis]="true"
         [yAxis]="true"
         [legend]="true"
@@ -553,7 +558,7 @@
         [showGridLines]="true"
         [roundDomains]="true"
         [xAxisTickFormatting]="formatAmountTickFormattingFn"
-        [yAxisTickFormatting]="formatAmountTickFormattingFn"
+        [yAxisTickFormatting]="showTaxDataAsProportionalToGross ? formatPctTickFormattingFn : formatAmountTickFormattingFn"
         [legendPosition]="legendPosition"
         [legendTitle]="''"
         [ngClass]="{'legend-below': legendPosition === LegendPosition.Below}"
@@ -562,7 +567,12 @@
         [tooltipDisabled]="false">
         <ng-template #tooltipTemplate let-model="model">
           <div class="tooltip-label">{{formatAmount(model.name)}}</div>
-          <div class="tooltip-val">{{ model.series }}: {{formatAmount(model.value)}}</div>
+
+          @if (showTaxDataAsProportionalToGross) {
+            <div class="tooltip-val">{{ model.series }}: {{formatPct(model.value)}}</div>
+          } @else {
+            <div class="tooltip-val">{{ model.series }}: {{formatAmount(model.value)}}</div>
+          }
         </ng-template>
 
         <ng-template #seriesTooltipTemplate let-series="model">
@@ -573,7 +583,12 @@
             @for (singleSeries of series; track $index) {
               <div class="tooltip-item">
                 <div class="tooltip-item-color" [style]="{'background-color': singleSeries.color}"></div>
-                <span>{{singleSeries.series}}: {{formatAmount(singleSeries.value)}}</span>
+
+                @if (showTaxDataAsProportionalToGross) {
+                  <span>{{singleSeries.series}}: {{formatPct(singleSeries.value)}}</span>
+                } @else {
+                  <span>{{singleSeries.series}}: {{formatAmount(singleSeries.value)}}</span>
+                }
               </div>
             }
         </ng-template>
@@ -588,7 +603,6 @@
 
     <mat-card-content #ContainerRef>
       <ngx-charts-area-chart-stacked
-        *ngIf="taxDataProportional"
         [view]="[ContainerRef.offsetWidth - 32, max(min(400, window.innerHeight - 16), 300)]"
         [scheme]="'vivid'"
         [results]="taxDataProportional"

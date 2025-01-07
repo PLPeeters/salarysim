@@ -25,6 +25,7 @@ import { FamilySituation, FuelType, SalaryCalculationInput, Status, taxationInfo
 import { FormComponent } from "./form/form.component";
 import { getDateFromMonthString } from './month-validator';
 import { WithholdingTaxBreakdownComponent } from "./withholding-tax-breakdown/withholding-tax-breakdown.component";
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 
 interface RevenueYear {
@@ -59,6 +60,7 @@ export enum Mode {
     MatSelectModule,
     MatOptionModule,
     MatTabsModule,
+    MatSlideToggleModule,
     TranslocoModule,
     DisableScrollDirective,
     FormComponent,
@@ -83,6 +85,8 @@ export class MainComponent implements OnInit {
   relativeChartData: any[] = [];
   averageTaxRateChartData: any[] = [];
   taxData: any[] = [];
+  taxDataProportionalToGross: any[] = [];
+  showTaxDataAsProportionalToGross = false;
   taxDataProportional: any[] = [];
   showWithHoldingTaxBreakdown = false;
   periodTabIndex = 0;
@@ -487,26 +491,50 @@ export class MainComponent implements OnInit {
       },
     ];
 
-    this.taxDataProportional = [
+    this.taxDataProportionalToGross = [
       {
         name: this.socialCotisationsString,
         series: salaries.map(salary => ({
           name: salary.gross,
-          value: salary.taxation.socialCotisationsAfterReductionsProportion,
+          value: salary.taxation.socialCotisationsAfterReductionsProportionOfGross,
         }))
       },
       {
         name: this.professionalWithholdingTaxString,
         series: salaries.map(salary => ({
           name: salary.gross,
-          value: salary.taxation.professionalWithholdingTaxesAfterReductionsProportion,
+          value: salary.taxation.professionalWithholdingTaxesAfterReductionsProportionOfGross,
         }))
       },
       {
         name: this.specialSocialCotisationString,
         series: salaries.map(salary => ({
           name: salary.gross,
-          value: salary.taxation.specialSocialCotisationsProportion,
+          value: salary.taxation.specialSocialCotisationsProportionOfGross,
+        }))
+      },
+    ];
+
+    this.taxDataProportional = [
+      {
+        name: this.socialCotisationsString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.socialCotisationsAfterReductionsProportionOfTaxes,
+        }))
+      },
+      {
+        name: this.professionalWithholdingTaxString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.professionalWithholdingTaxesAfterReductionsProportionOfTaxes,
+        }))
+      },
+      {
+        name: this.specialSocialCotisationString,
+        series: salaries.map(salary => ({
+          name: salary.gross,
+          value: salary.taxation.specialSocialCotisationsProportionOfTaxes,
         }))
       },
     ];
