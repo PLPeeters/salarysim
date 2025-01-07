@@ -113,6 +113,7 @@
   "average_tax_rate": "Gemiddeld belastingtarief",
   "average_tax_pct": "Gemiddeld belastingtarief (%)",
   "taxation_evolution": "Evolutie van belastingen",
+  "proportional_to_gross": "Proportioneel aan bruto",
   "taxation_evolution_proportional": "Evolutie van de samenstelling van belastingen",
   "relative_net_increase_title": "Relatieve nettoverhoging voor een bruto loonsverhoging van {{amount}} op basis van het beginloon",
   "relative_net_increase": "Relatieve nettoverhoging",
