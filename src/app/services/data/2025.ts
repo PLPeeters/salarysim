@@ -145,39 +145,44 @@ export const taxationInfo: TaxationInfo = {
     },
   ],
 
-  employmentBonusInfo: {
-    employee: {
-      partA: {
-        maxSalary: D(3_207.40),
-        flatAmount: D(118.22),
-        multiplier: D(0.2442),
-        amountToExclude: D(2_723.36),
-      },
-      partB: {
-        maxSalary: D(2_723.36),
-        flatAmount: D(159.43),
-        multiplier: D(0.2699),
-        amountToExclude: D(2_132.59),
-      },
+  employmentBonusInfo: [
+    {
+      effectiveFromMonth: 1,
+      info: {
+        employee: {
+          partA: {
+            maxSalary: D(3_207.40),
+            flatAmount: D(118.22),
+            multiplier: D(0.2442),
+            amountToExclude: D(2_723.36),
+          },
+          partB: {
+            maxSalary: D(2_723.36),
+            flatAmount: D(159.43),
+            multiplier: D(0.2699),
+            amountToExclude: D(2_132.59),
+          },
+        },
+        worker: {
+          partA: {
+            maxSalary: D(3_207.40),
+            flatAmount: D(127.68),
+            multiplier: D(0.2638),
+            amountToExclude: D(2_723.36),
+          },
+          partB: {
+            maxSalary: D(2_723.36),
+            flatAmount: D(172.18),
+            multiplier: D(0.2915),
+            amountToExclude: D(2_132.59),
+          },
+        },
+        partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
+        maxYearlyAmount: D(3_331.8),
+      }
     },
-    worker: {
-      partA: {
-        maxSalary: D(3_207.40),
-        flatAmount: D(127.68),
-        multiplier: D(0.2638),
-        amountToExclude: D(2_723.36),
-      },
-      partB: {
-        maxSalary: D(2_723.36),
-        flatAmount: D(172.18),
-        multiplier: D(0.2915),
-        amountToExclude: D(2_132.59),
-      },
-    },
-    partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
-    partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
-    maxYearlyAmount: D(3_331.8),
-  },
+  ],
 
   maxRevenueAttributedToPartner: D(13_460.0),
   taxExemptQuota: D(10_900.0),

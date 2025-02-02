@@ -1,7 +1,14 @@
 import Decimal from "decimal.js";
-import { TaxationInfo } from "./interfaces";
+import { EmploymentBonusTierInfo, TaxationInfo } from "./interfaces";
 
 const D = (value: number | string | null): Decimal => new Decimal(value || 0);
+
+export const employmentBonusInactiveTier: EmploymentBonusTierInfo = {
+  maxSalary: D(0),
+  flatAmount: D(0),
+  multiplier: D(0),
+  amountToExclude: D(0),
+};
 
 export const taxationInfo: TaxationInfo = {
   year: 2024,
@@ -145,39 +152,118 @@ export const taxationInfo: TaxationInfo = {
     },
   ],
 
-  employmentBonusInfo: {
-    employee: {
-      partA: {
-        maxSalary: D(3_207.40),
-        flatAmount: D(118.22),
-        multiplier: D(0.2442),
-        amountToExclude: D(2_723.36),
-      },
-      partB: {
-        maxSalary: D(2_723.36),
-        flatAmount: D(159.43),
-        multiplier: D(0.2699),
-        amountToExclude: D(2_132.59),
+  employmentBonusInfo: [
+    {
+      effectiveFromMonth: 1,
+      info: {
+        employee: {
+          partA: {
+            maxSalary: D(2_623.00),
+            flatAmount: D(267.42),
+            multiplier: D(0.2579),
+            amountToExclude: D(2_054.01),
+          },
+          partB: {
+            minSalary: D(2_623.01),
+            maxSalary: D(3_144.45),
+            flatAmount: D(252.26),
+            multiplier: D(0.2313),
+            amountToExclude: D(2_054.01),
+          },
+        },
+        worker: {  // FIXME Something must be messed up with this one
+          partA: {
+            maxSalary: D(2_623.00),
+            flatAmount: D(288.01),
+            multiplier: D(0.2786),
+            amountToExclude: D(2_054.01),
+          },
+          partB: {
+            minSalary: D(2_623.01),
+            maxSalary: D(3_144.45),
+            flatAmount: D(272.44),
+            multiplier: D(0.2498),
+            amountToExclude: D(2_054.01),
+          },
+        },
+        partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        partBProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        maxYearlyAmount: D(3_209.04),
       },
     },
-    worker: {
-      partA: {
-        maxSalary: D(3_207.40),
-        flatAmount: D(127.68),
-        multiplier: D(0.2638),
-        amountToExclude: D(2_723.36),
-      },
-      partB: {
-        maxSalary: D(2_723.36),
-        flatAmount: D(172.18),
-        multiplier: D(0.2915),
-        amountToExclude: D(2_132.59),
+    {
+      effectiveFromMonth: 4,
+      info: {
+        employee: {
+          partA: {
+            maxSalary: D(3_144.45),
+            flatAmount: D(115.91),
+            multiplier: D(0.2443),
+            amountToExclude: D(2_669.96),
+          },
+          partB: {
+            maxSalary: D(2_669.96),
+            flatAmount: D(156.30),
+            multiplier: D(0.2699),
+            amountToExclude: D(2_090.78),
+          },
+        },
+        worker: {
+          partA: {
+            maxSalary: D(3_144.45),
+            flatAmount: D(125.18),
+            multiplier: D(0.2638),
+            amountToExclude: D(2_669.96),
+          },
+          partB: {
+            maxSalary: D(2_669.96),
+            flatAmount: D(168.80),
+            multiplier: D(0.2914),
+            amountToExclude: D(2_090.78),
+          },
+        },
+        partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
+        maxYearlyAmount: D(3_331.8),
       },
     },
-    partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
-    partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
-    maxYearlyAmount: D(3_331.8),
-  },
+    {
+      effectiveFromMonth: 5,
+      info: {
+        employee: {
+          partA: {
+            maxSalary: D(3_207.40),
+            flatAmount: D(118.22),
+            multiplier: D(0.2442),
+            amountToExclude: D(2_723.36),
+          },
+          partB: {
+            maxSalary: D(2_723.36),
+            flatAmount: D(159.43),
+            multiplier: D(0.2699),
+            amountToExclude: D(2_132.59),
+          },
+        },
+        worker: {
+          partA: {
+            maxSalary: D(3_207.40),
+            flatAmount: D(127.68),
+            multiplier: D(0.2638),
+            amountToExclude: D(2_723.36),
+          },
+          partB: {
+            maxSalary: D(2_723.36),
+            flatAmount: D(172.18),
+            multiplier: D(0.2915),
+            amountToExclude: D(2_132.59),
+          },
+        },
+        partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
+        maxYearlyAmount: D(3_331.8),
+      },
+    },
+  ],
 
   maxRevenueAttributedToPartner: D(13_060.0),
   taxExemptQuota: D(10_580.0),

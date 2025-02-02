@@ -25,6 +25,7 @@ export interface TaxTier {
 };
 
 export interface EmploymentBonusTierInfo {
+  minSalary?: Decimal,
   maxSalary: Decimal,
   flatAmount: Decimal,
   multiplier: Decimal,
@@ -42,6 +43,11 @@ export interface EmploymentBonusInfo {
   partAProfessionalWithHoldingTaxReductionPercentage: Decimal;
   partBProfessionalWithHoldingTaxReductionPercentage: Decimal;
   maxYearlyAmount: Decimal;
+};
+
+export interface EmploymentBonusInfoVersion {
+  effectiveFromMonth: number;
+  info: EmploymentBonusInfo;
 };
 
 export interface DefaultDependentChildrenReduction {
@@ -104,7 +110,7 @@ export interface TaxationInfo {
   specialSocialCotisationTiersMarriedOneIncome: SocialSecurityTier[];
   specialSocialCotisationTiersMarriedTwoIncomes: SocialSecurityTier[];
 
-  employmentBonusInfo: EmploymentBonusInfo;
+  employmentBonusInfo: EmploymentBonusInfoVersion[];
 
   maxRevenueAttributedToPartner: Decimal;
   taxExemptQuota: Decimal;

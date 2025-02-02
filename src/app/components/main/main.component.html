@@ -22,6 +22,7 @@
     <mat-card-content>
       <app-form
         (onPristineChange)="onFormPristineChanged($event)"
+        (onMaxYearlyEmploymentBonusUpdate)="onMaxYearlyEmploymentBonusUpdated($event)"
         (onFormValueUpdate)="onFormValueUpdate($event)"
         (onNewInput)="onNewInput($event)" />
     </mat-card-content>
@@ -112,9 +113,6 @@
                   <mat-icon matListItemIcon>add</mat-icon>
                   <span matListItemTitle>{{ t('company_car_benefit_in_kind_value') }}</span>
                   <span matListItemLine>{{ formatAmount(result.companyCarBenefitInKindValue) }}</span>
-                  @if (lastInput?.period === TaxationPeriod.Monthly) {
-                    <span matListItemLine><em>{{ t('company_car_benefit_in_kind_monthly_warning') }}</em></span>
-                  }
                 </mat-list-item>
 
                 <mat-list-item>

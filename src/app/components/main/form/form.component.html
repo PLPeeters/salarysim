@@ -187,50 +187,52 @@
     </mat-checkbox>
 
     @if (salaryForm.get('companyCar')?.value) {
-    <!-- Catalog value -->
-    <!-- https://mobiforms.mobilit.fgov.be/link/myvehiclemyplate -->
-    <mat-form-field appearance="fill" subscriptSizing="dynamic">
-      <mat-label>{{ t('catalog_value') }}</mat-label>
-      <input matInput type="number" min="0.01" step="0.01" formControlName="companyCarCatalogValue">
+      <!-- Catalog value -->
+      <!-- https://mobiforms.mobilit.fgov.be/link/myvehiclemyplate -->
+      <mat-form-field appearance="fill" subscriptSizing="dynamic">
+        <mat-label>{{ t('catalog_value') }}</mat-label>
+        <input matInput type="number" min="0.01" step="0.01" formControlName="companyCarCatalogValue">
 
-      @if (currentLocale != 'fr-BE') {
-        <mat-icon matPrefix>euro</mat-icon>
-      } @else {
-        <mat-icon matSuffix>euro</mat-icon>
-      }
-    </mat-form-field>
-
-    <!-- Fuel type -->
-    <mat-form-field appearance="fill" subscriptSizing="dynamic">
-      <mat-label>{{ t('fuel_type') }}</mat-label>
-      <mat-select formControlName="companyCarFuelType">
-        @for (fuelType of fuelTypes; track $index) {
-          <mat-option [value]="fuelType">{{ t('fuel_types.' + fuelType) }}</mat-option>
+        @if (currentLocale != 'fr-BE') {
+          <mat-icon matPrefix>euro</mat-icon>
+        } @else {
+          <mat-icon matSuffix>euro</mat-icon>
         }
-      </mat-select>
-    </mat-form-field>
+      </mat-form-field>
 
-    <!-- g CO2/km -->
-    <mat-form-field appearance="fill" subscriptSizing="dynamic">
-      <mat-label>{{ t('g_co2_km') }}</mat-label>
-      <input matInput type="number" min="0" step="0.01" formControlName="companyCarGramsCo2PerKm">
-    </mat-form-field>
+      <!-- Fuel type -->
+      <mat-form-field appearance="fill" subscriptSizing="dynamic">
+        <mat-label>{{ t('fuel_type') }}</mat-label>
+        <mat-select formControlName="companyCarFuelType">
+          @for (fuelType of fuelTypes; track $index) {
+            <mat-option [value]="fuelType">{{ t('fuel_types.' + fuelType) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="fill" subscriptSizing="dynamic">
-      <mat-label>{{ t('first_plate_registration_month') }}</mat-label>
-      <input matInput type="text" formControlName="companyCarFirstPlateRegistrationMonth">
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" subscriptSizing="dynamic">
-      <mat-label>{{ t('monthly_personal_contribution') }}</mat-label>
-      <input matInput type="number" min="0" step="0.01" formControlName="companyCarPersonalContribution">
-
-      @if (currentLocale != 'fr-BE') {
-        <mat-icon matPrefix>euro</mat-icon>
-      } @else {
-        <mat-icon matSuffix>euro</mat-icon>
+      <!-- g CO2/km -->
+      @if (salaryForm.get('companyCarFuelType')?.value !== 'electric') {
+        <mat-form-field appearance="fill" subscriptSizing="dynamic">
+          <mat-label>{{ t('g_co2_km') }}</mat-label>
+          <input matInput type="number" min="0" step="0.01" formControlName="companyCarGramsCo2PerKm">
+        </mat-form-field>
       }
-    </mat-form-field>
+
+      <mat-form-field appearance="fill" subscriptSizing="dynamic">
+        <mat-label>{{ t('first_plate_registration_month') }}</mat-label>
+        <input matInput type="text" formControlName="companyCarFirstPlateRegistrationMonth">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" subscriptSizing="dynamic">
+        <mat-label>{{ t('monthly_personal_contribution') }}</mat-label>
+        <input matInput type="number" min="0" step="0.01" formControlName="companyCarPersonalContribution">
+
+        @if (currentLocale != 'fr-BE') {
+          <mat-icon matPrefix>euro</mat-icon>
+        } @else {
+          <mat-icon matSuffix>euro</mat-icon>
+        }
+      </mat-form-field>
     }
   </div>
 
@@ -239,6 +241,16 @@
   <mat-tab-group class="m-t" animationDuration="0ms" (selectedTabChange)="onPeriodTabSelected()" [(selectedIndex)]="periodTabIndex" dynamicHeight="true">
 
     <mat-tab [label]="t('single_month')">
+      <!-- Revenue year -->
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>{{ t('month') }}</mat-label>
+        <mat-select formControlName="revenueMonth">
+          @for (month of months; track $index) {
+            <mat-option [value]="month">{{ t('months.' + month) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
       <!-- Gross Salary -->
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>{{ t('gross_salary_title') }}</mat-label>

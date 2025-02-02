@@ -6,6 +6,7 @@ import { getMonthlyIncomes } from "./utils";
 export const simpleEmployee: SalaryCalculationInput = {
   period: TaxationPeriod.Monthly,
   revenueYear: 2024,
+  month: 11,
   status: Status.EMPLOYEE,
   workRegime: {
     type: WorkRegime.FULL_TIME,
@@ -225,6 +226,7 @@ const simpleEmployeeAnnual: YearlySalaryCalculationInput = {
 };
 const employeeWithDieselCar: SalaryCalculationInput = {
   ...simpleEmployee,
+  month: 11,
   companyCarInfo: {
     catalogValue: 25000,
     firstPlateRegistrationMonth: new Date(2022, 0, 21),
@@ -505,7 +507,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleEmployee, grossSalary: 2400 }, netSalary: 2035.94 },
   { input: { ...simpleEmployee, grossSalary: 2450 }, netSalary: 2045.44 },
   { input: { ...simpleEmployee, grossSalary: 2500 }, netSalary: 2054.95 },
-  { input: { ...simpleEmployee, grossSalary: 2550 }, netSalary: 2064.44 },
+  { input: { ...simpleEmployee, grossSalary: 2550 }, netSalary: 2064.45 },
   { input: { ...simpleEmployee, grossSalary: 2600 }, netSalary: 2073.96 },
   { input: { ...simpleEmployee, grossSalary: 2650 }, netSalary: 2083.45 },
   { input: { ...simpleEmployee, grossSalary: 2700 }, netSalary: 2092.96 },
@@ -515,7 +517,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleEmployee, grossSalary: 2900 }, netSalary: 2144.34 },
   { input: { ...simpleEmployee, grossSalary: 2950 }, netSalary: 2157.62 },
   { input: { ...simpleEmployee, grossSalary: 3000 }, netSalary: 2170.90 },
-  { input: { ...simpleEmployee, grossSalary: 3050 }, netSalary: 2184.17 },
+  { input: { ...simpleEmployee, grossSalary: 3050 }, netSalary: 2184.18 },
   { input: { ...simpleEmployee, grossSalary: 3100 }, netSalary: 2197.47 },
   { input: { ...simpleEmployee, grossSalary: 3150 }, netSalary: 2210.74 },
   { input: { ...simpleEmployee, grossSalary: 3200 }, netSalary: 2224.02 },
@@ -574,10 +576,10 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleEmployee, grossSalary: 19000 }, netSalary: 8663.38 },
   { input: { ...simpleEmployee, grossSalary: 20000 }, netSalary: 9067.6 },
 
-  { input: { ...simpleWorker, grossSalary: 2070.48 }, netSalary: 1938.88 }, // Capped work bonus
-  { input: { ...simpleWorker, grossSalary: 2100 }, netSalary: 1953.03 },    // Capped work bonus
-  { input: { ...simpleWorker, grossSalary: 2150 }, netSalary: 1977 },       // Capped work bonus
-  { input: { ...simpleWorker, grossSalary: 2200 }, netSalary: 2000.98 },    // Capped work bonus
+  { input: { ...simpleWorker, grossSalary: 2070.48 }, netSalary: 1959.55 },
+  { input: { ...simpleWorker, grossSalary: 2100 }, netSalary: 1979.52 },
+  { input: { ...simpleWorker, grossSalary: 2150 }, netSalary: 2001.06 },
+  { input: { ...simpleWorker, grossSalary: 2200 }, netSalary: 2004.56 },
   { input: { ...simpleWorker, grossSalary: 2250 }, netSalary: 2011.75 },
   { input: { ...simpleWorker, grossSalary: 2300 }, netSalary: 2019.74 },
   { input: { ...simpleWorker, grossSalary: 2350 }, netSalary: 2027.7 },
@@ -590,7 +592,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleWorker, grossSalary: 2700 }, netSalary: 2083.54 },
   { input: { ...simpleWorker, grossSalary: 2750 }, netSalary: 2093.7 },
   { input: { ...simpleWorker, grossSalary: 2800 }, netSalary: 2105.75 },
-  { input: { ...simpleWorker, grossSalary: 2850 }, netSalary: 2117.80 },
+  { input: { ...simpleWorker, grossSalary: 2850 }, netSalary: 2117.81 },
   { input: { ...simpleWorker, grossSalary: 2900 }, netSalary: 2129.87 },
   { input: { ...simpleWorker, grossSalary: 2950 }, netSalary: 2141.92 },
   { input: { ...simpleWorker, grossSalary: 3000 }, netSalary: 2153.97 },
@@ -624,7 +626,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleWorker, grossSalary: 5500 }, netSalary: 3180.69 },
   { input: { ...simpleWorker, grossSalary: 5600 }, netSalary: 3219.54 },
   { input: { ...simpleWorker, grossSalary: 5700 }, netSalary: 3259.48 },
-  { input: { ...simpleWorker, grossSalary: 5800 }, netSalary: 3299.41 },
+  { input: { ...simpleWorker, grossSalary: 5800 }, netSalary: 3299.42 },
   { input: { ...simpleWorker, grossSalary: 5900 }, netSalary: 3339.35 },
   { input: { ...simpleWorker, grossSalary: 6000 }, netSalary: 3379.28 },
   { input: { ...simpleWorker, grossSalary: 6100 }, netSalary: 3419.22 },
@@ -633,7 +635,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleWorker, grossSalary: 6400 }, netSalary: 3539.03 },
   { input: { ...simpleWorker, grossSalary: 6500 }, netSalary: 3578.97 },
   { input: { ...simpleWorker, grossSalary: 6600 }, netSalary: 3618.9 },
-  { input: { ...simpleWorker, grossSalary: 6700 }, netSalary: 3658.83 },
+  { input: { ...simpleWorker, grossSalary: 6700 }, netSalary: 3658.84 },
   { input: { ...simpleWorker, grossSalary: 6800 }, netSalary: 3698.78 },
   { input: { ...simpleWorker, grossSalary: 6900 }, netSalary: 3738.71 },
   { input: { ...simpleWorker, grossSalary: 7000 }, netSalary: 3778.65 },
@@ -643,7 +645,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleWorker, grossSalary: 9000 }, netSalary: 4577.38 },
   { input: { ...simpleWorker, grossSalary: 9500 }, netSalary: 4777.06 },
   { input: { ...simpleWorker, grossSalary: 10000 }, netSalary: 4976.74 },
-  { input: { ...simpleWorker, grossSalary: 11000 }, netSalary: 5376.09 },
+  { input: { ...simpleWorker, grossSalary: 11000 }, netSalary: 5376.10 },
   { input: { ...simpleWorker, grossSalary: 12000 }, netSalary: 5775.46 },
   { input: { ...simpleWorker, grossSalary: 13000 }, netSalary: 6174.82 },
   { input: { ...simpleWorker, grossSalary: 14000 }, netSalary: 6574.19 },
@@ -783,7 +785,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...partTimeWorker, grossSalary: 8500 }, netSalary: 4377.69 },
   { input: { ...partTimeWorker, grossSalary: 9000 }, netSalary: 4577.38 },
   { input: { ...partTimeWorker, grossSalary: 10000 }, netSalary: 4976.74 },
-  { input: { ...partTimeWorker, grossSalary: 11000 }, netSalary: 5376.09 },
+  { input: { ...partTimeWorker, grossSalary: 11000 }, netSalary: 5376.10 },
   { input: { ...partTimeWorker, grossSalary: 12000 }, netSalary: 5775.46 },
   { input: { ...partTimeWorker, grossSalary: 13000 }, netSalary: 6174.82 },
   { input: { ...partTimeWorker, grossSalary: 14000 }, netSalary: 6574.19 },
@@ -852,81 +854,81 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...employeeWithOtherNetIncome, grossSalary: 4029.16 }, netSalary: 2581.70, netIncome: 2681.70 }, // Withholding tier 3
   { input: { ...employeeWithOtherNetIncome, grossSalary: 5000 }, netSalary: 3007.01, netIncome: 3107.01 },    // Withholding tier 4
 
-  { input: { ...employeeWithDieselCar, grossSalary: 3000 }, netSalary: 2073.70 },
-  { input: { ...employeeWithDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2042.67 },
-  { input: { ...employeeWithDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2120.21, netIncome: 2020.21 },
-  { input: { ...employeeWithGasolineCar, grossSalary: 3000 }, netSalary: 2068.46 },
-  { input: { ...employeeWithElectricCar, grossSalary: 3000 }, netSalary: 2111.65 },
-  { input: { ...employeeWithHybridCar, grossSalary: 3000 }, netSalary: 2102.16 },
-  { input: { ...employeeWithNaturalGasCar, grossSalary: 3000 }, netSalary: 1978.09 },
+  { input: { ...employeeWithDieselCar, grossSalary: 3000 }, netSalary: 2074.42 },
+  { input: { ...employeeWithDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2043.64 },
+  { input: { ...employeeWithDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2120.90, netIncome: 2020.90 },
+  { input: { ...employeeWithGasolineCar, grossSalary: 3000 }, netSalary: 2069.23 },
+  { input: { ...employeeWithElectricCar, grossSalary: 3000 }, netSalary: 2112.12 },
+  { input: { ...employeeWithHybridCar, grossSalary: 3000 }, netSalary: 2102.67 },
+  { input: { ...employeeWithNaturalGasCar, grossSalary: 3000 }, netSalary: 1981.93 },
 
-  { input: { ...employeeWithMoreRecentDieselCar, grossSalary: 3000 }, netSalary: 2070.72 },
-  { input: { ...employeeWithMoreRecentDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2038.82 },
-  { input: { ...employeeWithMoreRecentDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2117.57, netIncome: 2017.57 },
-  { input: { ...employeeWithMoreRecentGasolineCar, grossSalary: 3000 }, netSalary: 2065.33 },
-  { input: { ...employeeWithMoreRecentElectricCar, grossSalary: 3000 }, netSalary: 2110.04 },
-  { input: { ...employeeWithMoreRecentHybridCar, grossSalary: 3000 }, netSalary: 2099.83 },
-  { input: { ...employeeWithMoreRecentNaturalGasCar, grossSalary: 3000 }, netSalary: 1970.79 },
+  { input: { ...employeeWithMoreRecentDieselCar, grossSalary: 3000 }, netSalary: 2072.7 },
+  { input: { ...employeeWithMoreRecentDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2041.46 },
+  { input: { ...employeeWithMoreRecentDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2119.46, netIncome: 2019.46 },
+  { input: { ...employeeWithMoreRecentGasolineCar, grossSalary: 3000 }, netSalary: 2067.43 },
+  { input: { ...employeeWithMoreRecentElectricCar, grossSalary: 3000 }, netSalary: 2111.24 },
+  { input: { ...employeeWithMoreRecentHybridCar, grossSalary: 3000 }, netSalary: 2101.30 },
+  { input: { ...employeeWithMoreRecentNaturalGasCar, grossSalary: 3000 }, netSalary: 1972.36 },
 
   { input: { ...halfTimeWorker, grossSalary: 1319.16 }, netSalary: 1209.17 },           // Withholding tier 1
   { input: { ...halfTimeWorkerWithOneKid, grossSalary: 1319.16 }, netSalary: 1209.17 }, // Withholding tier 1
-  { input: { ...workerWithOneKid, grossSalary: 2100 }, netSalary: 2051.03 },            // Work bonus
+  { input: { ...workerWithOneKid, grossSalary: 2100 }, netSalary: 2077.52 },            // Work bonus
   { input: { ...workerWithOneKid, grossSalary: 2328.33 }, netSalary: 2122.25 },         // Withholding tier 2
   { input: { ...workerWithOneKid, grossSalary: 2500 }, netSalary: 2149.63 },            // Work bonus
   { input: { ...workerWithOneKid, grossSalary: 3000 }, netSalary: 2251.97 },            // Work bonus
   { input: { ...workerWithOneKid, grossSalary: 4029.16 }, netSalary: 2652.70 },         // Withholding tier 3
   { input: { ...workerWithOneKid, grossSalary: 5000 }, netSalary: 3073.50 },            // Withholding tier 4
 
-  { input: { ...workerWithOneDisabledKid, grossSalary: 2100 }, netSalary: 2070.03 },    // Work bonus
+  { input: { ...workerWithOneDisabledKid, grossSalary: 2100 }, netSalary: 2088.81 },    // Work bonus
   { input: { ...workerWithOneDisabledKid, grossSalary: 2328.33 }, netSalary: 2204.25 }, // Withholding tier 2
   { input: { ...workerWithOneDisabledKid, grossSalary: 2500 }, netSalary: 2231.63 },    // Work bonus
   { input: { ...workerWithOneDisabledKid, grossSalary: 3000 }, netSalary: 2333.97 },    // Work bonus
   { input: { ...workerWithOneDisabledKid, grossSalary: 4029.16 }, netSalary: 2734.70 }, // Withholding tier 3
   { input: { ...workerWithOneDisabledKid, grossSalary: 5000 }, netSalary: 3155.50 },    // Withholding tier 4
 
-  { input: { ...workerWithOneAbleAndOneDisabledKid, grossSalary: 2100 }, netSalary: 2070.03 },    // Work bonus
+  { input: { ...workerWithOneAbleAndOneDisabledKid, grossSalary: 2100 }, netSalary: 2088.81 },    // Work bonus
   { input: { ...workerWithOneAbleAndOneDisabledKid, grossSalary: 2328.33 }, netSalary: 2228.57 }, // Withholding tier 2
   { input: { ...workerWithOneAbleAndOneDisabledKid, grossSalary: 2500 }, netSalary: 2323.93 },    // Work bonus
   { input: { ...workerWithOneAbleAndOneDisabledKid, grossSalary: 3000 }, netSalary: 2549.97 },    // Work bonus
   { input: { ...workerWithOneAbleAndOneDisabledKid, grossSalary: 4029.16 }, netSalary: 2950.70 }, // Withholding tier 3
   { input: { ...workerWithOneAbleAndOneDisabledKid, grossSalary: 5000 }, netSalary: 3371.50 },    // Withholding tier 4
 
-  { input: { ...workerWith100Kids, grossSalary: 2100 }, netSalary: 2070.03 },    // Work bonus
+  { input: { ...workerWith100Kids, grossSalary: 2100 }, netSalary: 2088.81 },    // Work bonus
   { input: { ...workerWith100Kids, grossSalary: 2328.33 }, netSalary: 2228.57 }, // Withholding tier 2
   { input: { ...workerWith100Kids, grossSalary: 2500 }, netSalary: 2323.93 },    // Work bonus
   { input: { ...workerWith100Kids, grossSalary: 3000 }, netSalary: 2609.35 },    // Work bonus
   { input: { ...workerWith100Kids, grossSalary: 4029.16 }, netSalary: 3418.04 }, // Withholding tier 3
   { input: { ...workerWith100Kids, grossSalary: 5000 }, netSalary: 4240.31 },    // Withholding tier 4
 
-  { input: { ...disabledWorker, grossSalary: 2100 }, netSalary: 2002.03 },    // Work bonus
+  { input: { ...disabledWorker, grossSalary: 2100 }, netSalary: 2028.52 },    // Work bonus
   { input: { ...disabledWorker, grossSalary: 2328.33 }, netSalary: 2073.25 }, // Withholding tier 2
   { input: { ...disabledWorker, grossSalary: 2500 }, netSalary: 2100.63 },    // Work bonus
   { input: { ...disabledWorker, grossSalary: 3000 }, netSalary: 2202.97 },    // Work bonus
   { input: { ...disabledWorker, grossSalary: 4029.16 }, netSalary: 2603.70 }, // Withholding tier 3
   { input: { ...disabledWorker, grossSalary: 5000 }, netSalary: 3024.50 },    // Withholding tier 4
 
-  { input: { ...workerWithGroupInsurance, grossSalary: 2100 }, netSalary: 1965.78, netIncome: 1923.28 },    // Work bonus
+  { input: { ...workerWithGroupInsurance, grossSalary: 2100 }, netSalary: 1992.27, netIncome: 1949.77 },    // Work bonus
   { input: { ...workerWithGroupInsurance, grossSalary: 2328.33 }, netSalary: 2037.00, netIncome: 1994.50 }, // Withholding tier 2
   { input: { ...workerWithGroupInsurance, grossSalary: 2500 }, netSalary: 2064.38, netIncome: 2021.88 },    // Work bonus
   { input: { ...workerWithGroupInsurance, grossSalary: 3000 }, netSalary: 2166.72, netIncome: 2124.22 },    // Work bonus
   { input: { ...workerWithGroupInsurance, grossSalary: 4029.16 }, netSalary: 2567.45, netIncome: 2524.95 }, // Withholding tier 3
   { input: { ...workerWithGroupInsurance, grossSalary: 5000 }, netSalary: 2988.25, netIncome: 2945.75 },    // Withholding tier 4
 
-  { input: { ...workerWithOtherNetIncome, grossSalary: 2100 }, netSalary: 1953.03, netIncome: 2053.03 },    // Work bonus
+  { input: { ...workerWithOtherNetIncome, grossSalary: 2100 }, netSalary: 1979.52, netIncome: 2079.52 },    // Work bonus
   { input: { ...workerWithOtherNetIncome, grossSalary: 2328.33 }, netSalary: 2024.25, netIncome: 2124.25 }, // Withholding tier 2
   { input: { ...workerWithOtherNetIncome, grossSalary: 2500 }, netSalary: 2051.63, netIncome: 2151.63 },    // Work bonus
   { input: { ...workerWithOtherNetIncome, grossSalary: 3000 }, netSalary: 2153.97, netIncome: 2253.97 },    // Work bonus
   { input: { ...workerWithOtherNetIncome, grossSalary: 4029.16 }, netSalary: 2554.70, netIncome: 2654.70 }, // Withholding tier 3
   { input: { ...workerWithOtherNetIncome, grossSalary: 5000 }, netSalary: 2975.50, netIncome: 3075.50 },    // Withholding tier 4
 
-  { input: { ...marriedWorkerOneIncome, grossSalary: 2100 }, netSalary: 2065.92 },    // Capped work bonus
+  { input: { ...marriedWorkerOneIncome, grossSalary: 2100 }, netSalary: 2084.70 },
   { input: { ...marriedWorkerOneIncome, grossSalary: 2328.33 }, netSalary: 2224.46 },
   { input: { ...marriedWorkerOneIncome, grossSalary: 2500 }, netSalary: 2319.82 },
   { input: { ...marriedWorkerOneIncome, grossSalary: 3000 }, netSalary: 2489.33 },
   { input: { ...marriedWorkerOneIncome, grossSalary: 4029.16 }, netSalary: 2973.20 },
   { input: { ...marriedWorkerOneIncome, grossSalary: 5000 }, netSalary: 3448.41 },
 
-  { input: { ...marriedWorkerWithDisabledPartner, grossSalary: 2100 }, netSalary: 2065.92 },    // Capped work bonus
+  { input: { ...marriedWorkerWithDisabledPartner, grossSalary: 2100 }, netSalary: 2084.70 },
   { input: { ...marriedWorkerWithDisabledPartner, grossSalary: 2328.33 }, netSalary: 2224.46 },
   { input: { ...marriedWorkerWithDisabledPartner, grossSalary: 2500 }, netSalary: 2319.82 },
   { input: { ...marriedWorkerWithDisabledPartner, grossSalary: 3000 }, netSalary: 2538.33 },
@@ -942,13 +944,13 @@ export const INPUTS_TO_NET: Situation[] = [
 
   { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 2000 }, netSalary: 1609.57 },
   { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 2100 }, netSalary: 1669.00 },
-  { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 2328.33 }, netSalary: 1778.45 },
+  { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 2328.33 }, netSalary: 1778.46 },
   { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 2500 }, netSalary: 1860.75 },
   { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 3000 }, netSalary: 2100.44 },
   { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 4029.16 }, netSalary: 2558.87 },
   { input: { ...marriedHalfTimeWorkerTwoIncomes, grossSalary: 5000 }, netSalary: 2979.66 },
 
-  { input: { ...marriedWorkerTwoIncomes, grossSalary: 2100 }, netSalary: 1948.92 },    // Capped work bonus
+  { input: { ...marriedWorkerTwoIncomes, grossSalary: 2100 }, netSalary: 1975.41 },
   { input: { ...marriedWorkerTwoIncomes, grossSalary: 2328.33 }, netSalary: 2020.14 },
   { input: { ...marriedWorkerTwoIncomes, grossSalary: 2500 }, netSalary: 2047.52 },
   { input: { ...marriedWorkerTwoIncomes, grossSalary: 3000 }, netSalary: 2149.86 },
@@ -959,14 +961,14 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...marriedWorkerPartnerLowPension, grossSalary: 4000 }, netSalary: 2820.23 },
   { input: { ...marriedWorkerPartnerLowOtherRevenue, grossSalary: 3000 }, netSalary: 2287.36 },
 
-  { input: { ...divorcedWorkerWithOneKid, grossSalary: 2100 }, netSalary: 2051.03 },            // Work bonus
+  { input: { ...divorcedWorkerWithOneKid, grossSalary: 2100 }, netSalary: 2077.52 },            // Work bonus
   { input: { ...divorcedWorkerWithOneKid, grossSalary: 2328.33 }, netSalary: 2122.25 },         // Withholding tier 2
   { input: { ...divorcedWorkerWithOneKid, grossSalary: 2500 }, netSalary: 2149.63 },            // Work bonus
   { input: { ...divorcedWorkerWithOneKid, grossSalary: 3000 }, netSalary: 2251.97 },            // Work bonus
   { input: { ...divorcedWorkerWithOneKid, grossSalary: 4029.16 }, netSalary: 2652.70 },         // Withholding tier 3
   { input: { ...divorcedWorkerWithOneKid, grossSalary: 5000 }, netSalary: 3073.50 },            // Withholding tier 4
 
-  { input: { ...widowedWorkerWithOneKid, grossSalary: 2100 }, netSalary: 2051.03 },            // Work bonus
+  { input: { ...widowedWorkerWithOneKid, grossSalary: 2100 }, netSalary: 2077.52 },            // Work bonus
   { input: { ...widowedWorkerWithOneKid, grossSalary: 2328.33 }, netSalary: 2122.25 },         // Withholding tier 2
   { input: { ...widowedWorkerWithOneKid, grossSalary: 2500 }, netSalary: 2149.63 },            // Work bonus
   { input: { ...widowedWorkerWithOneKid, grossSalary: 3000 }, netSalary: 2251.97 },            // Work bonus
@@ -975,23 +977,23 @@ export const INPUTS_TO_NET: Situation[] = [
 
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 1319.16 }, netSalary: 1209.17 },
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 2100 }, netSalary: 1771.11 },
-  { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 2328.33 }, netSalary: 1880.56 },
+  { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 2328.33 }, netSalary: 1880.57 },
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 2500 }, netSalary: 1962.86 },
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 3000 }, netSalary: 2202.55 },
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 4029.16 }, netSalary: 2652.70 },
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 5000 }, netSalary: 3073.50 },
 
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 23_623.26, netIncome: 25_887.06 },
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 24_267.96, netIncome: 26_777.91 },
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 24_659.4, netIncome: 27_354.41 },
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 26_050.82, netIncome: 28_967.21 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 23_476.30, netIncome: 25_740.10 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 24_111.72, netIncome: 26_621.67 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 24_535.73, netIncome: 27_230.74 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 25_990.29, netIncome: 28_906.68 },
   { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(4029.16) }, netSalary: 30_980.38, netIncome: 34_541.82 },
   { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(5000) }, netSalary: 36_084.08, netIncome: 40_149.44 },
 
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 23_436.41, netIncome: 25_700.21 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 24_290.99, netIncome: 26_800.94 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 24_619.57, netIncome: 27_314.58 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 25_847.63, netIncome: 28_764.02 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 23_350.97, netIncome: 25_614.77 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 24_120.06, netIncome: 26_630.01 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 24_483.78, netIncome: 27_178.79 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 25_782.30, netIncome: 28_698.69 },
   { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(4029.16) }, netSalary: 30_656.45, netIncome: 34_217.89 },
   { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(5000) }, netSalary: 35_705.99, netIncome: 39_771.35 },
 ]

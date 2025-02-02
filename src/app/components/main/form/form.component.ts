@@ -68,6 +68,7 @@ export enum Mode {
 })
 export class FormComponent implements OnInit {
   @Output() onFormValueUpdate = new EventEmitter<any>();
+  @Output() onMaxYearlyEmploymentBonusUpdate = new EventEmitter<number>();
   @Output() onNewInput = new EventEmitter<SalaryCalculationInput | YearlySalaryCalculationInput>();
   @Output() onPristineChange = new EventEmitter<boolean>();
 
@@ -91,6 +92,7 @@ export class FormComponent implements OnInit {
       isFinal: taxationInfo.isFinal,
     };
   });
+  months = Array.from({ length: 12 }, (_, index) => index + 1);
 
   loading: boolean = true;
   currentLocale: String = '';
@@ -112,6 +114,7 @@ export class FormComponent implements OnInit {
   ) {
     this.salaryForm = this.fb.group({
       revenueYear: [this.supportedRevenueYears[this.supportedRevenueYears.length - 1], Validators.required],
+      revenueMonth: [new Date().getMonth() + 1],
       status: [Status.EMPLOYEE, Validators.required],
       workRegime: [WorkRegime.FULL_TIME, Validators.required],
       workedTimePerWeek: [null],
@@ -207,8 +210,8 @@ export class FormComponent implements OnInit {
         const value = firstControl.controls[controlName].value;
 
         if (value) {
-          followingFormGroupControls[controlName]
-            .setValue(firstControl.controls[controlName].value);
+          followingFormGroupControls[controlName].setValue(value);
+          followingFormGroupControls[controlName].markAsDirty();
         }
       }
     });
@@ -227,12 +230,15 @@ export class FormComponent implements OnInit {
   }
 
   onModeChanged(mode: Mode) {
+    const revenueMonth = this.salaryForm.get('revenueMonth');
     const grossSalary = this.salaryForm.get('grossSalary');
     const monthlySalaryRowControls = this.monthlySalaryRows.controls as FormGroup[];
 
     if (mode === Mode.SingleMonth) {
       grossSalary?.setValidators([Validators.required, Validators.min(0.01)]);
       grossSalary?.updateValueAndValidity();
+      revenueMonth?.setValidators([Validators.required]);
+      revenueMonth?.updateValueAndValidity();
 
       monthlySalaryRowControls.forEach(formGroup => {
         formGroup.controls['grossSalary'].clearValidators();
@@ -243,6 +249,8 @@ export class FormComponent implements OnInit {
     } else {
       grossSalary?.clearValidators();
       grossSalary?.updateValueAndValidity();
+      revenueMonth?.clearValidators();
+      revenueMonth?.updateValueAndValidity();
 
       monthlySalaryRowControls.forEach(formGroup => {
         formGroup.controls['grossSalary'].setValidators([Validators.required, Validators.min(0)]);
@@ -270,7 +278,8 @@ export class FormComponent implements OnInit {
     this.lowPensionJanuaryThreshold = taxationInfo.lowPensionJanuaryThreshold;
     this.lowOtherRevenueJanuaryThreshold = taxationInfo.lowOtherRevenueJanuaryThreshold;
     this.noRevenueJanuaryThreshold = taxationInfo.noRevenueJanuaryThreshold;
-    this.maxYearlyEmploymentBonus = taxationInfo.employmentBonusInfo.maxYearlyAmount.toNumber();
+    this.maxYearlyEmploymentBonus = taxationInfo.employmentBonusInfo[0].info.maxYearlyAmount.toNumber();
+    this.onMaxYearlyEmploymentBonusUpdate.emit(this.maxYearlyEmploymentBonus);
     this.dependentRetireeAgeThreshold = taxationInfo.dependentRetireeAgeThreshold;
   }
 
@@ -389,78 +398,80 @@ export class FormComponent implements OnInit {
   onSubmit() {
     if (this.salaryForm.valid) {
       let salaryCalculatorInput: YearlySalaryCalculationInput | SalaryCalculationInput;
+      const formValue = this.salaryForm.value;
 
-      if (this.salaryForm.value.mode === Mode.SingleMonth) {
+      if (formValue.mode === Mode.SingleMonth) {
         salaryCalculatorInput = {
           period: TaxationPeriod.Monthly,
-          revenueYear: this.salaryForm.value.revenueYear.year,
-          status: this.salaryForm.value.status,
+          revenueYear: formValue.revenueYear.year,
+          month: formValue.revenueMonth,
+          status: formValue.status,
           workRegime: {
-            type: this.salaryForm.value.workRegime,
-            workedTimePerWeek: this.salaryForm.value.workedTimePerWeek,
-            fullTimeHoursPerWeek: this.salaryForm.value.fullTimeHoursPerWeek
+            type: formValue.workRegime,
+            workedTimePerWeek: formValue.workedTimePerWeek,
+            fullTimeHoursPerWeek: formValue.fullTimeHoursPerWeek
           },
-          familySituation: this.salaryForm.value.familySituation,
+          familySituation: formValue.familySituation,
           dependentPeople: {
-            numDependentChildren: this.salaryForm.value.numDependentChildren || 0,
-            numDisabledDependentChildren: this.salaryForm.value.numDisabledDependentChildren || 0,
-            numDependentRetirees: this.salaryForm.value.numDependentRetirees || 0,
-            numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
-            numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
+            numDependentChildren: formValue.dependentPeople ? formValue.numDependentChildren || 0 : 0,
+            numDisabledDependentChildren: formValue.dependentPeople ? formValue.numDisabledDependentChildren || 0 : 0,
+            numDependentRetirees: formValue.dependentPeople ? formValue.numDependentRetirees || 0 : 0,
+            numDependentOthers: formValue.dependentPeople ? formValue.numDependentOthers || 0 : 0,
+            numDisabledDependentOthers: formValue.dependentPeople ? formValue.numDisabledDependentOthers || 0 : 0,
           },
           mealVoucherAmounts: {
-            value: this.salaryForm.value.mealVouchersValue || 0,
-            personalContribution: this.salaryForm.value.mealVouchersPersonalContribution || 0,
+            value: formValue.mealVouchersValue || 0,
+            personalContribution: formValue.mealVouchersPersonalContribution || 0,
           },
           companyCarInfo: this.getCompanyCarInfo(),
-          disabled: this.salaryForm.value.disabled,
-          hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-          groupInsurancePersonalContribution: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalContribution || 0 : 0,
-          grossSalary: this.salaryForm.value.grossSalary,
-          bonus: this.salaryForm.value.bonus,
-          holidayPay: this.salaryForm.value.holidayPay,
-          otherNetIncome: this.salaryForm.value.otherNetIncome,
-          numMealVouchers: this.salaryForm.value.numMealVouchers,
+          disabled: formValue.disabled,
+          hasDisabledPartner: formValue.hasDisabledPartner,
+          groupInsurancePersonalContribution: formValue.groupInsurance ? formValue.groupInsurancePersonalContribution || 0 : 0,
+          grossSalary: formValue.grossSalary,
+          bonus: formValue.bonus,
+          holidayPay: formValue.holidayPay,
+          otherNetIncome: formValue.otherNetIncome,
+          numMealVouchers: formValue.mealVouchers ? formValue.numMealVouchers || 0 : 0,
         };
       } else {
         salaryCalculatorInput = {
           period: TaxationPeriod.Annual,
-          revenueYear: this.salaryForm.value.revenueYear.year,
-          status: this.salaryForm.value.status,
+          revenueYear: formValue.revenueYear.year,
+          status: formValue.status,
           workRegime: {
-            type: this.salaryForm.value.workRegime,
-            workedTimePerWeek: this.salaryForm.value.workedTimePerWeek,
-            fullTimeHoursPerWeek: this.salaryForm.value.fullTimeHoursPerWeek
+            type: formValue.workRegime,
+            workedTimePerWeek: formValue.workedTimePerWeek,
+            fullTimeHoursPerWeek: formValue.fullTimeHoursPerWeek
           },
-          familySituation: this.salaryForm.value.familySituation,
+          familySituation: formValue.familySituation,
           dependentPeople: {
-            numDependentChildren: this.salaryForm.value.numDependentChildren || 0,
-            numDisabledDependentChildren: this.salaryForm.value.numDisabledDependentChildren || 0,
-            numDependentRetirees: this.salaryForm.value.numDependentRetirees || 0,
-            numDependentOthers: this.salaryForm.value.numDependentOthers || 0,
-            numDisabledDependentOthers: this.salaryForm.value.numDisabledDependentOthers || 0,
+            numDependentChildren: formValue.numDependentChildren || 0,
+            numDisabledDependentChildren: formValue.numDisabledDependentChildren || 0,
+            numDependentRetirees: formValue.numDependentRetirees || 0,
+            numDependentOthers: formValue.numDependentOthers || 0,
+            numDisabledDependentOthers: formValue.numDisabledDependentOthers || 0,
           },
           mealVoucherAmounts: {
-            value: this.salaryForm.value.mealVouchersValue || 0,
-            personalContribution: this.salaryForm.value.mealVouchersPersonalContribution || 0,
+            value: formValue.mealVouchersValue || 0,
+            personalContribution: formValue.mealVouchersPersonalContribution || 0,
           },
           companyCarInfo: this.getCompanyCarInfo(),
-          disabled: this.salaryForm.value.disabled,
-          hasDisabledPartner: this.salaryForm.value.hasDisabledPartner,
-          groupInsurancePersonalContribution: this.salaryForm.value.groupInsurance ? this.salaryForm.value.groupInsurancePersonalContribution || 0 : 0,
-          monthlyIncomes: this.salaryForm.value.incomeByMonth.map((incomeForMonth: any) => ({
+          disabled: formValue.disabled,
+          hasDisabledPartner: formValue.hasDisabledPartner,
+          groupInsurancePersonalContribution: formValue.groupInsurance ? formValue.groupInsurancePersonalContribution || 0 : 0,
+          monthlyIncomes: formValue.incomeByMonth.map((incomeForMonth: any) => ({
             grossSalary: incomeForMonth.grossSalary,
             bonus: incomeForMonth.bonus,
             holidayPay: incomeForMonth.holidayPay,
             otherNetIncome: incomeForMonth.otherNetIncome,
-            numMealVouchers: this.salaryForm.value.mealVouchers ? incomeForMonth.numMealVouchers || 0 : 0,
+            numMealVouchers: formValue.mealVouchers ? incomeForMonth.numMealVouchers || 0 : 0,
           })),
         };
       }
       this.onNewInput.emit(salaryCalculatorInput);
       this.salaryForm.markAsPristine();
 
-      if (this.salaryForm.value.keepData) {
+      if (formValue.keepData) {
         this.persistFormToLocalStorage();
       }
     }

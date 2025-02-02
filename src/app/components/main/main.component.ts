@@ -91,11 +91,7 @@ export class MainComponent implements OnInit {
   showWithHoldingTaxBreakdown = false;
   periodTabIndex = 0;
 
-  lowPensionJanuaryThreshold: number = -1;
-  lowOtherRevenueJanuaryThreshold: number = -1;
-  noRevenueJanuaryThreshold: number = -1;
   maxYearlyEmploymentBonus: number = -1;
-  dependentRetireeAgeThreshold: number = -1;
 
   graphsStartingSalary = 2_100;
   graphsEndingSalary = 6_500;
@@ -244,6 +240,10 @@ export class MainComponent implements OnInit {
     this.translocoService.setActiveLang(locale);
   }
 
+  onMaxYearlyEmploymentBonusUpdated(maxYearlyEmploymentBonus: number) {
+    this.maxYearlyEmploymentBonus = maxYearlyEmploymentBonus;
+  }
+
   private getCompanyCarInfo(): VehicleInfo | null {
     if (!this.formValue.companyCar ||
         !this.formValue.companyCarCatalogValue ||
@@ -269,6 +269,7 @@ export class MainComponent implements OnInit {
     const salaryCalculatorInput: SalaryCalculationInput = {
       period: TaxationPeriod.Monthly,
       revenueYear: this.formValue.revenueYear.year,
+      month: this.formValue.revenueMonth,
       status: this.formValue.status,
       workRegime: {
         type: this.formValue.workRegime,

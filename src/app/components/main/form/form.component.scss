@@ -140,3 +140,17 @@ td.outline-neighbour-padding {
 .float-right {
   float: right;
 }
+
+.n-m {
+  margin: 0;
+}
+
+[mat-button].double-icon {
+  mat-icon {
+    color: rgb(68, 71, 78);
+  }
+
+  mat-icon + mat-icon {
+    margin-right: -6px;
+  }
+}
