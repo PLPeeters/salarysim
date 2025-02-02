@@ -5,7 +5,7 @@ const D = (value: number | string | null): Decimal => new Decimal(value || 0);
 
 export const taxationInfo: TaxationInfo = {
   year: 2025,
-  isFinal: false,
+  isFinal: true,
   socialCotisationsPercentage: D(13.07),
   flatRateProfessionalExpenseTiers: [
     {

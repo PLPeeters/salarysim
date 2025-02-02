@@ -375,7 +375,7 @@
 
             <td class="outline-neighbour-padding">
               @if (i < monthlySalaryRows.controls.length - 1) {
-                <a (click)="copyMonthlySalaryRowToRest(i)">{{ t('copy_to_rest') }}</a>
+                <button mat-button type="button" class="double-icon n-m" (click)="copyMonthlySalaryRowToRest(i)"><mat-icon>content_copy</mat-icon><mat-icon>arrow_downward</mat-icon></button>
               }
             </td>
           </tr>
