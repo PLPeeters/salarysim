@@ -182,6 +182,42 @@ export const taxationInfo: TaxationInfo = {
         maxYearlyAmount: D(3_331.8),
       }
     },
+    {
+      effectiveFromMonth: 2,
+      info: {
+        employee: {
+          partA: {
+            maxSalary: D(3_271.48),
+            flatAmount: D(120.59),
+            multiplier: D(0.2443),
+            amountToExclude: D(2_777.83),
+          },
+          partB: {
+            maxSalary: D(2_777.83),
+            flatAmount: D(162.62),
+            multiplier: D(0.2699),
+            amountToExclude: D(2_175.25),
+          },
+        },
+        worker: {
+          partA: {
+            maxSalary: D(3_271.48),
+            flatAmount: D(127.68),
+            multiplier: D(0.2638),
+            amountToExclude: D(2_777.83),
+          },
+          partB: {
+            maxSalary: D(2_777.83),
+            flatAmount: D(172.18),
+            multiplier: D(0.2915),
+            amountToExclude: D(2_175.25),
+          },
+        },
+        partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
+        maxYearlyAmount: D(3_331.8),
+      }
+    },
   ],
 
   maxRevenueAttributedToPartner: D(13_460.0),
