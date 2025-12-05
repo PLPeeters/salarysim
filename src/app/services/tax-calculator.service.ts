@@ -1442,7 +1442,7 @@ export class TaxCalculatorService {
         gramsCo2PerKm
         .minus(referenceCO2Emissions)
         .div(10)
-    ).clampedTo(taxationInfo.minCO2Percentage, taxationInfo.maxO2Percentage).div(100);
+    ).clampedTo(taxationInfo.minCO2Percentage, taxationInfo.maxCO2Percentage).div(100);
 
     return catalogValueWeighted
       .times(deprecationMultiplier)

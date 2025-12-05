@@ -136,7 +136,7 @@ export interface TaxationInfo {
   vehicleAgeDepreciationTiers: VehicleAgeDepreciationTier[];
   baseCO2Percentage: Decimal;
   minCO2Percentage: Decimal;
-  maxO2Percentage: Decimal;
+  maxCO2Percentage: Decimal;
   defaultCO2Diesel: Decimal;
   defaultCO2Other: Decimal;
   referenceCO2Diesel: Decimal;

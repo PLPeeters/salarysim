@@ -464,7 +464,7 @@ export const taxationInfo: TaxationInfo = {
   ],
   baseCO2Percentage: D(5.5),
   minCO2Percentage: D(4),
-  maxO2Percentage: D(18),
+  maxCO2Percentage: D(18),
   defaultCO2Diesel: D(195),
   defaultCO2Other: D(205),
   referenceCO2Diesel: D(59),
