@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync With Latest Rules"
+  short_description: "Update Belgian payroll and car-tax rules"
+  default_prompt: "Use $sync-with-latest-rules to refresh Belgian payroll, company-car, and withholding-tax rules from official Belgian sources."

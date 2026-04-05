@@ -84,4 +84,18 @@ describe('TaxCalculatorService', () => {
 
     expect(() => service.calculateTaxation(input)).toThrow();
   });
+
+  it('should use the February 2025 ONSS worker work-bonus amounts', () => {
+    const input = {
+      ...simpleEmployee,
+      revenueYear: 2025,
+      month: 2,
+      status: Status.WORKER,
+      grossSalary: 2500,
+    };
+
+    const result = service.calculateTaxation(input);
+
+    expect(result.employmentBonus).toBe(211.21);
+  });
 });

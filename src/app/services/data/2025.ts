@@ -202,13 +202,13 @@ export const taxationInfo: TaxationInfo = {
         worker: {
           partA: {
             maxSalary: D(3_271.48),
-            flatAmount: D(127.68),
+            flatAmount: D(130.24),
             multiplier: D(0.2638),
             amountToExclude: D(2_777.83),
           },
           partB: {
             maxSalary: D(2_777.83),
-            flatAmount: D(172.18),
+            flatAmount: D(175.63),
             multiplier: D(0.2915),
             amountToExclude: D(2_175.25),
           },

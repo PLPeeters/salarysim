@@ -988,10 +988,10 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(4029.16) }, netSalary: 31275.16, netIncome: 34836.60 },
   { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(5000) }, netSalary: 36378.86, netIncome: 40444.22 },
 
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 23686.99, netIncome: 26024.79 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 24680.77, netIncome: 27190.72 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 25009.35, netIncome: 27704.36 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 26230.09, netIncome: 29146.48 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 23682.09, netIncome: 26019.89 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 24747.85, netIncome: 27257.80 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 25076.43, netIncome: 27771.44 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 26255.55, netIncome: 29171.94 },
   { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(4029.16) }, netSalary: 30951.23, netIncome: 34512.67 },
   { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(5000) }, netSalary: 36000.78, netIncome: 40066.14 },
 ]
