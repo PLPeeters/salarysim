@@ -17,8 +17,9 @@ Use this skill to refresh a Belgian payroll simulator from official sources and 
 4. Compare the official rules against the current code. Separate findings into: professional withholding changes, social-security or employment-bonus changes, company-car taxable-benefit changes, and company-car solidarity-contribution changes.
 5. Change only what the official source proves. If a current-year official source is unavailable, keep the existing code unchanged for that topic and report the gap explicitly as `UNCONFIRMED`.
 6. If the SPF landing page shows the new year, follow the downstream MyMinfin or Fisconet record through to the actual attachment payload before declaring a retrieval failure. That includes one-click-deeper PDF links, download endpoints, or embedded base64 document payloads exposed by the public document API. If the landing page shows the year but only the attachment retrieval is blocked, report that distinction precisely. Do not say the yearly instructions do not exist unless the landing page itself lacks the year.
-7. When a new revenue year is required, update every related year list, tests, UI selector, documentation snippet, and explanatory copy in the same change.
-8. After source edits, update affected docs and run the repository verification commands. In this repository, run `npm run build` and `npm run test-headless` unless the environment blocks them.
+7. When a new revenue year is required, update every related year list, tests, UI selector, documentation snippet, and explanatory copy in the same change. Do not stop at wiring the new year into selectors: add year-specific regression coverage that proves the new year is supported end to end. In this repository that usually means adding or updating `src/app/services/data/<year>-inputs-to-net.ts` fixture coverage when feasible, plus focused calculator tests for the year-specific rule changes.
+8. Prefer an explicit year file over a multi-year inheritance chain when the year data acts as an auditable rule snapshot. Small shared helpers are fine, but do not hide a payroll year behind several prior-year overlays unless the user explicitly asks for that tradeoff.
+9. After source edits, update affected docs and run the repository verification commands. In this repository, run `npm run build` and `npm run test-headless` unless the environment blocks them.
 
 ## Company-Car Rule Selection
 
@@ -35,6 +36,8 @@ When the official sources differ from the code:
 - Update the year-specific constants first.
 - Update calculator logic only if the formula itself changed, not just the yearly inputs.
 - Add or adjust focused unit tests that prove the changed rule.
+- If you introduced a new revenue year, add explicit test coverage for that year instead of relying only on neighboring-year tests or generic selector wiring.
+- Keep the final year payload easy to audit against the official publication; if you used temporary inheritance while exploring, collapse it before finishing unless the user asked to keep it.
 - Update user-facing copy if a visible label, warning, or supported-year message changed.
 
 When the official sources match the code:

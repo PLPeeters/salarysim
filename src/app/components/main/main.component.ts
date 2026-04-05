@@ -21,7 +21,7 @@ import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin, take } from 'rxjs';
 import { DisableScrollDirective } from '../../directives/disable-scroll.directive';
 import { FormattingService } from '../../services/formatting.service';
-import { FamilySituation, FuelType, SalaryCalculationInput, Status, taxationInfo2024, taxationInfo2025, TaxationPeriod, TaxationResult, TaxCalculatorService, VehicleInfo, WorkRegime, YearlySalaryCalculationInput } from '../../services/tax-calculator.service';
+import { FamilySituation, FuelType, SalaryCalculationInput, Status, taxationInfo2024, taxationInfo2025, taxationInfo2026, TaxationPeriod, TaxationResult, TaxCalculatorService, VehicleInfo, WorkRegime, YearlySalaryCalculationInput } from '../../services/tax-calculator.service';
 import { FormComponent } from "./form/form.component";
 import { getDateFromMonthString } from './month-validator';
 import { WithholdingTaxBreakdownComponent } from "./withholding-tax-breakdown/withholding-tax-breakdown.component";
@@ -101,6 +101,7 @@ export class MainComponent implements OnInit {
   supportedRevenueYears: RevenueYear[] = [
     taxationInfo2024,
     taxationInfo2025,
+    taxationInfo2026,
   ].map(taxationInfo => {
     return {
       year: taxationInfo.year,

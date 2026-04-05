@@ -21,7 +21,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DisableScrollDirective } from '../../../directives/disable-scroll.directive';
 import { FormattingService } from '../../../services/formatting.service';
-import { FamilySituation, FuelType, SalaryCalculationInput, Status, taxationInfo2024, taxationInfo2025, TaxationPeriod, VehicleInfo, WorkRegime, YearlySalaryCalculationInput } from '../../../services/tax-calculator.service';
+import { FamilySituation, FuelType, SalaryCalculationInput, Status, taxationInfo2024, taxationInfo2025, taxationInfo2026, TaxationPeriod, VehicleInfo, WorkRegime, YearlySalaryCalculationInput } from '../../../services/tax-calculator.service';
 import { getDateFromMonthString, monthValidator } from '../month-validator';
 
 
@@ -86,6 +86,7 @@ export class FormComponent implements OnInit {
   supportedRevenueYears: RevenueYear[] = [
     taxationInfo2024,
     taxationInfo2025,
+    taxationInfo2026,
   ].map(taxationInfo => {
     return {
       year: taxationInfo.year,
@@ -270,6 +271,9 @@ export class FormComponent implements OnInit {
         break;
       case 2025:
         taxationInfo = taxationInfo2025;
+        break;
+      case 2026:
+        taxationInfo = taxationInfo2026;
         break;
       default:
         throw Error(`Unexpected taxation year: ${revenueYear}.`);

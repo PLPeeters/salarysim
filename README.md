@@ -2,6 +2,8 @@
 
 The belgian net salary calculator you didn't know you needed.
 
+The application currently supports Belgian revenue years 2024, 2025, and 2026.
+
 A standout feature of this calculator is its ability to display a graph illustrating how your net salary evolves as your gross salary increases.
 
 It also highlights the relative net raise, showing the proportion of a specific gross raise that translates into a net salary gain. For example, you can see how a €50 gross raise impacts your take-home pay across different salary levels, providing valuable insights into your earnings progression.

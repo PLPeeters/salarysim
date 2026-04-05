@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Decimal } from 'decimal.js';
 import { taxationInfo as taxationInfo2024 } from './data/2024';
 import { taxationInfo as taxationInfo2025 } from './data/2025';
+import { taxationInfo as taxationInfo2026 } from './data/2026';
 import { EmploymentBonusInfo, TaxationInfo } from './data/interfaces';
 
 
@@ -21,7 +22,7 @@ enum ExceptionalAllocationType {
   Bonus = 'bonus',
 }
 
-export { taxationInfo2024, taxationInfo2025 };
+export { taxationInfo2024, taxationInfo2025, taxationInfo2026 };
 
 export interface TaxationResultMonthlyData {
   grossSalary: number;
@@ -573,6 +574,8 @@ export class TaxCalculatorService {
         return taxationInfo2024;
       case 2025:
         return taxationInfo2025;
+      case 2026:
+        return taxationInfo2026;
       default:
         throw Error(`Unsupported year: ${revenueYear}.`)
     }

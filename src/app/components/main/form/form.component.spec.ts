@@ -93,6 +93,17 @@ describe('FormComponent', () => {
     });
   });
 
+  it('should expose 2026 as a supported revenue year', () => {
+    expect(component.supportedRevenueYears.map((revenueYear) => revenueYear.year)).toContain(2026);
+  });
+
+  it('should expose the updated 2026 family thresholds and yearly work bonus cap', () => {
+    component.onRevenueYearChanged({ year: 2026, isFinal: false });
+
+    expect(component.noRevenueJanuaryThreshold).toBe(174);
+    expect(component.maxYearlyEmploymentBonus).toBe(3466.44);
+  });
+
   it('should crash when trying to change to an unsupported revenue year', () => {
     expect(() => component.onRevenueYearChanged({ year: 1999, isFinal: true })).toThrow();
   });
