@@ -240,7 +240,7 @@ export const taxationInfo: TaxationInfo = {
     },
   },
   dependentRetireeAgeThreshold: 66,
-  yearlyReductionPerDependentRetiree: D(612.00),
+  yearlyReductionPerDependentRetiree: D(1_944.00),
   yearlyReductionPerDependentOther: D(612.00),
   yearlyReductionIfDisabled: D(612.00),
   yearlyReductionIfPartnerDisabled: D(612.00),
