@@ -1,0 +1,38 @@
+<mat-form-field appearance="fill" class="full-width graph-config-field" subscriptSizing="dynamic">
+  <mat-label>{{ label }}</mat-label>
+  <input
+    matInput
+    type="number"
+    [step]="inputStep"
+    [min]="minValue"
+    [ngModel]="value"
+    (input)="onValueInput($event)"
+    (blur)="onBlur($event)"
+    (keydown.arrowDown)="onArrowKeyDown($event, -1)"
+    (keydown.arrowUp)="onArrowKeyDown($event, 1)"
+    [ngModelOptions]="{standalone: true}"
+  >
+
+  @if (currentLocale != 'fr-BE') {
+    <mat-icon matPrefix>euro</mat-icon>
+  }
+
+  @if (showStepper || currentLocale == 'fr-BE') {
+    <span matSuffix class="graph-config-suffix">
+      @if (currentLocale == 'fr-BE') {
+        <mat-icon>euro</mat-icon>
+      }
+
+      @if (showStepper) {
+        <span class="graph-config-stepper" aria-label="Chart start controls">
+          <button class="graph-config-stepper-button" type="button" (mousedown)="onStepperMouseDown($event)" (click)="increment.emit()" aria-label="Increase chart start">
+            <mat-icon>keyboard_arrow_up</mat-icon>
+          </button>
+          <button class="graph-config-stepper-button" type="button" (mousedown)="onStepperMouseDown($event)" (click)="decrement.emit()" [disabled]="disableDecrement" aria-label="Decrease chart start">
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+        </span>
+      }
+    </span>
+  }
+</mat-form-field>

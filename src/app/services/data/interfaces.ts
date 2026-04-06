@@ -103,6 +103,7 @@ export interface VehicleAgeDepreciationTier {
 export interface TaxationInfo {
   year: number;
   isFinal: boolean;
+  minimumSalary: Decimal;
   socialCotisationsPercentage: Decimal;
   flatRateProfessionalExpenseTiers: FlatRateProfessionalExpensesTier[];
   taxTiers: TaxTier[];

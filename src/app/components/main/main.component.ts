@@ -19,10 +19,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { LegendPosition, NgxChartsModule } from '@swimlane/ngx-charts';
 import { forkJoin, take } from 'rxjs';
-import { DisableScrollDirective } from '../../directives/disable-scroll.directive';
 import { FormattingService } from '../../services/formatting.service';
 import { FamilySituation, FuelType, SalaryCalculationInput, Status, taxationInfo2024, taxationInfo2025, taxationInfo2026, TaxationPeriod, TaxationResult, TaxCalculatorService, VehicleInfo, WorkRegime, YearlySalaryCalculationInput } from '../../services/tax-calculator.service';
 import { FormComponent } from "./form/form.component";
+import { GraphConfigFieldComponent } from "./graph-config-field/graph-config-field.component";
 import { getDateFromMonthString } from './month-validator';
 import { WithholdingTaxBreakdownComponent } from "./withholding-tax-breakdown/withholding-tax-breakdown.component";
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -62,8 +62,8 @@ export enum Mode {
     MatTabsModule,
     MatSlideToggleModule,
     TranslocoModule,
-    DisableScrollDirective,
     FormComponent,
+    GraphConfigFieldComponent,
     WithholdingTaxBreakdownComponent,
   ],
   providers: [
@@ -73,6 +73,11 @@ export enum Mode {
   styleUrl: './main.component.scss'
 })
 export class MainComponent implements OnInit {
+  private readonly taxationInfos = [
+    taxationInfo2024,
+    taxationInfo2025,
+    taxationInfo2026,
+  ];
   private translocoService = inject(TranslocoService);
   private formattingService = inject(FormattingService);
   private taxCalculatorService = inject(TaxCalculatorService);
@@ -93,16 +98,12 @@ export class MainComponent implements OnInit {
 
   maxYearlyEmploymentBonus: number = -1;
 
-  graphsStartingSalary = 2_100;
+  graphsStartingSalary = taxationInfo2026.minimumSalary.toNumber();
   graphsEndingSalary = 6_500;
   graphsStep = 25;
 
   availableLangs = this.getAvailableLangs();
-  supportedRevenueYears: RevenueYear[] = [
-    taxationInfo2024,
-    taxationInfo2025,
-    taxationInfo2026,
-  ].map(taxationInfo => {
+  supportedRevenueYears: RevenueYear[] = this.taxationInfos.map(taxationInfo => {
     return {
       year: taxationInfo.year,
       isFinal: taxationInfo.isFinal,
@@ -309,9 +310,168 @@ export class MainComponent implements OnInit {
     const yearChanged = formValue.revenueYear !== this.formValue?.revenueYear;
     this.formValue = formValue;
 
+    if (yearChanged) {
+      this.graphsStartingSalary = this.getMinimumSalary();
+    }
+
     if (this.chartData.length === 0 || yearChanged) {
       this.updateChartData();
     }
+  }
+
+  private getTaxationInfo(year: number) {
+    const taxationInfo = this.taxationInfos.find(info => info.year === year);
+
+    if (!taxationInfo) {
+      throw Error(`Unexpected taxation year: ${year}.`);
+    }
+
+    return taxationInfo;
+  }
+
+  getMinimumSalary() {
+    return this.getTaxationInfo(this.formValue?.revenueYear?.year ?? taxationInfo2026.year).minimumSalary.toNumber();
+  }
+
+  getMinimumGraphEndSalary() {
+    return this.graphsStartingSalary + this.graphsStep;
+  }
+
+  onGraphStartBlur(input: HTMLInputElement) {
+    const minimumSalary = this.getMinimumSalary();
+    const blurredValue = input.valueAsNumber;
+
+    if (Number.isNaN(blurredValue)) {
+      return;
+    }
+
+    if (blurredValue >= minimumSalary) {
+      return;
+    }
+
+    this.graphsStartingSalary = minimumSalary;
+    this.applySnappedInputValue(input, minimumSalary);
+    this.updateChartData();
+  }
+
+  onGraphEndBlur(input: HTMLInputElement) {
+    const minimumGraphEndSalary = this.getMinimumGraphEndSalary();
+    const blurredValue = input.valueAsNumber;
+
+    if (Number.isNaN(blurredValue)) {
+      return;
+    }
+
+    if (blurredValue >= minimumGraphEndSalary) {
+      return;
+    }
+
+    this.graphsEndingSalary = minimumGraphEndSalary;
+    this.applySnappedInputValue(input, minimumGraphEndSalary);
+    this.updateChartData();
+  }
+
+  stepGraphStart(stepDirection: -1 | 1) {
+    const nextValue = stepDirection < 0 ? this.getPreviousGraphStartSalary() : this.getNextGraphStartSalary();
+
+    if (nextValue === this.graphsStartingSalary) {
+      return;
+    }
+
+    this.graphsStartingSalary = nextValue;
+    this.updateChartData();
+  }
+
+  stepGraphEnd(stepDirection: -1 | 1) {
+    const nextValue = this.getSteppedGraphValue(this.graphsEndingSalary, this.graphsStep, this.graphsStartingSalary, stepDirection);
+
+    if (nextValue === this.graphsEndingSalary) {
+      return;
+    }
+
+    this.graphsEndingSalary = nextValue;
+    this.updateChartData();
+  }
+
+  stepGraphStep(stepDirection: -1 | 1) {
+    const nextValue = this.getSteppedGraphValue(this.graphsStep, 10, 10, stepDirection);
+
+    if (nextValue === this.graphsStep) {
+      return;
+    }
+
+    this.graphsStep = nextValue;
+    this.updateChartData();
+  }
+
+  private getFirstStepAlignedSalaryAfterMinimum() {
+    const minimumSalary = this.getMinimumSalary();
+    let nextSalary = Math.ceil(minimumSalary / this.graphsStep) * this.graphsStep;
+
+    if (nextSalary === minimumSalary) {
+      nextSalary += this.graphsStep;
+    }
+
+    return nextSalary;
+  }
+
+  private getNextGraphStartSalary() {
+    const firstStepAlignedSalary = this.getFirstStepAlignedSalaryAfterMinimum();
+    const currentSalary = this.graphsStartingSalary;
+
+    if (currentSalary < firstStepAlignedSalary) {
+      return firstStepAlignedSalary;
+    }
+
+    const relativeSalary = currentSalary - firstStepAlignedSalary;
+    const stepIndex = this.getStepIndex(relativeSalary);
+
+    if (this.isStepAligned(relativeSalary)) {
+      return firstStepAlignedSalary + (stepIndex + 1) * this.graphsStep;
+    }
+
+    return firstStepAlignedSalary + stepIndex * this.graphsStep;
+  }
+
+  private getPreviousGraphStartSalary() {
+    const minimumSalary = this.getMinimumSalary();
+    const firstStepAlignedSalary = this.getFirstStepAlignedSalaryAfterMinimum();
+    const currentSalary = this.graphsStartingSalary;
+
+    if (currentSalary <= firstStepAlignedSalary) {
+      return minimumSalary;
+    }
+
+    const relativeSalary = currentSalary - firstStepAlignedSalary;
+    const stepIndex = this.getStepIndex(relativeSalary);
+
+    if (this.isStepAligned(relativeSalary)) {
+      return stepIndex <= 0 ? minimumSalary : firstStepAlignedSalary + (stepIndex - 1) * this.graphsStep;
+    }
+
+    return firstStepAlignedSalary + stepIndex * this.graphsStep;
+  }
+
+  private isStepAligned(value: number) {
+    const remainder = ((value % this.graphsStep) + this.graphsStep) % this.graphsStep;
+
+    return remainder < 0.000001 || this.graphsStep - remainder < 0.000001;
+  }
+
+  private getStepIndex(value: number) {
+    return Math.ceil((value - 0.000001) / this.graphsStep);
+  }
+
+  private getSteppedGraphValue(currentValue: number, stepSize: number, minimumValue: number, stepDirection: -1 | 1) {
+    const nextValue = currentValue + stepDirection * stepSize;
+
+    return Math.max(minimumValue, nextValue);
+  }
+
+  private applySnappedInputValue(input: HTMLInputElement, nextValue: number) {
+    input.value = nextValue.toString();
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   onNewInput(input: SalaryCalculationInput | YearlySalaryCalculationInput) {
@@ -384,12 +544,13 @@ export class MainComponent implements OnInit {
 
     this.updateSankeyData();
     this.showChartsWarning = !!(this.chartData && (this.lastInput?.period === TaxationPeriod.Annual || this.lastInput?.bonus || this.lastInput?.holidayPay))
+    const minimumSalary = this.getMinimumSalary();
 
     if (grossSalary != null) {
       if (grossSalary > this.graphsEndingSalary) {
         this.graphsEndingSalary = Math.ceil(grossSalary / 1000) * 1000;
       } else if (grossSalary < this.graphsStartingSalary) {
-        this.graphsStartingSalary = Math.floor(grossSalary / 1000) * 1000;
+        this.graphsStartingSalary = Math.max(Math.floor(grossSalary / 1000) * 1000, minimumSalary);
       }
     }
 
@@ -397,6 +558,10 @@ export class MainComponent implements OnInit {
         typeof this.graphsEndingSalary === 'undefined' ||
         typeof this.graphsStep === 'undefined') {
       return;
+    }
+
+    if (this.graphsStartingSalary < minimumSalary) {
+      this.graphsStartingSalary = minimumSalary;
     }
 
     if (this.graphsStartingSalary < 0 || this.graphsEndingSalary <= 0 || this.graphsStep < 10) {
@@ -408,8 +573,17 @@ export class MainComponent implements OnInit {
     }
 
     const salaryPoints: number[] = [];
-    for (let salary = this.graphsStartingSalary; salary <= this.graphsEndingSalary; salary += this.graphsStep) {
-      salaryPoints.push(salary);
+    if (this.graphsStartingSalary === minimumSalary) {
+      salaryPoints.push(this.graphsStartingSalary);
+      const nextSalary = this.getFirstStepAlignedSalaryAfterMinimum();
+
+      for (let salary = nextSalary; salary <= this.graphsEndingSalary; salary += this.graphsStep) {
+        salaryPoints.push(salary);
+      }
+    } else {
+      for (let salary = this.graphsStartingSalary; salary <= this.graphsEndingSalary; salary += this.graphsStep) {
+        salaryPoints.push(salary);
+      }
     }
 
     const salaries = salaryPoints.map(salary => {

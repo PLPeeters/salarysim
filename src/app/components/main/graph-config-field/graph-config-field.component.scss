@@ -1,0 +1,94 @@
+:host {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.graph-config-field {
+  width: 100%;
+
+  ::ng-deep .mdc-text-field {
+    position: relative;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    padding-right: 40px;
+  }
+
+  ::ng-deep .mat-mdc-form-field-icon-suffix {
+    align-items: stretch;
+    bottom: 0;
+    display: flex;
+    padding-right: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+  }
+}
+
+.graph-config-suffix {
+  align-items: center;
+  display: inline-flex;
+  height: 100%;
+}
+
+.graph-config-stepper {
+  align-items: stretch;
+  background: rgba(0, 0, 0, 0.03);
+  display: inline-flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: stretch;
+  line-height: 1;
+  margin-left: 8px;
+  margin-right: 8px;
+  overflow: hidden;
+  width: 32px;
+}
+
+.graph-config-stepper-button {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex: 1 1 50%;
+  justify-content: center;
+  padding: 0;
+  width: 32px;
+
+  &:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  &:first-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.45;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    height: 18px;
+    line-height: 18px;
+    margin: 0;
+    vertical-align: middle;
+    width: 18px;
+  }
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}

@@ -53,6 +53,183 @@ describe('MainComponent', () => {
     expect(component.chartData).toBeTruthy();
   });
 
+  it('should reset the graph minimum to the selected revenue year minimum salary', () => {
+    component.chartData = [];
+    component.graphsStartingSalary = 9999;
+
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2024, isFinal: true },
+    });
+
+    expect(component.graphsStartingSalary).toBe(2070.48);
+  });
+
+  it('should start at the minimum salary and then continue on step multiples for the selected year', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+    component.graphsEndingSalary = 2200;
+    component.graphsStep = 25;
+
+    component.updateChartData();
+
+    expect(component.chartData[0].series.map((point: { name: number }) => point.name)).toEqual([2154.11, 2175, 2200]);
+  });
+
+  it('should clamp the graph minimum to the selected revenue year minimum salary', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2025, isFinal: true },
+    });
+
+    component.graphsStartingSalary = 2000;
+    component.graphsEndingSalary = 2200;
+    component.updateChartData();
+
+    expect(component.graphsStartingSalary).toBe(2111.89);
+  });
+
+  it('should snap the graph start back to the yearly minimum on blur when below it', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+    component.graphsStartingSalary = 2000;
+
+    const dispatchEvent = jasmine.createSpy('dispatchEvent');
+    const input = { valueAsNumber: 2000, value: '2000', dispatchEvent } as unknown as HTMLInputElement;
+
+    component.onGraphStartBlur(input);
+
+    expect(component.graphsStartingSalary).toBe(2154.11);
+    expect(input.value).toBe('2154.11');
+    expect(dispatchEvent).toHaveBeenCalled();
+  });
+
+  it('should increment the custom graph start step from the yearly minimum to the first step-aligned salary', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+
+    component.stepGraphStart(1);
+
+    expect(component.graphsStartingSalary).toBe(2175);
+  });
+
+  it('should continue incrementing the custom graph start step after the first step-aligned salary', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+    component.graphsStartingSalary = 2175;
+
+    component.stepGraphStart(1);
+
+    expect(component.graphsStartingSalary).toBe(2200);
+  });
+
+  it('should decrement the custom graph start step from the first step-aligned salary to the yearly minimum', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+    component.graphsStartingSalary = 2175;
+
+    component.stepGraphStart(-1);
+
+    expect(component.graphsStartingSalary).toBe(2154.11);
+  });
+
+  it('should continue decrementing the custom graph start step across aligned values', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+    component.graphsStartingSalary = 2800;
+
+    component.stepGraphStart(-1);
+
+    expect(component.graphsStartingSalary).toBe(2775);
+  });
+
+  it('should decrement the custom graph start step from the second aligned value to the first aligned value', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+    component.graphsStartingSalary = 2200;
+
+    component.stepGraphStart(-1);
+
+    expect(component.graphsStartingSalary).toBe(2175);
+  });
+
+  it('should decrement the custom graph start step from the third aligned value to the second aligned value', () => {
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+    });
+    component.graphsStartingSalary = 2225;
+
+    component.stepGraphStart(-1);
+
+    expect(component.graphsStartingSalary).toBe(2200);
+  });
+
+  it('should increment the graph end step by the configured graph step', () => {
+    component.graphsStartingSalary = 2154.11;
+    component.graphsEndingSalary = 6479.11;
+    component.graphsStep = 20;
+
+    component.stepGraphEnd(1);
+
+    expect(component.graphsEndingSalary).toBe(6499.11);
+  });
+
+  it('should clamp the graph end step decrement to the graph start minimum', () => {
+    component.graphsStartingSalary = 2154.11;
+    component.graphsEndingSalary = 2160;
+    component.graphsStep = 20;
+
+    component.stepGraphEnd(-1);
+
+    expect(component.graphsEndingSalary).toBe(2154.11);
+  });
+
+  it('should snap the graph end to start plus step on blur when below it', () => {
+    component.graphsStartingSalary = 2154.11;
+    component.graphsEndingSalary = 2160;
+    component.graphsStep = 20;
+
+    const dispatchEvent = jasmine.createSpy('dispatchEvent');
+    const input = { valueAsNumber: 2160, value: '2160', dispatchEvent } as unknown as HTMLInputElement;
+
+    component.onGraphEndBlur(input);
+
+    expect(component.graphsEndingSalary).toBe(2174.11);
+    expect(input.value).toBe('2174.11');
+    expect(dispatchEvent).toHaveBeenCalled();
+  });
+
+  it('should increment the graph step field by ten', () => {
+    component.graphsStep = 20;
+
+    component.stepGraphStep(1);
+
+    expect(component.graphsStep).toBe(30);
+  });
+
+  it('should clamp the graph step decrement to ten', () => {
+    component.graphsStep = 10;
+
+    component.stepGraphStep(-1);
+
+    expect(component.graphsStep).toBe(10);
+  });
+
   it('should update charts when receiving new input', () => {
     component.chartData = [];
 
@@ -265,7 +442,7 @@ describe('MainComponent', () => {
     expect(component.taxDataProportional).not.toEqual([]);
   });
 
-  it('should round the chart bounds down to the nearest thousand when providing an out-of-range salary', () => {
+  it('should not lower the chart start below the selected revenue year minimum salary when providing an out-of-range salary', () => {
     component.chartData = [];
     component.relativeChartData = [];
     component.averageTaxRateChartData = [];
@@ -276,7 +453,7 @@ describe('MainComponent', () => {
     component.graphsEndingSalary = 4000;
     component.updateChartData(2500);
 
-    expect(component.graphsStartingSalary).toBe(2000);
+    expect(component.graphsStartingSalary).toBe(2154.11);
     expect(component.chartData).not.toEqual([]);
     expect(component.relativeChartData).not.toEqual([]);
     expect(component.averageTaxRateChartData).not.toEqual([]);

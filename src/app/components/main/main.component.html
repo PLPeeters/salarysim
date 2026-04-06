@@ -350,38 +350,46 @@
     </mat-card-header>
     <mat-card-content>
       <form fxLayout="row" fxLayout.xs="column" fxLayoutAlign="space-between center" fxLayoutGap="8px grid">
-        <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
-          <mat-label>{{ t('start') }}</mat-label>
-          <input matInput type="number" [step]="graphsStep" min="0" [(ngModel)]="graphsStartingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
 
-          @if (currentLocale != 'fr-BE') {
-            <mat-icon matPrefix>euro</mat-icon>
-          } @else {
-            <mat-icon matSuffix>euro</mat-icon>
-          }
-        </mat-form-field>
+        <app-graph-config-field
+          [label]="t('start')"
+          [value]="graphsStartingSalary"
+          [minValue]="getMinimumSalary()"
+          [currentLocale]="currentLocale.toString()"
+          [showStepper]="true"
+          [disableDecrement]="graphsStartingSalary <= getMinimumSalary()"
+          (valueChange)="graphsStartingSalary = $event; updateChartData()"
+          (blurred)="onGraphStartBlur($event)"
+          (increment)="stepGraphStart(1)"
+          (decrement)="stepGraphStart(-1)"
+        />
 
-        <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
-          <mat-label>{{ t('end') }}</mat-label>
-          <input matInput type="number" [step]="graphsStep" [min]="graphsStartingSalary" [(ngModel)]="graphsEndingSalary" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
+        <app-graph-config-field
+          [label]="t('end')"
+          [value]="graphsEndingSalary"
+          [inputStep]="graphsStep"
+          [minValue]="graphsStartingSalary"
+          [currentLocale]="currentLocale.toString()"
+          [showStepper]="true"
+          [disableDecrement]="graphsEndingSalary <= graphsStartingSalary"
+          (valueChange)="graphsEndingSalary = $event; updateChartData()"
+          (blurred)="onGraphEndBlur($event)"
+          (increment)="stepGraphEnd(1)"
+          (decrement)="stepGraphEnd(-1)"
+        />
 
-          @if (currentLocale != 'fr-BE') {
-            <mat-icon matPrefix>euro</mat-icon>
-          } @else {
-            <mat-icon matSuffix>euro</mat-icon>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="fill" class="full-width" subscriptSizing="dynamic">
-          <mat-label>{{ t('step') }}</mat-label>
-          <input matInput type="number" step="10" min="10" [(ngModel)]="graphsStep" (ngModelChange)="updateChartData()" [ngModelOptions]="{standalone: true}">
-
-          @if (currentLocale != 'fr-BE') {
-            <mat-icon matPrefix>euro</mat-icon>
-          } @else {
-            <mat-icon matSuffix>euro</mat-icon>
-          }
-        </mat-form-field>
+        <app-graph-config-field
+          [label]="t('step')"
+          [value]="graphsStep"
+          [inputStep]="10"
+          [minValue]="10"
+          [currentLocale]="currentLocale.toString()"
+          [showStepper]="true"
+          [disableDecrement]="graphsStep <= 10"
+          (valueChange)="graphsStep = $event; updateChartData()"
+          (increment)="stepGraphStep(1)"
+          (decrement)="stepGraphStep(-1)"
+        />
       </form>
     </mat-card-content>
   </mat-card>
