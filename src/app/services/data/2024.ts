@@ -13,7 +13,11 @@ export const employmentBonusInactiveTier: EmploymentBonusTierInfo = {
 export const taxationInfo: TaxationInfo = {
   year: 2024,
   isFinal: true,
-  minimumSalary: D(2_070.48),
+  minimumSalary: [
+    { effectiveFromMonth: 1, amount: D(1_994.18) },
+    { effectiveFromMonth: 4, amount: D(2_029.88) },
+    { effectiveFromMonth: 5, amount: D(2_070.48) },
+  ],
   socialCotisationsPercentage: D(13.07),
   flatRateProfessionalExpenseTiers: [
     {

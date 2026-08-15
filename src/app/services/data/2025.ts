@@ -6,7 +6,10 @@ const D = (value: number | string | null): Decimal => new Decimal(value || 0);
 export const taxationInfo: TaxationInfo = {
   year: 2025,
   isFinal: true,
-  minimumSalary: D(2_111.89),
+  minimumSalary: [
+    { effectiveFromMonth: 1, amount: D(2_070.48) },
+    { effectiveFromMonth: 2, amount: D(2_111.89) },
+  ],
   socialCotisationsPercentage: D(13.07),
   flatRateProfessionalExpenseTiers: [
     {

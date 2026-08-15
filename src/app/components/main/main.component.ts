@@ -98,7 +98,7 @@ export class MainComponent implements OnInit {
 
   maxYearlyEmploymentBonus: number = -1;
 
-  graphsStartingSalary = taxationInfo2026.minimumSalary.toNumber();
+  graphsStartingSalary = this.getMinimumSalaryForMonth(taxationInfo2026, new Date().getMonth() + 1);
   graphsEndingSalary = 6_500;
   graphsStep = 25;
 
@@ -308,13 +308,14 @@ export class MainComponent implements OnInit {
 
   onFormValueUpdate(formValue: any) {
     const yearChanged = formValue.revenueYear !== this.formValue?.revenueYear;
+    const monthChanged = formValue.revenueMonth !== this.formValue?.revenueMonth;
     this.formValue = formValue;
 
-    if (yearChanged) {
+    if (yearChanged || monthChanged) {
       this.graphsStartingSalary = this.getMinimumSalary();
     }
 
-    if (this.chartData.length === 0 || yearChanged) {
+    if (this.chartData.length === 0 || yearChanged || monthChanged) {
       this.updateChartData();
     }
   }
@@ -330,7 +331,28 @@ export class MainComponent implements OnInit {
   }
 
   getMinimumSalary() {
-    return this.getTaxationInfo(this.formValue?.revenueYear?.year ?? taxationInfo2026.year).minimumSalary.toNumber();
+    const taxationInfo = this.getTaxationInfo(this.formValue?.revenueYear?.year ?? taxationInfo2026.year);
+    const month = this.formValue?.revenueMonth ?? new Date().getMonth() + 1;
+
+    return this.getMinimumSalaryForMonth(taxationInfo, month);
+  }
+
+  private getMinimumSalaryForMonth(taxationInfo: typeof taxationInfo2026, month: number) {
+    let minimumSalaryForMonth = taxationInfo.minimumSalary[0];
+
+    for (const minimumSalary of taxationInfo.minimumSalary) {
+      if (minimumSalary.effectiveFromMonth > month) {
+        break;
+      }
+
+      minimumSalaryForMonth = minimumSalary;
+    }
+
+    if (!minimumSalaryForMonth || minimumSalaryForMonth.effectiveFromMonth > month) {
+      throw Error(`No minimum salary could be found for month ${month} of ${taxationInfo.year}.`);
+    }
+
+    return minimumSalaryForMonth.amount.toNumber();
   }
 
   getMinimumGraphEndSalary() {

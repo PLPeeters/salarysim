@@ -50,6 +50,11 @@ export interface EmploymentBonusInfoVersion {
   info: EmploymentBonusInfo;
 };
 
+export interface MinimumSalaryVersion {
+  effectiveFromMonth: number;
+  amount: Decimal;
+};
+
 export interface DefaultDependentChildrenReduction {
   flatAmount: Decimal;
   numIncludedChildren: number;
@@ -103,7 +108,7 @@ export interface VehicleAgeDepreciationTier {
 export interface TaxationInfo {
   year: number;
   isFinal: boolean;
-  minimumSalary: Decimal;
+  minimumSalary: MinimumSalaryVersion[];
   socialCotisationsPercentage: Decimal;
   flatRateProfessionalExpenseTiers: FlatRateProfessionalExpensesTier[];
   taxTiers: TaxTier[];

@@ -4,6 +4,16 @@ Use official Belgian sources only unless the user explicitly asks for broader re
 
 ## Primary sources
 
+### Guaranteed average minimum monthly income (RMMMG/GGMMI)
+
+- National Labour Council CCT/CAO amounts index:
+  `https://cnt-nar.be/fr/documents/montants-des-cct`
+- Follow the newest dated `TABLEAUX DES MONTANTS DES CCT` PDF and use the CCT/CAO no. 43 table. It gives the authoritative effective-date history, including indexations and structural increases.
+- Cross-check the concept and scope on the FPS Employment salary page:
+  `https://emploi.belgique.be/fr/themes/remuneration/salaire`
+- The RMMMG/GGMMI is an average guaranteed monthly income, not strictly a monthly base wage: qualifying annual payments can count toward it. Use the amount for workers aged 18 and over; do not use student scales or sector-specific minima.
+- Inspect every effective date in the target year. Store all effective periods in the repository's `minimumSalary` array, including the amount in force on 1 January, and update focused month-selection and graph-boundary tests.
+
 ### Professional withholding
 
 - SPF Finances calculation landing page:
@@ -58,6 +68,7 @@ Inspect these paths when refreshing Belgian payroll rules:
 
 For each target year, verify at minimum:
 
+- the CCT/CAO no. 43 RMMMG/GGMMI amount and every effective date during the year;
 - professional withholding thresholds, exemptions, reductions, and family-status impacts;
 - work-bonus or ONSS-linked thresholds if the repo models them;
 - company-car reference CO2 values, default emissions, and formula bounds for taxable benefit;

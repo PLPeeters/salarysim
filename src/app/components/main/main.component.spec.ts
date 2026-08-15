@@ -60,28 +60,44 @@ describe('MainComponent', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2024, isFinal: true },
+      revenueMonth: 5,
     });
 
     expect(component.graphsStartingSalary).toBe(2070.48);
+  });
+
+  it('should resolve the graph minimum from the selected revenue month', () => {
+    const revenueYear = { year: 2026, isFinal: true };
+
+    component.onFormValueUpdate({ ...component.formValue, revenueYear, revenueMonth: 1 });
+    expect(component.graphsStartingSalary).toBe(2154.11);
+
+    component.onFormValueUpdate({ ...component.formValue, revenueYear, revenueMonth: 4 });
+    expect(component.graphsStartingSalary).toBe(2189.81);
+
+    component.onFormValueUpdate({ ...component.formValue, revenueYear, revenueMonth: 7 });
+    expect(component.graphsStartingSalary).toBe(2233.61);
   });
 
   it('should start at the minimum salary and then continue on step multiples for the selected year', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
-    component.graphsEndingSalary = 2200;
+    component.graphsEndingSalary = 2275;
     component.graphsStep = 25;
 
     component.updateChartData();
 
-    expect(component.chartData[0].series.map((point: { name: number }) => point.name)).toEqual([2154.11, 2175, 2200]);
+    expect(component.chartData[0].series.map((point: { name: number }) => point.name)).toEqual([2233.61, 2250, 2275]);
   });
 
   it('should clamp the graph minimum to the selected revenue year minimum salary', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2025, isFinal: true },
+      revenueMonth: 2,
     });
 
     component.graphsStartingSalary = 2000;
@@ -95,6 +111,7 @@ describe('MainComponent', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
     component.graphsStartingSalary = 2000;
 
@@ -103,8 +120,8 @@ describe('MainComponent', () => {
 
     component.onGraphStartBlur(input);
 
-    expect(component.graphsStartingSalary).toBe(2154.11);
-    expect(input.value).toBe('2154.11');
+    expect(component.graphsStartingSalary).toBe(2233.61);
+    expect(input.value).toBe('2233.61');
     expect(dispatchEvent).toHaveBeenCalled();
   });
 
@@ -112,41 +129,45 @@ describe('MainComponent', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
 
     component.stepGraphStart(1);
 
-    expect(component.graphsStartingSalary).toBe(2175);
+    expect(component.graphsStartingSalary).toBe(2250);
   });
 
   it('should continue incrementing the custom graph start step after the first step-aligned salary', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
-    component.graphsStartingSalary = 2175;
+    component.graphsStartingSalary = 2250;
 
     component.stepGraphStart(1);
 
-    expect(component.graphsStartingSalary).toBe(2200);
+    expect(component.graphsStartingSalary).toBe(2275);
   });
 
   it('should decrement the custom graph start step from the first step-aligned salary to the yearly minimum', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
-    component.graphsStartingSalary = 2175;
+    component.graphsStartingSalary = 2250;
 
     component.stepGraphStart(-1);
 
-    expect(component.graphsStartingSalary).toBe(2154.11);
+    expect(component.graphsStartingSalary).toBe(2233.61);
   });
 
   it('should continue decrementing the custom graph start step across aligned values', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
     component.graphsStartingSalary = 2800;
 
@@ -159,24 +180,26 @@ describe('MainComponent', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
-    component.graphsStartingSalary = 2200;
+    component.graphsStartingSalary = 2275;
 
     component.stepGraphStart(-1);
 
-    expect(component.graphsStartingSalary).toBe(2175);
+    expect(component.graphsStartingSalary).toBe(2250);
   });
 
   it('should decrement the custom graph start step from the third aligned value to the second aligned value', () => {
     component.onFormValueUpdate({
       ...component.formValue,
       revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
     });
-    component.graphsStartingSalary = 2225;
+    component.graphsStartingSalary = 2300;
 
     component.stepGraphStart(-1);
 
-    expect(component.graphsStartingSalary).toBe(2200);
+    expect(component.graphsStartingSalary).toBe(2275);
   });
 
   it('should increment the graph end step by the configured graph step', () => {
@@ -449,11 +472,17 @@ describe('MainComponent', () => {
     component.taxData = [];
     component.taxDataProportional = [];
 
+    component.onFormValueUpdate({
+      ...component.formValue,
+      revenueYear: { year: 2026, isFinal: true },
+      revenueMonth: 7,
+    });
+
     component.graphsStartingSalary = 3000;
     component.graphsEndingSalary = 4000;
     component.updateChartData(2500);
 
-    expect(component.graphsStartingSalary).toBe(2154.11);
+    expect(component.graphsStartingSalary).toBe(2233.61);
     expect(component.chartData).not.toEqual([]);
     expect(component.relativeChartData).not.toEqual([]);
     expect(component.averageTaxRateChartData).not.toEqual([]);
