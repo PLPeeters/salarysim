@@ -259,6 +259,78 @@ export const taxationInfo: TaxationInfo = {
         maxYearlyAmount: D(3_523.92),
       }
     },
+    {
+      effectiveFromMonth: 7,
+      info: {
+        employee: {
+          partA: {
+            maxSalary: D(3_336.98),
+            flatAmount: D(127.54),
+            multiplier: D(0.3196),
+            amountToExclude: D(2_937.93),
+          },
+          partB: {
+            maxSalary: D(2_937.93),
+            flatAmount: D(171.99),
+            multiplier: D(0.2699),
+            amountToExclude: D(2_300.62),
+          },
+        },
+        worker: {
+          partA: {
+            maxSalary: D(3_336.98),
+            flatAmount: D(137.74),
+            multiplier: D(0.3452),
+            amountToExclude: D(2_937.93),
+          },
+          partB: {
+            maxSalary: D(2_937.93),
+            flatAmount: D(185.75),
+            multiplier: D(0.2915),
+            amountToExclude: D(2_300.62),
+          },
+        },
+        partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
+        maxYearlyAmount: D(3_523.92),
+      }
+    },
+    {
+      effectiveFromMonth: 9,
+      info: {
+        employee: {
+          partA: {
+            maxSalary: D(3_403.62),
+            flatAmount: D(127.54),
+            multiplier: D(0.2739),
+            amountToExclude: D(2_937.93),
+          },
+          partB: {
+            maxSalary: D(2_937.93),
+            flatAmount: D(171.99),
+            multiplier: D(0.2699),
+            amountToExclude: D(2_300.62),
+          },
+        },
+        worker: {
+          partA: {
+            maxSalary: D(3_403.62),
+            flatAmount: D(137.74),
+            multiplier: D(0.2958),
+            amountToExclude: D(2_937.93),
+          },
+          partB: {
+            maxSalary: D(2_937.93),
+            flatAmount: D(185.75),
+            multiplier: D(0.2915),
+            amountToExclude: D(2_300.62),
+          },
+        },
+        partAProfessionalWithHoldingTaxReductionPercentage: D(33.14),
+        partBProfessionalWithHoldingTaxReductionPercentage: D(52.54),
+        maxYearlyAmount: D(3_523.92),
+      }
+    },
   ],
 
   maxRevenueAttributedToPartner: D(13_790.0),
@@ -510,5 +582,5 @@ export const taxationInfo: TaxationInfo = {
   defaultCO2Other: D(205),
   referenceCO2Diesel: D(58),
   referenceCO2Other: D(70),
-  minimumVehicleTaxedAmount: D(1_650),
+  minimumVehicleTaxedAmount: D(1_690),
 };

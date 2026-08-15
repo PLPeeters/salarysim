@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { INPUTS_TO_NET as INPUTS_TO_NET_2024, simpleEmployee } from './data/2024-inputs-to-net';
 import { INPUTS_TO_NET as INPUTS_TO_NET_2025 } from './data/2025-inputs-to-net';
 import { INPUTS_TO_NET as INPUTS_TO_NET_2026 } from './data/2026-inputs-to-net';
-import { FamilySituation, Status, TaxationPeriod, TaxCalculatorService } from './tax-calculator.service';
+import { FamilySituation, FuelType, Status, TaxationPeriod, TaxCalculatorService } from './tax-calculator.service';
 
 
 describe('TaxCalculatorService', () => {
@@ -165,5 +165,51 @@ describe('TaxCalculatorService', () => {
     const result = service.calculateTaxation(input);
 
     expect(result.employmentBonus).toBe(99.65);
+  });
+
+  it('should switch to the July 2026 ONSS worker work-bonus values', () => {
+    const input = {
+      ...simpleEmployee,
+      revenueYear: 2026,
+      month: 7,
+      status: Status.WORKER,
+      grossSalary: 3000,
+    };
+
+    const result = service.calculateTaxation(input);
+
+    expect(result.employmentBonus).toBe(116.31);
+  });
+
+  it('should switch to the September 2026 ONSS worker work-bonus values', () => {
+    const input = {
+      ...simpleEmployee,
+      revenueYear: 2026,
+      month: 9,
+      status: Status.WORKER,
+      grossSalary: 3000,
+    };
+
+    const result = service.calculateTaxation(input);
+
+    expect(result.employmentBonus).toBe(119.38);
+  });
+
+  it('should use the 2026 minimum taxable company-car benefit', () => {
+    const input = {
+      ...simpleEmployee,
+      revenueYear: 2026,
+      grossSalary: 3000,
+      companyCarInfo: {
+        catalogValue: 1,
+        firstPlateRegistrationMonth: new Date(2026, 0, 1),
+        fuelType: FuelType.Electric,
+        gramsCo2PerKm: 0,
+      },
+    };
+
+    const result = service.calculateTaxation(input);
+
+    expect(result.companyCarBenefitInKindValue).toBe(140.83);
   });
 });

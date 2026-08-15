@@ -856,7 +856,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...employeeWithDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2108.05 },
   { input: { ...employeeWithDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2174.13, netIncome: 2074.13 },
   { input: { ...employeeWithGasolineCar, grossSalary: 3000 }, netSalary: 2124.39 },
-  { input: { ...employeeWithElectricCar, grossSalary: 3000 }, netSalary: 2170.35 },
+  { input: { ...employeeWithElectricCar, grossSalary: 3000 }, netSalary: 2170.02 },
   { input: { ...employeeWithHybridCar, grossSalary: 3000 }, netSalary: 2160.61 },
   { input: { ...employeeWithNaturalGasCar, grossSalary: 3000 }, netSalary: 2039.49 },
 
@@ -864,7 +864,7 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...employeeWithMoreRecentDieselCarUnknownEmissions, grossSalary: 3000 }, netSalary: 2110.84 },
   { input: { ...employeeWithMoreRecentDieselCarAndPersonalContribution, grossSalary: 3000 }, netSalary: 2176.38, netIncome: 2076.38 },
   { input: { ...employeeWithMoreRecentGasolineCar, grossSalary: 3000 }, netSalary: 2126.71 },
-  { input: { ...employeeWithMoreRecentElectricCar, grossSalary: 3000 }, netSalary: 2170.63 },
+  { input: { ...employeeWithMoreRecentElectricCar, grossSalary: 3000 }, netSalary: 2170.03 },
   { input: { ...employeeWithMoreRecentHybridCar, grossSalary: 3000 }, netSalary: 2156.91 },
   { input: { ...employeeWithMoreRecentNaturalGasCar, grossSalary: 3000 }, netSalary: 2035.04 },
 
@@ -981,17 +981,17 @@ export const INPUTS_TO_NET: Situation[] = [
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 4029.16 }, netSalary: 2703.42 },
   { input: { ...widowedHalfTimeWorkerWithOneKid, grossSalary: 5000 }, netSalary: 3124.22 },
 
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 24044.62, netIncome: 26382.42 },
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 25288.45, netIncome: 27798.4 },
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 25680.01, netIncome: 28375.02 },
-  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 26899.94, netIncome: 29816.33 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 24041.68, netIncome: 26379.48 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 25404.4, netIncome: 27914.35 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 25795.96, netIncome: 28490.97 },
+  { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 26993.81, netIncome: 29910.2 },
   { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(4029.16) }, netSalary: 31516.99, netIncome: 35078.43 },
   { input: { ...simpleEmployeeAnnual, monthlyIncomes: getMonthlyIncomes(5000) }, netSalary: 36620.69, netIncome: 40686.05 },
 
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 24067.4, netIncome: 26405.2 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 25358.37, netIncome: 27868.32 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 25686.95, netIncome: 28381.96 },
-  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 26729.83, netIncome: 29646.22 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2100) }, netSalary: 24064.23, netIncome: 26402.03 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2328.33) }, netSalary: 25377.74, netIncome: 27887.69 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(2500) }, netSalary: 25812.1, netIncome: 28507.11 },
+  { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(3000) }, netSalary: 26831.25, netIncome: 29747.64 },
   { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(4029.16) }, netSalary: 31193.06, netIncome: 34754.5 },
   { input: { ...simpleWorkerAnnual, monthlyIncomes: getMonthlyIncomes(5000) }, netSalary: 36242.6, netIncome: 40307.96 },
 ]
